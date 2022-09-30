@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::controller(Home::class)->group(function(){
     Route::get('/', 'index');
     Route::post('/login', 'login');
+    Route::post('/regist', 'register');
 });
 // Route::post('/login', function(){
 //     return response()->json([new Request()]);

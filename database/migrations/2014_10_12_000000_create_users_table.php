@@ -13,15 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('user', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('address');
-            $table->string('nomor');
-            $table->string('photo');
-            $table->string('photo');
-            $table->enum('level',['admin','cs','user']);
-            $table->enum('active',['actived','unactived','suspended'])->default('unactived');
+            $table->string('address')->nullable();
+            $table->string('number');
+            $table->string('photo')->default('default.jpg');
+            $table->enum('level',['admin','merchant','user'])->default('user');
+            $table->enum('active',['activated','suspended'])->default('activated');
             $table->string('username')->unique();
             // $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
