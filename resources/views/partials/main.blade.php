@@ -13,9 +13,18 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#">About</a>
                 </li>
+                @if(session()->has('userdata'))
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard">Dashboard</a>
+                </li>
+                @endif
             </ul>
             <div class="d-flex justify-content-between">
+                @if(session()->has('userdata'))
+                <a href="/logout" class=" btn rounded-pill btn-dark px-5">Logout</a>
+                @else
                 <button class=" btn rounded-pill btn-dark px-5" id="loginBtn">Login</button>
+                @endif
             </div>
         </div>
     </div>

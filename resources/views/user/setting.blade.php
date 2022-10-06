@@ -1,0 +1,69 @@
+@extends('layouts.main')
+
+@section('iseng', 'title')
+@section('css-tambahan')
+    <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/setting.css') }}">
+@endsection
+@section('content')
+    @include('partials.admin')
+    <div id="layoutSidenav">
+        @include('partials.sidebarAdmin')
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid px-4">
+                    <h1 class="mt-4">Setting</h1>
+                    <ol class="breadcrumb mb-4">
+                        <li class="breadcrumb-item active">Setting</li>
+                    </ol>
+                    <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                        <strong>Ayo Jadi Merchant!</strong> Lengkapi dulu informasi akun kamu, kemudian daftarkan tempat lapangan kamu di website kami, agar banyak orang yang melihat dan memesan lapangan kamu!! <a href="#" class="card-link">Daftar Jadi Merchant</a>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    <form action="">
+                        <div class="mx-auto profilpic" style="background-image:url({{asset('assets/img/profilpic/default.png')}})"></div>
+                    </form>
+                </div>
+            </main>
+            {{-- <footer class="py-4 bg-light mt-auto">
+                <div class="container-fluid px-4">
+                    <div class="d-flex align-items-center justify-content-between small">
+                        <div class="text-muted">Copyright &copy; Your Website 2022</div>
+                        <div>
+                            <a href="#">Privacy Policy</a>
+                            &middot;
+                            <a href="#">Terms &amp; Conditions</a>
+                        </div>
+                    </div>
+                </div>
+            </footer> --}}
+        </div>
+    </div>
+    {{-- modal profil pic --}}
+    <div class="modal fade" id="changePicModal" tabindex="-1" aria-labelledby="changePicModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePicModalLabel">Change Profil Picture</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        @for($i=0;$i<5;$i++)
+                        <div class="col-3 profilpic mx-2 my-1 {{$i==0?'choosen':''}}" data-image="{{$i==0?"default.png":"default$i.png"}}" style="background-image: url({{asset($i==0?"assets/img/profilpic/default.png":"assets/img/profilpic/default$i.png")}})"></div>
+                        @endfor    
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="changeImage" class="btn btn-dark" data-bs-dismiss="modal">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+@section('js-tambahan')
+    <script src="{{ asset('assets/js/scripts.js') }}"></script>
+    <script src="{{ asset('assets/js/setting.js') }}"></script>
+
+@endsection

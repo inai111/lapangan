@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class Home extends Controller
@@ -16,10 +17,35 @@ class Home extends Controller
 
     public function login(Request $request)
     {
-        $username = $request->username;
-        $password = $request->password;
-        
-        return response()->json([$request->username]);
+        $validator = Validator::make($request->all(),[
+            'username'=> 'required|alpha_dash',
+            'password'=> 'required',
+        ]);
+        $response = [
+            'status'=>false,
+            'validation'=>[],
+            'message'=>'',
+        ];
+        if($validator->fails()){
+            $response['validation'] = $validator->errors();
+            $response['message'] = "Please check your input again!";
+            return response()->json($response);
+        }
+        $data = [
+            'username'=> $request->username,
+            'password'=> $request->password,
+        ];
+        if(Auth::attempt($data)){
+        $userdata = User::where('username','admin')->first();
+            $request->session()->regenerate();
+            $request->session()->put('userdata',$userdata);
+            $response['message'] = "welcome back {$request->username}, please wait.";
+            $response['status'] = true;
+            $response['href'] = "/dashboard";
+        }else{
+            $response['message']="Please check your input, username or password incorect";
+        }
+        return response()->json($response);
     }
 
     public function register(Request $request)
@@ -27,7 +53,7 @@ class Home extends Controller
         $validator = Validator::make(
             $request->all(),[
                 'name'=> 'required|min:3',
-                'username'=> 'required|min:3|alpha_dash',
+                'username'=> 'required|min:3|alpha_dash|unique:user,username',
                 'password'=> 'required|min:8',
                 'number'=> 'required|min:10|numeric'
             ]
@@ -53,10 +79,20 @@ class Home extends Controller
             $userCreate->username = $username;
             $userCreate->number = $number;
             $userCreate->password = Hash::make($password);
-            $userCreate->save();
+            // $userCreate->save();
+            $response['status'] = true;
+            $response['message'] = "Account has been registered and activated.";
 
-            return response()->json(['debug'=>true,$userCreate]);
+            return response()->json($response);
 
         // kalau berhasil maka lanjut ke pendaftaran
+    }
+
+    public function logout(){
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect('/');
+
     }
 }

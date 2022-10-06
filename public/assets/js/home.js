@@ -19,9 +19,10 @@ document.querySelector(`form#registForm`).addEventListener('submit', function (e
             return;
         }
         if(res.status){
-            document.querySelector(`#registFormMessage`).innerHTML = res.message;
+            resetForm();
             document.querySelector(`#registFormMessage`).classList.replace('alert-warning','alert-success');
-            document.querySelectorAll(`#registForm input:not([name="_token"])`).forEach(elem=>elem.classList.add('is-valid'));
+            document.querySelector(`#registFormMessage`).innerHTML = res.message;
+            document.querySelector(`#registFormMessage`).style.display = '';
         }else{
             document.querySelector(`#registFormMessage`).innerHTML = res.message;
             document.querySelector(`#registFormMessage`).classList.replace('alert-success','alert-warning');
@@ -49,15 +50,40 @@ document.querySelector(`form#loginForm`).addEventListener('submit', function (e)
     fetch('/login', { method: "POST", body: myData })
         .then(e => e.json())
         .then(res => {
-            console.log(res)
+            if(res.debug){
+                console.log(res);
+                window.debugRegist = res;
+                document.querySelector(`form#loginForm button[type=submit]`).disabled = false
+                return;
+            }
+            if(res.status){
+                document.querySelector(`#loginFormMessage`).classList.replace('alert-warning','alert-success');
+                document.querySelector(`#loginFormMessage`).innerHTML = res.message;
+                document.querySelector(`#loginFormMessage`).style.display = '';
+                if(res.href) window.location.href = res.href;
+            }else{
+                document.querySelector(`#loginFormMessage`).innerHTML = res.message;
+                document.querySelector(`#loginFormMessage`).classList.replace('alert-success','alert-warning');
+                document.querySelector(`#loginFormMessage`).style.display = '';
+                document.querySelectorAll(`#loginForm input:not([name="_token"])`).forEach(elem=>{
+                    if(res.validation[elem.name]){
+                        elem.classList.add('is-invalid');
+                        document.querySelector(`[id="${elem.name}-msg"]`).classList.add('invalid-feedback');
+                        document.querySelector(`[id="${elem.name}-msg"]`).innerHTML = res.validation[elem.name][0];
+                    }else{
+                        elem.classList.add('is-valid');
+                    }
+                })
+                document.querySelector(`form#loginForm button[type=submit]`).disabled = false
+            }
         })
-        // .catch(_=>document.querySelector(`form#loginForm button`).disabled = false)
-        .finally(_ => document.querySelector(`form#loginForm button`).disabled = false)
+        .catch(_=>document.querySelector(`form#loginForm button[type=submit]`).disabled = false)
 })
 // untuk tampilkan form register
-document.querySelector(`button#toRegistForm`).addEventListener('click', function (e) {
+document.querySelector(`a#toRegistForm`).addEventListener('click', function (e) {
     e.preventDefault();
     resetForm();
+    document.querySelector(`#loginModalLabel`).innerHTML = 'Register Form';
     document.querySelector(`form#loginForm`).style.display = 'none';
     document.querySelector(`form#registForm`).style.display = 'block';
 })
@@ -65,6 +91,7 @@ document.querySelector(`button#toRegistForm`).addEventListener('click', function
 document.querySelector(`button#toLoginForm`).addEventListener('click', function (e) {
     e.preventDefault();
     resetForm();
+    document.querySelector(`#loginModalLabel`).innerHTML = 'Login Form';
     document.querySelector(`form#registForm`).style.display = 'none';
     document.querySelector(`form#loginForm`).style.display = 'block';
 })
@@ -90,3 +117,11 @@ function resetForm(error = false){
         elem.innerHTML = '';
     })
 }
+// document.querySelector(`form#autoCompleteSearch input[name=search]`).addEventListener('focus',function(e){
+//         document.querySelector('#hasilSearch').style.display = 'none';
+// })
+document.querySelector(`form#autoCompleteSearch input[name=search]`).addEventListener('keydown',function(e){
+    let elem = e.target;
+    console.log(elem.value);
+    document.querySelector('#hasilSearch').style.display = '';
+})

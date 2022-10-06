@@ -1,10 +1,36 @@
 @extends('layouts.main')
 
-@section('iseng', 'title')
+@section('navbar')
+@include('partials.main')
+@endsection
 @section('css-tambahan')
     <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}">
 @endsection
 @section('content')
+    <div class="w-75 shadow searchForm mx-auto my-3 bg-light pb-3 bg-gradient" style="position: relative;">
+        <form id="autoCompleteSearch" method="get">
+            <div class="input-group input-group-sm p-3">
+                <span class="input-group-text" id="inputGroup-sizing-default"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" placeholder="Looking for a place to match" name="search" class="form-control" aria-label="Search Here" aria-describedby="inputGroup-sizing-default">
+            </div> 
+        </form>
+        <div id="hasilSearch" class="list-group ps-3 pe-2 bg-light" style="position: absolute; min-width: 100%;border-radius: 0;">
+        {{-- <div id="hasilSearch" class="list-group ps-3 pe-2 py-3 bg-light" style="position: absolute; min-width: 100%;border-radius: 0;"> --}}
+            {{-- <a href="#" class="list-group-item list-group-item-action" aria-current="true">
+                <div class="row">
+                    <div class="col-3 autocomplete-img" style="background-image:url(https://akcdn.detik.net.id/community/media/visual/2021/06/13/lapangan-galuh-pakuan-lapangan-bola-desa-3_169.jpeg?w=700&q=90)"></div>
+                    <div class="col-9">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">List group item heading</h5>
+                            <small>3 days ago</small>
+                          </div>
+                          <p class="mb-1">Some placeholder content in a paragraph.</p>
+                          <small>And some small print.</small>
+                    </div>
+                </div>
+            </a> --}}
+        </div>
+    </div>
     <div class="banner-1 py-3 px-5 mt-2 shadow">
         <div class="mx-3 my-4">
             <div class="">
@@ -35,7 +61,7 @@
                             <div id="password-msg"></div>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <button class="btn btn-success btn-outline" id="toRegistForm">Register Here</button>
+                            <a class="btn btn-dark" id="toRegistForm">Register Here</a>
                             <button type="submit" class="btn btn-dark w-50">Login</button>
                         </div>
                     </form>

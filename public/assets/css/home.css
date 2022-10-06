@@ -7,3 +7,17 @@ body{
     height: auto;
     margin-block: 0;
 }
+.autocomplete-img{
+    width: 180px;
+    height:100px;
+    background-color:black;
+    background-size:330px;
+    background-repeat:no-repeat;
+    background-position: center;
+}
+.searchForm #hasilSearch{
+    opacity: 0;
+}
+.searchForm:hover #hasilSearch{
+    opacity: 1;
+}

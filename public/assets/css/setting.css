@@ -1,0 +1,24 @@
+.profilpic strong{
+    position: absolute;
+    top: 5.8rem;
+    left: 1.3rem;
+    opacity: 0;
+}
+.profilpic:hover strong{
+    opacity: 1;
+}
+.choosen{
+    box-shadow: 0px 0px 10px 3px #f7b23b;
+}
+.profilpic{
+    background-color: #e2e3e5;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 80px;
+    width: 100px;
+    height: 100px;
+    border: 1px solid;
+    border-radius: 50px;
+    cursor: pointer;
+    position: relative;
+}

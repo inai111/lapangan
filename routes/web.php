@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Home;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -15,9 +16,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::controller(Home::class)->group(function(){
-    Route::get('/', 'index');
+    Route::get('/', 'index')->name('home');
     Route::post('/login', 'login');
     Route::post('/regist', 'register');
+    Route::get('/logout', 'logout');
+});
+Route::controller(Dashboard::class)->group(function(){
+    Route::get('/dashboard', 'index')->middleware('auth');
+    Route::get('/settings', 'setting')->middleware('auth');
+    // Route::post('/login', 'login');
+    // Route::post('/regist', 'register');
 });
 // Route::post('/login', function(){
 //     return response()->json([new Request()]);
