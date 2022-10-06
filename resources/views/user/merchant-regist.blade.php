@@ -12,16 +12,10 @@
         <div id="layoutSidenav_content">
             <main>
                 <div class="container-fluid px-4">
-                    <h1 class="mt-4">Setting</h1>
+                    <h1 class="mt-4">Merchant</h1>
                     <ol class="breadcrumb mb-4">
-                        <li class="breadcrumb-item active">Setting</li>
+                        <li class="breadcrumb-item active">Registering New Merchant</li>
                     </ol>
-                    <div class="alert alert-secondary alert-dismissible fade show" role="alert">
-                        <strong>Ayo Jadi Merchant!</strong> Lengkapi dulu informasi akun kamu, kemudian daftarkan tempat
-                        lapangan kamu di website kami, agar banyak orang yang melihat dan memesan lapangan kamu!! <a
-                            href="/merchant-regist" class="card-link">Daftar Jadi Merchant</a>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
                     <form action="">
                         @csrf
                         <div id="form-msg"></div>

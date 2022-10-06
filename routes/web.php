@@ -24,6 +24,8 @@ Route::controller(Home::class)->group(function(){
 Route::controller(Dashboard::class)->group(function(){
     Route::get('/dashboard', 'index')->middleware('auth');
     Route::get('/settings', 'setting')->middleware('auth');
+    Route::post('/settings', 'settingStore')->middleware('auth');
+    Route::get('/merchant-regist', 'merchant_register')->middleware('auth');
     // Route::post('/login', 'login');
     // Route::post('/regist', 'register');
 });
