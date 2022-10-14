@@ -16,33 +16,56 @@
                     <ol class="breadcrumb mb-4">
                         <li class="breadcrumb-item active">Registering New Merchant</li>
                     </ol>
-                    <form action="">
+                    <form action="/merchant-regist" method="POST">
                         @csrf
                         <div id="form-msg"></div>
-                        <div class="mx-auto profilpic"
-                            style="background-image:url({{ asset('assets/img/profilpic/default.png') }})"></div>
-                        <div class="text-center"><strong>Profil Picture</strong></div>
                         <div class="my-3 mb-5">
                             <div class="form-floating mb-3">
-                                <input type="text" value="{{session('userdata')->username}}" disabled readonly class="form-control" id="username" placeholder="username">
-                                <label for="username">Username</label>
+                                <input value="{{old('name_merchant')}}" type="text" class="form-control @error('name_merchant') is-invalid @enderror" name="name_merchant" id="name_merchant" placeholder="name">
+                                <label for="name_merchant">Merchant Name</label>
+                                <div class="@error('name_merchant') invalid-feedback @enderror">
+                                    @error('name_merchant')
+                                    {{$errors->first('name_merchant')}}
+                                    @enderror
+                                </div>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" value="{{session('userdata')->created_at}}" readonly disabled id="created" placeholder="created">
-                                <label for="created">Di Buat Tanggal</label>
+                                <input value="{{old('bank_name')}}" type="text" name="bank" class="form-control @error('bank') is-invalid @enderror" id="bank" placeholder="bank">
+                                <label for="bank">Bank Name</label>
+                                <div class="@error('bank') invalid-feedback @enderror">
+                                    @error('bank')
+                                    {{$errors->first('bank')}}
+                                    @enderror
+                                </div>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="text" name="nama" value="{{session('userdata')->name}}" class="form-control" id="nama" placeholder="nama">
-                                <label for="nama">Nama Lengkap</label>
+                                <input value="{{old('bank)number')}}"  type="text" name="bank_number" class="form-control @error('bank_number') is-invalid @enderror" id="bank_number" placeholder="bank_number">
+                                <label for="bank_number">Bank Number</label>
+                                <div class="@error('bank_number') invalid-feedback @enderror">
+                                    @error('bank_number')
+                                    {{$errors->first('bank_number')}}
+                                    @enderror
+                                </div>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="text" name="number" value="{{session('userdata')->number}}" class="form-control" id="number" placeholder="number">
+                                <input  type="text" name="number" value="{{ old('number',$user->number) }}"
+                                    class="form-control @error('number') is-invalid @enderror" id="number" placeholder="number">
                                 <label for="number">Nomor Telepon</label>
+                                <div class="@error('number') invalid-feedback @enderror">
+                                    @error('number')
+                                    {{$errors->first('number')}}
+                                    @enderror
+                                </div>
                             </div>
                             <div class="form-floating mb-3">
-                                <textarea class="form-control" id="address" name="address" style="height: 100px">{{session('userdata')->address}}</textarea>
+                                <textarea  class="form-control @error('address') is-invalid @enderror" id="address" name="address" style="height: 100px">{{ old('address',$user->address) }}</textarea>
                                 <label for="address">Alamat</label>
-                              </div>
+                                <div class="@error('address') invalid-feedback @enderror">
+                                    @error('address')
+                                    {{$errors->first('address')}}
+                                    @enderror
+                                </div>
+                            </div>
                             <div class="my-4 text-center">
                                 <button type="submit" class="btn btn-dark w-75">Simpan</button>
                             </div>
@@ -64,34 +87,9 @@
             </footer> --}}
         </div>
     </div>
-    {{-- modal profil pic --}}
-    <div class="modal fade" id="changePicModal" tabindex="-1" aria-labelledby="changePicModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="changePicModalLabel">Change Profil Picture</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        @for ($i = 0; $i < 5; $i++)
-                            <div class="col-3 profilpic mx-2 my-1 {{ $i == 0 ? 'choosen' : '' }}"
-                                data-image="{{ $i == 0 ? 'default.png' : "default$i.png" }}"
-                                style="background-image: url({{ asset($i == 0 ? 'assets/img/profilpic/default.png' : "assets/img/profilpic/default$i.png") }})">
-                            </div>
-                        @endfor
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" id="changeImage" class="btn btn-dark" data-bs-dismiss="modal">Save</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 @section('js-tambahan')
     <script src="{{ asset('assets/js/scripts.js') }}"></script>
-    <script src="{{ asset('assets/js/setting.js') }}"></script>
+    {{-- <script src="{{ asset('assets/js/merchant.js') }}"></script> --}}
 
 @endsection

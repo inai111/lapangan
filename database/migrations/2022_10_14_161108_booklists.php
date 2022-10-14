@@ -14,15 +14,15 @@ return new class extends Migration
     public function up()
     {
         //
-        Schema::create('merchants',function(Blueprint $table){
+        Schema::create('booklists',function(Blueprint $table){
             $table->id();
-            $table->string('name_merchant');
-            $table->string('address');
-            $table->string('number');
-            $table->enum('active',['active','pending','suspended','rejected'])->default('pending');
-            $table->string('bank');
             $table->foreignId('user_id');
-            $table->string('bank_number');
+            $table->foreignId('lapangan_id');
+            $table->dateTime('jam_awal');
+            $table->dateTime('jam_akhir');
+            $table->enum('type',['futsal','bulu_tangkis','volley']);
+            $table->enum('status',['pending','complete','cancel']);
+            $table->integer('kuantitas')->default(1);
             $table->timestamps();
         });
     }

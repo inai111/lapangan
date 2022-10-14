@@ -26,8 +26,12 @@ Route::controller(Dashboard::class)->group(function(){
     Route::get('/settings', 'setting')->middleware('auth');
     Route::post('/settings', 'settingStore')->middleware('auth');
     Route::get('/merchant-regist', 'merchant_register')->middleware('auth');
+    Route::post('/merchant-regist', 'merchant_register_store')->middleware('auth');
+    Route::get('/user-transactions', 'trans_lapangan');
+    Route::get('/user-booklists', 'book_lapangan');
+    // Route::get('/user-transactions', 'book_lapangan');
     // Route::post('/login', 'login');
-    // Route::post('/regist', 'register');
+    Route::get('/registes', 'tesget');
 });
 // Route::post('/login', function(){
 //     return response()->json([new Request()]);

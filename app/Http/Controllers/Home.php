@@ -38,7 +38,9 @@ class Home extends Controller
         if(Auth::attempt($data)){
         $userdata = User::where('username','admin')->first();
             $request->session()->regenerate();
-            $request->session()->put('userdata',$userdata);
+            $request->session()->put('id_user',$userdata['id']);
+            $request->session()->put('level',$userdata['level']);
+            $request->session()->put('username',$userdata['username']);
             $response['message'] = "welcome back {$request->username}, please wait.";
             $response['status'] = true;
             $response['href'] = "/dashboard";

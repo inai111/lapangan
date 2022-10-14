@@ -16,12 +16,14 @@
                     <ol class="breadcrumb mb-4">
                         <li class="breadcrumb-item active">Setting</li>
                     </ol>
+                    @if (empty($merchant))
                     <div class="alert alert-secondary alert-dismissible fade show" role="alert">
                         <strong>Ayo Jadi Merchant!</strong> Lengkapi dulu informasi akun kamu, kemudian daftarkan tempat
                         lapangan kamu di website kami, agar banyak orang yang melihat dan memesan lapangan kamu!! <a
-                            href="/merchant-regist" class="card-link">Daftar Jadi Merchant</a>
+                        href="/merchant-regist" class="card-link">Daftar Jadi Merchant</a>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
+                    @endif
                     <form action="">
                         @csrf
                         <div id="form-msg"></div>
@@ -30,23 +32,23 @@
                         <div class="text-center"><strong>Profil Picture</strong></div>
                         <div class="my-3 mb-5">
                             <div class="form-floating mb-3">
-                                <input type="text" value="{{session('userdata')->username}}" disabled readonly class="form-control" id="username" placeholder="username">
+                                <input type="text" value="{{$userdata->username}}" disabled readonly class="form-control" id="username" placeholder="username">
                                 <label for="username">Username</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" value="{{session('userdata')->created_at}}" readonly disabled id="created" placeholder="created">
+                                <input type="text" class="form-control" value="{{$userdata->created_at}}" readonly disabled id="created" placeholder="created">
                                 <label for="created">Di Buat Tanggal</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="text" name="nama" value="{{session('userdata')->name}}" class="form-control" id="nama" placeholder="nama">
+                                <input type="text" name="nama" value="{{$userdata->name}}" class="form-control" id="nama" placeholder="nama">
                                 <label for="nama">Nama Lengkap</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="text" name="number" value="{{session('userdata')->number}}" class="form-control" id="number" placeholder="number">
+                                <input type="text" name="number" value="{{$userdata->number}}" class="form-control" id="number" placeholder="number">
                                 <label for="number">Nomor Telepon</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <textarea class="form-control" id="address" name="address" style="height: 100px">{{session('userdata')->address}}</textarea>
+                                <textarea class="form-control" id="address" name="address" style="height: 100px">{{$userdata->address}}</textarea>
                                 <label for="address">Alamat</label>
                               </div>
                             <div class="my-4 text-center">
