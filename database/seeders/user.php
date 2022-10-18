@@ -28,5 +28,25 @@ class user extends Seeder
             'active' => "activated",
             'created_at'=>now(),
         ]);
+        DB::table('merchants')->insert(
+            [
+            ['name_merchant' => Str::random(10),
+            'address' => "tidak ada alamat yang jelas",
+            'number' => "888888",
+            'active' => "pending",
+            'bank' => "bank bank an",
+            'bank_number' => "10129388712",
+            'user_id' => 1,
+            'created_at'=>now(),],
+            ['name_merchant' => Str::random(10),
+            'address' => "tidak ada alamat yang jelas",
+            'number' => "888888",
+            'active' => "pending",
+            'bank' => "bank bank an",
+            'bank_number' => "10129388712",
+            'user_id' => 1,
+            'created_at'=>now(),]
+            ]
+        );
     }
 }

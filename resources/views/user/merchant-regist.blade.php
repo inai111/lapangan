@@ -21,7 +21,7 @@
                         <div id="form-msg"></div>
                         <div class="my-3 mb-5">
                             <div class="form-floating mb-3">
-                                <input value="{{old('name_merchant')}}" type="text" class="form-control @error('name_merchant') is-invalid @enderror" name="name_merchant" id="name_merchant" placeholder="name">
+                                <input value="{{old('name_merchant',$merchant?$merchant['name_merchant']:'')}}" type="text" class="form-control @error('name_merchant') is-invalid @enderror" name="name_merchant" id="name_merchant" placeholder="name">
                                 <label for="name_merchant">Merchant Name</label>
                                 <div class="@error('name_merchant') invalid-feedback @enderror">
                                     @error('name_merchant')
@@ -30,7 +30,7 @@
                                 </div>
                             </div>
                             <div class="form-floating mb-3">
-                                <input value="{{old('bank_name')}}" type="text" name="bank" class="form-control @error('bank') is-invalid @enderror" id="bank" placeholder="bank">
+                                <input value="{{old('bank',$merchant?$merchant['bank_name']:'')}}" type="text" name="bank" class="form-control @error('bank') is-invalid @enderror" id="bank" placeholder="bank">
                                 <label for="bank">Bank Name</label>
                                 <div class="@error('bank') invalid-feedback @enderror">
                                     @error('bank')
@@ -39,7 +39,7 @@
                                 </div>
                             </div>
                             <div class="form-floating mb-3">
-                                <input value="{{old('bank)number')}}"  type="text" name="bank_number" class="form-control @error('bank_number') is-invalid @enderror" id="bank_number" placeholder="bank_number">
+                                <input value="{{old('bank_number',$merchant?$merchant['bank_number']:'')}}"  type="text" name="bank_number" class="form-control @error('bank_number') is-invalid @enderror" id="bank_number" placeholder="bank_number">
                                 <label for="bank_number">Bank Number</label>
                                 <div class="@error('bank_number') invalid-feedback @enderror">
                                     @error('bank_number')
@@ -48,7 +48,7 @@
                                 </div>
                             </div>
                             <div class="form-floating mb-3">
-                                <input  type="text" name="number" value="{{ old('number',$user->number) }}"
+                                <input  type="text" name="number" value="{{ old('number',$merchant?$merchant['number']:$user->number) }}"
                                     class="form-control @error('number') is-invalid @enderror" id="number" placeholder="number">
                                 <label for="number">Nomor Telepon</label>
                                 <div class="@error('number') invalid-feedback @enderror">
@@ -58,7 +58,7 @@
                                 </div>
                             </div>
                             <div class="form-floating mb-3">
-                                <textarea  class="form-control @error('address') is-invalid @enderror" id="address" name="address" style="height: 100px">{{ old('address',$user->address) }}</textarea>
+                                <textarea  class="form-control @error('address') is-invalid @enderror" id="address" name="address" style="height: 100px">{{ old('address',$merchant?$merchant['address']:$user->address) }}</textarea>
                                 <label for="address">Alamat</label>
                                 <div class="@error('address') invalid-feedback @enderror">
                                     @error('address')

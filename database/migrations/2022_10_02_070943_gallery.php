@@ -14,11 +14,10 @@ return new class extends Migration
     public function up()
     {
         //
-        Schema::create('gallery',function(Blueprint $table){
+        Schema::create('galleries',function(Blueprint $table){
             $table->id();
             $table->string('photo');
-            $table->string('ref_id');
-            $table->string('type');
+            $table->foreignId('ref_id');
             $table->timestamps();
         });
     }

@@ -18,8 +18,10 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('harga');
-            $table->string('jenis');
-            $table->string('additional_info');
+            $table->string('type');
+            $table->string('cover');
+            $table->foreignId('merchant_id');
+            $table->string('additional_info')->nullable();
             $table->timestamps();
         });
     }
