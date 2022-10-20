@@ -32,6 +32,7 @@ Route::controller(Dashboard::class)->group(function(){
     Route::get('/merchant-lapangan', 'lapangan');
     Route::get('/add-lapangan', 'lapangan_store');
     Route::post('/add-lapangan', 'add_lapangan_store');
+    Route::post('/admin-merchant-status', 'merchant_status_change');
     Route::get('/admin-merchant', 'merchant_list');
     // Route::get('/user-transactions', 'book_lapangan');
     // Route::post('/login', 'login');

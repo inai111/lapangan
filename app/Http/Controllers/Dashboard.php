@@ -189,7 +189,7 @@ class Dashboard extends Controller
     public function merchant_list(Request $request)
     {
         $search = $request->get('search')?:"";
-        $status = in_array($request->get('status'),['pending','active','suspended','rejected'])?$request->get('status'):'';
+        $status = in_array($request->get('status'),['pending','active','suspended','rejected','all'])?$request->get('status'):'';
         $merchant = Merchant::where('name_merchant','like',"%$search%");
         switch($status){
             case "all":
@@ -206,5 +206,15 @@ class Dashboard extends Controller
             'merchants'=>$merchant
         ];
         return view('admin.list-merchant',$data);
+    }
+    public function merchant_status_change(Request $request)
+    {
+        $user = User::find(session('id_user'))->first();
+        if($user['level']!='admin')return response()->json('mana boleh di akses',400);
+        $id = $request->post('id_merchant');
+        $status = $request->post('status');
+        $merchant = Merchant::find($id)->first();
+        $merchant->active = $status;
+        return response()->json($merchant->save());
     }
 }
