@@ -20,6 +20,7 @@ Route::controller(Home::class)->group(function(){
     Route::post('/login', 'login');
     Route::post('/regist', 'register');
     Route::get('/logout', 'logout');
+    Route::get('/fething-lapangan', 'fetching_lapangan');
 });
 Route::controller(Dashboard::class)->group(function(){
     Route::get('/dashboard', 'index')->middleware('auth');

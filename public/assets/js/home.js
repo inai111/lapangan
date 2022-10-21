@@ -120,8 +120,61 @@ function resetForm(error = false){
 // document.querySelector(`form#autoCompleteSearch input[name=search]`).addEventListener('focus',function(e){
 //         document.querySelector('#hasilSearch').style.display = 'none';
 // })
-document.querySelector(`form#autoCompleteSearch input[name=search]`).addEventListener('keydown',function(e){
-    let elem = e.target;
-    console.log(elem.value);
-    document.querySelector('#hasilSearch').style.display = '';
+if(document.querySelector(`.searchBar`))document.querySelector(`.searchBar`).addEventListener('click',e=>{
+    e.preventDefault();
+    let modal = new bootstrap.Modal(searchModal);
+    resetSearchBarFunction()
+    modal.show();
 })
+resetSearchBar.addEventListener('click',e=>{
+    e.preventDefault();
+    resetSearchBarFunction()
+})
+function resetSearchBarFunction()
+{
+    nullHasilSearch.style.display = '';
+    hasilSearch.style.display = 'none';
+    hasilSearch.innerHTML = '';
+    sortHasilSearch.style.display = 'none';
+    document.querySelector(`input[name="search"]`).value = '';
+}
+document.querySelector(`input[name="search"]`).addEventListener('keyup',function(){
+    let myData = new FormData();
+    myData.append('search',this.value);
+    let sort = 'newest';
+    if(document.querySelector(`[data-sort].btn-dark`)) sort = document.querySelector(`[data-sort].btn-dark`).dataset.value;
+    myData.append('sort',sort);
+    fetchingDataLapangan(myData);
+})
+let fetchAllow = true;
+function fetchingDataLapangan(params)
+{
+    if(!fetchAllow)return;
+    if(fetchAllow)fetchAllow=false;
+    let sort = params.get('sort');
+    if(document.querySelector(`[data-sort].btn-dark`)) document.querySelector(`[data-sort].btn-dark`).classList.replace('btn-dark','btn-secondary');
+    document.querySelector(`[data-sort][data-value="${sort}"]`).classList.replace('btn-secondary','btn-dark');
+    params = new URLSearchParams(params).toString();
+    fetch(`/fetching-lapangan?${params}`)
+    .then(ee=>ee.json())
+    .then(res=>{
+        console.log(res);
+    })
+    .catch(_=>fetchAllow = true)
+    .finally(_=>fetchAllow = true)
+}
+`<a href="#" class="list-group-item list-group-item-action" aria-current="true">
+<div class="row">
+    <div class="col-3 autocomplete-img"
+        style="background-image:url(https://akcdn.detik.net.id/community/media/visual/2021/06/13/lapangan-galuh-pakuan-lapangan-bola-desa-3_169.jpeg?w=700&q=90)">
+    </div>
+    <div class="col-9">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">List group item heading</h5>
+            <small>3 days ago</small>
+        </div>
+        <p class="mb-1">Some placeholder content in a paragraph.</p>
+        <small>And some small print.</small>
+    </div>
+</div>
+</a>`
