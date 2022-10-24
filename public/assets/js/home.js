@@ -146,9 +146,39 @@ document.querySelector(`input[name="search"]`).addEventListener('keyup',function
     myData.append('sort',sort);
     fetchingDataLapangan(myData);
 })
+document.querySelectorAll(`[data-sort]`).forEach(elem=>{
+    elem.addEventListener('click',function(e){
+        e.preventDefault();
+        let myData = new FormData();
+        myData.append('search',document.querySelector(`input[name="search"]`).value);
+        let sort = this.dataset.value;
+        myData.append('sort',sort);
+        fetchingDataLapangan(myData);
+    })
+})
 let fetchAllow = true;
 function fetchingDataLapangan(params)
 {
+    let listMerchant = (href,img,judul,type)=> `
+    <a href="${href}" class="list-group-item list-group-item-action" aria-current="true">
+        <div class="row">
+            <div class="col-3 autocomplete-img"
+                style="background-image:url(${img})">
+            </div>
+            <div class="col-9">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${judul}</h5>
+                    <small>3 days ago</small>
+                </div>
+                <p class="mb-1">Some placeholder content in a paragraph.</p>
+                <div class="d-flex justify-content-between">
+                <small>Type : ${type}.</small>
+                <button class="btn btn-sm btn-success w-25"><i class="fa-solid fa-tags"></i> Rp. 1000000</button>
+                </div>
+            </div>
+        </div>
+    </a>
+    `;
     if(!fetchAllow)return;
     if(fetchAllow)fetchAllow=false;
     let sort = params.get('sort');
@@ -159,22 +189,17 @@ function fetchingDataLapangan(params)
     .then(ee=>ee.json())
     .then(res=>{
         console.log(res);
+        if(res.result){
+            nullHasilSearch.style.display = 'none';
+            sortHasilSearch.style.display = '';
+            let str = ``;
+            res.result.forEach(data=>{
+                str += listMerchant('asd',`https://akcdn.detik.net.id/community/media/visual/2021/06/13/lapangan-galuh-pakuan-lapangan-bola-desa-3_169.jpeg?w=700&q=90`,'asdasd')
+            })
+            hasilSearch.innerHTML = str;
+            hasilSearch.style.display = '';
+        }
     })
     .catch(_=>fetchAllow = true)
     .finally(_=>fetchAllow = true)
 }
-`<a href="#" class="list-group-item list-group-item-action" aria-current="true">
-<div class="row">
-    <div class="col-3 autocomplete-img"
-        style="background-image:url(https://akcdn.detik.net.id/community/media/visual/2021/06/13/lapangan-galuh-pakuan-lapangan-bola-desa-3_169.jpeg?w=700&q=90)">
-    </div>
-    <div class="col-9">
-        <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">List group item heading</h5>
-            <small>3 days ago</small>
-        </div>
-        <p class="mb-1">Some placeholder content in a paragraph.</p>
-        <small>And some small print.</small>
-    </div>
-</div>
-</a>`

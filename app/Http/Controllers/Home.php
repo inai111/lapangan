@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Lapangan;
+use App\Models\Merchant;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -90,11 +92,43 @@ class Home extends Controller
         // kalau berhasil maka lanjut ke pendaftaran
     }
 
-    public function logout(){
+    public function logout()
+    {
         request()->session()->invalidate();
         request()->session()->regenerateToken();
 
         return redirect('/');
 
+    }
+
+    public function fetching_lapangan(Request $request)
+    {
+        $search = strtolower($request->get('search'));
+        $search_arr = explode(':',$search);
+        $sort_by = $request->get('sort')=="newest"?"DESC":"ASC";
+        $query_to = !empty($search_arr[1])?$search_arr[1]:"";
+        switch($query_to){
+            case "merchant":
+                $merchant = Merchant::orderBy('id',$sort_by)->where('name_merchant','like',"%$search_arr[0]%");
+                $merchant = $merchant->take(6)->get();
+                $result = $merchant;
+                break;
+            case "lapangan":
+                $lapangan = Lapangan::orderBy('id',$sort_by)->where('nama','like',"%$search_arr[0]%");
+                $lapangan = $lapangan->take(6)->get();
+                $result = $lapangan;
+                break;
+            default:
+                    $merchant = Merchant::orderBy('id',$sort_by)->where('name_merchant','like',"%$search_arr[0]%");
+                    $merchant = $merchant->take(3)->get()->toArray();
+                    $lapangan = Lapangan::orderBy('id',$sort_by)->where('nama','like',"%$search_arr[0]%");
+                    $lapangan = $lapangan->take(3)->get()->toArray();
+                    $result = array_merge($merchant,$lapangan);
+                break;
+        }
+        $response = [
+            'result'=>$result
+        ];
+        return response()->json($response);
     }
 }
