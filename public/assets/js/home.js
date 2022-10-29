@@ -120,12 +120,16 @@ function resetForm(error = false){
 // document.querySelector(`form#autoCompleteSearch input[name=search]`).addEventListener('focus',function(e){
 //         document.querySelector('#hasilSearch').style.display = 'none';
 // })
-if(document.querySelector(`.searchBar`))document.querySelector(`.searchBar`).addEventListener('click',e=>{
+if(document.querySelector(`.searchBar`)) document.querySelectorAll(`.searchBar`).forEach(elem=>elem.addEventListener('click',e=>{
     e.preventDefault();
     let modal = new bootstrap.Modal(searchModal);
     resetSearchBarFunction()
+    let myData = new FormData();
+    myData.append('search','');
+    myData.append('sort','newest');
+    fetchingDataLapangan(myData);
     modal.show();
-})
+}))
 resetSearchBar.addEventListener('click',e=>{
     e.preventDefault();
     resetSearchBarFunction()
@@ -159,26 +163,46 @@ document.querySelectorAll(`[data-sort]`).forEach(elem=>{
 let fetchAllow = true;
 function fetchingDataLapangan(params)
 {
-    let listMerchant = (href,img,judul,type)=> `
-    <a href="${href}" class="list-group-item list-group-item-action" aria-current="true">
-        <div class="row">
-            <div class="col-3 autocomplete-img"
-                style="background-image:url(${img})">
-            </div>
-            <div class="col-9">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">${judul}</h5>
-                    <small>3 days ago</small>
+    let listMerchant = (href,img,judul,type,location,harga)=> {
+        if(type){
+            return `
+            <a href="${href}" class="list-group-item list-group-item-action" aria-current="true">
+                <div class="row">
+                    <div class="col-3 autocomplete-img"
+                        style="background-image:url(${img})">
+                    </div>
+                    <div class="col-9">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">${judul}</h5>
+                            <small class="text-light py-1 px-4 bg-success">Lapangan</small>
+                        </div>
+                        <p class="mb-1"><i class="fa fa-location-dot"></i> ${location}</p>
+                        <div class="d-flex justify-content-between">
+                        <small>Type : ${type}.</small>
+                        <h4 class="text-success py-1 px-4"><i class="fa-solid fa-tags"></i> Rp. ${new Intl.NumberFormat(['ban', 'id']).format(Number(harga||0))}/Jam</h4>
+                        </div>
+                    </div>
                 </div>
-                <p class="mb-1">Some placeholder content in a paragraph.</p>
-                <div class="d-flex justify-content-between">
-                <small>Type : ${type}.</small>
-                <button class="btn btn-sm btn-success w-25"><i class="fa-solid fa-tags"></i> Rp. 1000000</button>
+            </a>
+            `;
+        }
+        return `
+        <a href="${href}" class="list-group-item list-group-item-action" aria-current="true">
+            <div class="row">
+                <div class="col-3 autocomplete-img rounded-circle"
+                    style="background-image:url(${img});width:100px">
+                </div>
+                <div class="col-9">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">${judul}</h5>
+                        <small class="text-light py-1 px-4 bg-success">Merchant</small>
+                    </div>
+                    <p class="mb-1">Some placeholder content in a paragraph.</p>
                 </div>
             </div>
-        </div>
-    </a>
-    `;
+        </a>
+        `;
+    }
     if(!fetchAllow)return;
     if(fetchAllow)fetchAllow=false;
     let sort = params.get('sort');
@@ -194,7 +218,8 @@ function fetchingDataLapangan(params)
             sortHasilSearch.style.display = '';
             let str = ``;
             res.result.forEach(data=>{
-                str += listMerchant('asd',`https://akcdn.detik.net.id/community/media/visual/2021/06/13/lapangan-galuh-pakuan-lapangan-bola-desa-3_169.jpeg?w=700&q=90`,'asdasd')
+                let href = data.name_merchant?`merchant/`:'lapangan/';
+                str += listMerchant(`/${href+data.id}`,`https://akcdn.detik.net.id/community/media/visual/2021/06/13/lapangan-galuh-pakuan-lapangan-bola-desa-3_169.jpeg?w=700&q=90`,data.nama||data.name_merchant,data.type,data.address||data.merchant.address,data.harga)
             })
             hasilSearch.innerHTML = str;
             hasilSearch.style.display = '';

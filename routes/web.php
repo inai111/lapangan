@@ -21,6 +21,8 @@ Route::controller(Home::class)->group(function(){
     Route::post('/regist', 'register');
     Route::get('/logout', 'logout');
     Route::get('/fetching-lapangan', 'fetching_lapangan');
+    Route::get('/lapangan/{num}', 'detail_lapangan');
+    Route::get('/get-jadwal-lapangan/{num}', 'get_jadwal_lapangan');
 });
 Route::controller(Dashboard::class)->group(function(){
     Route::get('/dashboard', 'index')->middleware('auth');
@@ -28,17 +30,19 @@ Route::controller(Dashboard::class)->group(function(){
     Route::post('/settings', 'settingStore')->middleware('auth');
     Route::get('/merchant-regist', 'merchant_register')->middleware('auth');
     Route::post('/merchant-regist', 'merchant_register_store')->middleware('auth');
-    Route::get('/user-transactions', 'trans_lapangan');
     Route::get('/user-booklists', 'book_lapangan');
     Route::get('/merchant-lapangan', 'lapangan');
+    Route::get('/add-transaction/{num}', 'add_transaction')->middleware('auth');
     Route::get('/add-lapangan', 'lapangan_store');
     Route::post('/add-lapangan', 'add_lapangan_store');
     Route::post('/admin-merchant-status', 'merchant_status_change');
+    Route::get('/user-transactions', 'trans_lapangan')->middleware('auth');
     Route::get('/admin-merchant', 'merchant_list');
     // Route::get('/user-transactions', 'book_lapangan');
     // Route::post('/login', 'login');
     Route::get('/registes', 'tesget');
 });
 // Route::post('/login', function(){
-//     return response()->json([new Request()]);
-// });
+    //     return response()->json([new Request()]);
+    // });
+    

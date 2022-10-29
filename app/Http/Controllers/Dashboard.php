@@ -6,11 +6,11 @@ use App\Models\Booklists;
 use App\Models\Gallery;
 use App\Models\Lapangan;
 use App\Models\Merchant;
+use App\Models\Transactions;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-
 class Dashboard extends Controller
 {
     public function index()
@@ -125,10 +125,10 @@ class Dashboard extends Controller
     public function trans_lapangan()
     {
         $user = User::find(session('id_user'))->first();
-        $booklists = Booklists::where('user_id', $user['id'])->get();
+        $booklists = Booklists::where('user_id', $user['id'])->get()->all();
         $data = [
             'user' => $user,
-            // 'book'=>$booklists,
+            'booklists'=>$booklists,
         ];
         return view('user.transaction-list', $data);
     }
@@ -216,5 +216,22 @@ class Dashboard extends Controller
         $merchant = Merchant::find($id)->first();
         $merchant->active = $status;
         return response()->json($merchant->save());
+    }
+    public function add_transaction($id,Request $request)
+    {
+        $lapangan = Lapangan::find($id)->first();
+        $length = $request->get('length');
+        $length = (int)$length>0?$length:1;
+        $user = User::find(session("id_user"));
+        $booklist = new Booklists();
+        $booklist->user_id = session('id_user');
+        $booklist->lapangan_id = $id;
+        $booklist->status = 'pending';
+        $booklist->length = $length;
+        $response['status'] = false;
+        if($booklist->save()){
+            $response['status'] = true;
+        }
+        return response()->json($response);
     }
 }

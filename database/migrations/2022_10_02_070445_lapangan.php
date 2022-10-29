@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('type');
             $table->string('cover');
             $table->foreignId('merchant_id');
-            $table->string('additional_info')->nullable();
+            $table->text('additional_info')->nullable();
             $table->timestamps();
         });
     }

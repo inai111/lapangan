@@ -16,8 +16,10 @@ return new class extends Migration
         //
         Schema::create('transactions',function(Blueprint $table){
             $table->id();
+            $table->string('token');
             $table->foreignId('booklists_id');
-            $table->string('bukti');
+            // $table->string('bukti')->nullable();
+            $table->enum('status',['gagal','berhasil'])->nullable();
             $table->timestamps();
         });
     }

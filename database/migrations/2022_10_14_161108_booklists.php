@@ -18,11 +18,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id');
             $table->foreignId('lapangan_id');
-            $table->dateTime('jam_awal');
-            $table->dateTime('jam_akhir');
-            $table->enum('type',['futsal','bulu_tangkis','volley']);
-            $table->enum('status',['pending','complete','cancel']);
-            $table->integer('kuantitas')->default(1);
+            $table->dateTime('jam_awal')->nullable();
+            $table->dateTime('jam_akhir')->nullable();
+            $table->integer('length');
+            $table->enum('type_pembayaran',['cash','transfer']);
+            $table->enum('status',['pending','on_going','complete','cancel']);
             $table->timestamps();
         });
     }

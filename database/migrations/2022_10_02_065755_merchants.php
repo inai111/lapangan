@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('bank');
             $table->foreignId('user_id');
             $table->string('bank_number');
+            $table->time('open');
+            $table->time('close');
             $table->timestamps();
         });
     }

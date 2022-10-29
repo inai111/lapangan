@@ -20,10 +20,13 @@
                 @endif
             </ul>
             <div class="d-flex justify-content-between">
+                <a class="btn-outline-dark btn rounded-circle searchBar" href="#">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </a>
                 @if(session()->has('userdata'))
-                <a href="/logout" class=" btn rounded-pill btn-dark px-5">Logout</a>
+                <a href="/logout" class=" btn rounded-pill btn-dark px-3 ms-2">Logout</a>
                 @else
-                <button class=" btn rounded-pill btn-dark px-5" id="loginBtn">Login</button>
+                <button class=" btn rounded-pill btn-dark px-3 ms-2" id="loginBtn">Login</button>
                 @endif
             </div>
         </div>
