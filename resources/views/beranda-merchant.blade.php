@@ -8,107 +8,72 @@
 @endsection
 @section('content')
     <div class="container bg-light my-5 py-3">
-        <div class="position-relative"
-            style="background-image: url({{ asset("assets/img/lapangan/cover/$lapangan->cover") }});background-size:300px;height: 200px;background-repeat: no-repeat;background-position: center;background-color: #adb5bd;">
-            <div class="position-absolute px-5 py-2 text-light"
-                style="top: 0;background-color: rgba(0, 0, 0, 0.6);border: none">
-                <h1 class="display-3">{{ $lapangan->nama }}</h1>
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-4">
-                <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner border">
-                        @foreach ($galeries as $galery)
-                            <div class="carousel-item {{ $loop->iteration == 1 ? 'active' : '' }}">
-                                <img src="{{ asset("assets/img/lapangan/$galery[photo]") }}" class="d-block w-100">
-                            </div>
-                        @endforeach
-                    </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
-                        data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
-                        data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
+        <div class="row">
+            <div class="col-md-2">
+                <div class="img-thumbnail mx-auto rounded-circle"
+                    style="background-image:url({{ asset("assets/img/profilpic/{$user['photo']}") }});background-size: 130px;background-repeat: no-repeat;background-color: #8b8e90;background-position: center;width: 150px;height: 150px;">
                 </div>
             </div>
-            <div class="col-8">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title text-success"><i class="fa fa-tags"></i> Rp.
-                            {{ number_format($lapangan->harga ?: 0, 0, ',', '.') }}/Jam</h5>
-                        <div class="d-flex">
-                            <h6 class="card-subtitle me-3 text-muted"><i class="fa-solid fa-basketball"></i>
-                                {{ $lapangan->type }}</h6>
-                            <h6 class="card-subtitle me-3 text-muted">Telah Dipesan(0)</h6>
-                            <h6 class="card-subtitle me-3 text-muted">
-                                <strong>0</strong>
-                                <i class="fa fa-star text-warning"></i>(0)
-                            </h6>
-                        </div>
-                        <p class="card-text">{{ ucwords($merchant->name_merchant) }}</p>
-                        <div class="d-flex">
-                            <input type="number" min="1" name="lengthForm" id="lengthForm" value="1"
-                                class="form-control w-25 mx-1">
-                            <button data-login="{{ session('id_user') }}" data-id="{{ $lapangan->id }}" id="pesanNow"
-                                onclick="event.preventDefault()" class="mx-1 btn adds btn-success"><i
-                                    class="fa-solid fa-plus"></i> Pesan Sekarang</button>
-                            <button data-login="{{ session('id_user') }}" data-id="{{ $lapangan->id }}" id="pesanNow"
-                                onclick="event.preventDefault()" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" class="mx-1 btn adds btn-outline-dark"><i class="fa-solid fa-comment"></i> Kirim Pesan</button>
-                        </div>
-                        <div class="d-flex">
-                        </div>
-                        <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="info-tab" data-bs-toggle="tab"
-                                    data-bs-target="#info-tab-pane" type="button" role="tab"
-                                    aria-controls="info-tab-pane" aria-selected="true">Info Lapangan</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="address-tab" data-bs-toggle="tab"
-                                    data-bs-target="#address-tab-pane" type="button" role="tab"
-                                    aria-controls="address-tab-pane" aria-selected="false">Lokasi Lapangan</button>
-                            </li>
-                        </ul>
-                        <div class="tab-content" id="myTabContent">
-                            <div class="tab-pane fade show active" id="info-tab-pane" role="tabpanel"
-                                aria-labelledby="info-tab" tabindex="0">
-                                @php
-                                    echo nl2br($lapangan->additional_info);
-                                @endphp
-                            </div>
-                            <div class="tab-pane fade show active" id="address-tab-pane" role="tabpanel"
-                                aria-labelledby="address-tab" tabindex="0">
-                                {{ $merchant->address }}
-                            </div>
-                        </div>
+            <div class="col-md-10">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="display-5">{{ strtolower($merchant->name_merchant) }}</h4>
                     </div>
-                    <div class="card-body">
+                    <div class="col text-end">
+                        {{-- <button class="btn btn-sm btn-success">asdas</button> --}}
+                        <button class="btn btn-sm btn-danger rounded-pill"><i class="fa-solid fa-exclamation"></i> Laporkan</button>
+                    </div>
+                </div>
+                <div>
+                    <span class="text-muted me-2">Total Lapangan ({{ count($lapangan) }})</span>
+                    <span class="text-muted me-2">0 <i class="fa fa-star" style="color: gold"></i> (0)</span>
+                </div>
+                <div class="text-muted me-2">Jam Buka {{ $merchant->open . ' - ' . $merchant->close }}</div>
+                <div><i class="fa fa-location-dot"></i>
+                    {{ !empty($merchant->address) ? $merchant->address : $user->address }}
+                </div>
 
+            </div>
+        </div>
+        <div class="mt-4">
+            <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-tab-pane"
+                        type="button" role="tab" aria-controls="info-tab-pane" aria-selected="true">Lapangan</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="address-tab" data-bs-toggle="tab" data-bs-target="#address-tab-pane"
+                        type="button" role="tab" aria-controls="address-tab-pane" aria-selected="false">Lokasi
+                        Lapangan</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="info-tab-pane" role="tabpanel" aria-labelledby="info-tab"
+                    tabindex="0">
+                    <div class="mx-auto">
+                        <div class="row row-cols-auto my-2">
+                            @foreach ($lapangan as $item)
+                                <div class="col-md-3 my-2">
+                                    <a href="/lapangan/{{$item->id}}" class="border btn btn-dark">
+                                        <div class="position-relative" style="background-image:url({{ asset("assets/img/lapangan/cover/$item[cover]") }});background-size: 250px;background-repeat: no-repeat;background-position: center;width: 230px;height: 230px;"
+                                            class="card-img-top" alt="{{ $item->nama }}">
+                                            <div class="position-absolute top-0 end-0 px-4 rounded-pill text-light" style="background-color: rgba(10, 10, 10,.4);margin-top: 1.7rem;"><i class="fa fa-basketball"></i> {{$item->type}}</div>
+                                            <div class="position-absolute top-0 end-0 px-4 rounded-pill text-light" style="background-color: rgba(10, 10, 10,.4)">0 <i class="fa fa-star" style="color: gold"></i> (0)</div>
+                                            <div class="position-absolute bottom-0 start-0 end-0 px-4 rounded-pill text-light" style="background-color: rgba(10, 10, 10,.4)"><i class="fa fa-tags"></i> Rp. {{number_format($item->harga,0,',','.')}}/Jam</div>
+                                        </div>
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
+                </div>
+                <div class="tab-pane fade" id="address-tab-pane" role="tabpanel" aria-labelledby="address-tab"
+                    tabindex="0">
+                    asd
                 </div>
             </div>
         </div>
     </div>
-    <div class="sticky-md-bottom">
-        <div class="bg-primary w-100">asdasd</div>
-    </div>
-
-    <div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="offcanvasScrollingLabel">Offcanvas with body scrolling</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-          <p>Try scrolling the rest of the page to see this option in action.</p>
-        </div>
-      </div>
-
 
 
     {{-- modal regis&login --}}

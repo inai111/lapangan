@@ -22,6 +22,7 @@ Route::controller(Home::class)->group(function(){
     Route::get('/logout', 'logout');
     Route::get('/fetching-lapangan', 'fetching_lapangan');
     Route::get('/lapangan/{num}', 'detail_lapangan');
+    Route::get('/merchant/{num}', 'detail_merchant');
     Route::get('/get-jadwal-lapangan/{num}', 'get_jadwal_lapangan');
 });
 Route::controller(Dashboard::class)->group(function(){

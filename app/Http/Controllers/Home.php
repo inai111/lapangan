@@ -207,4 +207,17 @@ class Home extends Controller
         $response['message']='';
         return response()->json($response);
     }
+
+    public function detail_merchant($id)
+    {
+        $merchant = Merchant::find($id)->first();
+        $user = User::find($merchant->user_id)->first();
+        $lapangan = Lapangan::where("merchant_id",$merchant->id)->get()->all();
+        $data = [
+            'merchant'=>$merchant,
+            'user'=>$user,
+            'lapangan'=>$lapangan
+        ];
+        return view("beranda-merchant",$data);
+    }
 }
