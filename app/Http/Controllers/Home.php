@@ -40,14 +40,14 @@ class Home extends Controller
             'password'=> $request->password,
         ];
         if(Auth::attempt($data)){
-        $userdata = User::where('username','admin')->first();
+            $userdata = User::where('username',$data['username'])->first();
             $request->session()->regenerate();
             $request->session()->put('id_user',$userdata['id']);
             $request->session()->put('level',$userdata['level']);
             $request->session()->put('username',$userdata['username']);
             $response['message'] = "welcome back {$request->username}, please wait.";
             $response['status'] = true;
-            $response['href'] = "/dashboard";
+            if($userdata['level'] == 'admin')$response['href'] = "/dashboard";
         }else{
             $response['message']="Please check your input, username or password incorect";
         }

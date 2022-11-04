@@ -30,7 +30,7 @@
                                 </div>
                             </div>
                             <div class="form-floating mb-3">
-                                <input value="{{old('bank',$merchant?$merchant['bank_name']:'')}}" type="text" name="bank" class="form-control @error('bank') is-invalid @enderror" id="bank" placeholder="bank">
+                                <input value="{{old('bank',$merchant?$merchant['bank']:'')}}" type="text" name="bank" class="form-control @error('bank') is-invalid @enderror" id="bank" placeholder="bank">
                                 <label for="bank">Bank Name</label>
                                 <div class="@error('bank') invalid-feedback @enderror">
                                     @error('bank')

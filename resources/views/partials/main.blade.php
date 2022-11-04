@@ -13,7 +13,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#">About</a>
                 </li>
-                @if(session()->has('userdata'))
+                @if(session()->has('username'))
                 <li class="nav-item">
                     <a class="nav-link" href="/dashboard">Dashboard</a>
                 </li>
@@ -23,7 +23,7 @@
                 <a class="btn-outline-dark btn rounded-circle searchBar" href="#">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </a>
-                @if(session()->has('userdata'))
+                @if(session()->has('username'))
                 <a href="/logout" class=" btn rounded-pill btn-dark px-3 ms-2">Logout</a>
                 @else
                 <button class=" btn rounded-pill btn-dark px-3 ms-2" id="loginBtn">Login</button>

@@ -27,8 +27,9 @@ Route::controller(Home::class)->group(function(){
 });
 Route::controller(Dashboard::class)->group(function(){
     Route::get('/dashboard', 'index')->middleware('auth');
-    Route::get('/settings', 'setting')->middleware('auth');
-    Route::post('/settings', 'settingStore')->middleware('auth');
+    // Route::get('/settings/{num?}', 'setting')->middleware('auth');
+    Route::get('/settings/{num?}', 'setting')->middleware('auth');
+    Route::post('/settings/{num?}', 'settingStore')->middleware('auth');
     Route::get('/merchant-regist', 'merchant_register')->middleware('auth');
     Route::post('/merchant-regist', 'merchant_register_store')->middleware('auth');
     Route::get('/user-booklists', 'book_lapangan');

@@ -1,11 +1,11 @@
-document.querySelector(`#loginBtn`).addEventListener('click', function (e) {
+if(document.querySelector(`#loginBtn`)) document.querySelector(`#loginBtn`).addEventListener('click', function (e) {
     e.preventDefault();
     resetForm();
     let modalLogin = new bootstrap.Modal(document.querySelector(`#loginModal`));
     modalLogin.show();
 })
 // untuk submit regist form
-document.querySelector(`form#registForm`).addEventListener('submit', function (e) {
+if(document.querySelector(`form#registForm`))document.querySelector(`form#registForm`).addEventListener('submit', function (e) {
     e.preventDefault();
     resetForm(true);
     document.querySelector(`form#registForm button[type=submit]`).disabled = true;
@@ -42,7 +42,7 @@ document.querySelector(`form#registForm`).addEventListener('submit', function (e
     .finally(_ => document.querySelector(`form#registForm button[type=submit]`).disabled = false)
 })
 // untuk submit login form
-document.querySelector(`form#loginForm`).addEventListener('submit', function (e) {
+if(document.querySelector(`form#loginForm`))document.querySelector(`form#loginForm`).addEventListener('submit', function (e) {
     e.preventDefault();
     resetForm(true);
     document.querySelector(`form#loginForm button[type=submit]`).disabled = true;
@@ -61,6 +61,7 @@ document.querySelector(`form#loginForm`).addEventListener('submit', function (e)
                 document.querySelector(`#loginFormMessage`).innerHTML = res.message;
                 document.querySelector(`#loginFormMessage`).style.display = '';
                 if(res.href) window.location.href = res.href;
+                else location.reload();
             }else{
                 document.querySelector(`#loginFormMessage`).innerHTML = res.message;
                 document.querySelector(`#loginFormMessage`).classList.replace('alert-success','alert-warning');
@@ -80,7 +81,7 @@ document.querySelector(`form#loginForm`).addEventListener('submit', function (e)
         .catch(_=>document.querySelector(`form#loginForm button[type=submit]`).disabled = false)
 })
 // untuk tampilkan form register
-document.querySelector(`a#toRegistForm`).addEventListener('click', function (e) {
+if(document.querySelector(`a#toRegistForm`))document.querySelector(`a#toRegistForm`).addEventListener('click', function (e) {
     e.preventDefault();
     resetForm();
     document.querySelector(`#loginModalLabel`).innerHTML = 'Register Form';
@@ -88,7 +89,7 @@ document.querySelector(`a#toRegistForm`).addEventListener('click', function (e) 
     document.querySelector(`form#registForm`).style.display = 'block';
 })
 // untuk tampilkan form login
-document.querySelector(`button#toLoginForm`).addEventListener('click', function (e) {
+if(document.querySelector(`button#toLoginForm`))document.querySelector(`button#toLoginForm`).addEventListener('click', function (e) {
     e.preventDefault();
     resetForm();
     document.querySelector(`#loginModalLabel`).innerHTML = 'Login Form';
