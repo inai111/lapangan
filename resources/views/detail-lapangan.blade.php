@@ -59,7 +59,9 @@
                                 onclick="event.preventDefault()" class="mx-1 btn adds btn-success"><i
                                     class="fa-solid fa-plus"></i> Pesan Sekarang</button>
                             <button data-login="{{ session('id_user') }}" data-id="{{ $lapangan->id }}" id="pesanNow"
-                                onclick="event.preventDefault()" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" class="mx-1 btn adds btn-outline-dark"><i class="fa-solid fa-comment"></i> Kirim Pesan</button>
+                                onclick="event.preventDefault()" data-bs-toggle="offcanvas"
+                                data-bs-target="#offcanvasScrolling" class="mx-1 btn adds btn-outline-dark"><i
+                                    class="fa-solid fa-comment"></i> Kirim Pesan</button>
                         </div>
                         <div class="d-flex">
                         </div>
@@ -99,15 +101,6 @@
         <div class="bg-primary w-100">asdasd</div>
     </div>
 
-    <div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="offcanvasScrollingLabel">Offcanvas with body scrolling</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-          <p>Try scrolling the rest of the page to see this option in action.</p>
-        </div>
-      </div>
 
 
 

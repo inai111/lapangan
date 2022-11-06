@@ -6,7 +6,46 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <div class="position-absolute text-center start-0 end-0">
+                <button class="searchBar btn ms-1 btn-outline-dark w-25">
+                    <div class="d-flex align-items-baseline">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <div class="ms-3">Pencarian</div>
+                    </div>
+                </button>
+            </div>
+            @if (session()->has('username'))
+            <div class="position-absolute end-0 me-2 d-flex">
+                <a href="/user-transactions" class="btn mx-1">
+                    <i class="far fa-list-alt"></i>
+                </a>
+                <button data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" class="btn mx-1">
+                    <i class="fa-solid fa-message"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-solid fa-user"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a href="/dashboard" class="dropdown-item" href="#">Dashboard</a></li>
+                      <li><a href="/settings" class="dropdown-item" href="#">Setting</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a href="logout" class="dropdown-item" href="#">Logout</a></li>
+                    </ul>
+                </div>
+                @else
+                <div class="position-absolute end-0 me-3">
+                    <button class="btn ms-1 loginBtn">
+                        <i class="far fa-list-alt"></i>
+                    </button>
+                    <button class="btn ms-1 loginBtn">
+                        <i class="fa-solid fa-message"></i>
+                    </button>
+                    <button class="btn rounded-pill btn-dark px-3 ms-2 loginBtn">Login</button>
+                </div>
+                @endif
+            </div>
+            {{-- <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="#">Home</a>
                 </li>
@@ -28,7 +67,7 @@
                 @else
                 <button class=" btn rounded-pill btn-dark px-3 ms-2" id="loginBtn">Login</button>
                 @endif
-            </div>
+            </div> --}}
         </div>
     </div>
 </nav>

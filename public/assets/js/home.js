@@ -1,9 +1,9 @@
-if(document.querySelector(`#loginBtn`)) document.querySelector(`#loginBtn`).addEventListener('click', function (e) {
+if(document.querySelector(`.loginBtn`)) document.querySelectorAll(`.loginBtn`).forEach(elem=>elem.addEventListener('click', function (e) {
     e.preventDefault();
     resetForm();
     let modalLogin = new bootstrap.Modal(document.querySelector(`#loginModal`));
     modalLogin.show();
-})
+}));
 // untuk submit regist form
 if(document.querySelector(`form#registForm`))document.querySelector(`form#registForm`).addEventListener('submit', function (e) {
     e.preventDefault();
