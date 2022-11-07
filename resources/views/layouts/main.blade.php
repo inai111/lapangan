@@ -17,25 +17,129 @@
     @yield('navbar')
     @yield('content')
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1"
-        id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasScrollingLabel">Offcanvas with body scrolling</h5>
+        id="listMessage" aria-labelledby="listMessage">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title" id="listMessageLabel"><i class="fa fa-message me-2"></i>Messages</h5>
             {{-- <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button> --}}
-            <button type="button" class="btn-close" data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvasScrolling2" aria-label="Close"></button>
+            <button type="button" class="btn btn-outline-dark rounded-circle" data-bs-dismiss="offcanvas"
+                aria-label="Close"><i class="fa fa-chevron-left"></i></button>
         </div>
         <div class="offcanvas-body">
-            <p>Try scrolling the rest of the page to see this option in action.</p>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pb-1">
+                        <button data-bs-toggle="offcanvas" data-bs-target="#messageOpened" data-obj=""
+                            class="btn d-flex align-items-center btn-secondary text-light rounded-pill openMessage">
+                            <img class="rounded-circle bg-light" src="{{ asset('assets/img/profilpic/default.png') }}"
+                                style="width: 20%" alt="">
+                            <div class="ps-3 text-start">
+                                <div>Nama Pengirim</div>
+                                <div>asdasdasdasd</div>
+                                <small>{{ date('d-F-Y H:i:s') }}</small>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="pb-1">
+                        <button data-bs-toggle="offcanvas" data-bs-target="#messageOpened" data-obj=""
+                            class="btn d-flex align-items-center btn-secondary text-light rounded-pill openMessage">
+                            <img class="rounded-circle bg-light" src="{{ asset('assets/img/profilpic/default.png') }}"
+                                style="width: 20%" alt="">
+                            <div class="ps-3 text-start">
+                                <div>Nama Pengirim</div>
+                                <div>asdasdasdasd</div>
+                                <small>{{ date('d-F-Y H:i:s') }}</small>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+    </div>
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1"
-        id="offcanvasScrolling2" aria-labelledby="offcanvasScrollingLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasScrollingLabel">Offcanvas with body scrolling</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        id="messageOpened" aria-labelledby="messageOpenedLabel">
+        <div class="offcanvas-header border-bottom">
+            <div class="d-flex align-items-center">
+                <img class="rounded-circle bg-light" src="{{ asset('assets/img/profilpic/default.png') }}"
+                    style="width: 20%" alt="">
+                <div class="ps-3 text-start">
+                    <h5 class="offcanvas-title">Nama Pengirim</h5>
+                    {{-- <small>{{ date('d-F-Y H:i:s') }}</small> --}}
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-dark rounded-circle" data-bs-toggle="offcanvas"
+                data-bs-target="#listMessage"><i class="fa fa-chevron-left"></i></button>
         </div>
         <div class="offcanvas-body">
-            <p>Try scrolling the rest of the page to see this option in action.</p>
+            <div class="position-relative h-75" style="overflow-y:scroll;word-wrap:anywhere">
+                <div class="rounded-pill position-sticky top-0 bg-secondary mx-auto px-3 py-1 my-2 mb-4 text-light"
+                    style="width:fit-content">{{ date('d-M-Y', strtotime('-5month')) }}</div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded-pill position-sticky top-0 bg-secondary mx-auto px-3 py-1 my-2 mb-4 text-light"
+                    style="width:fit-content">{{ date('d-M-Y') }}</div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa</div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">
+                    'asdasdasd'
+                    <div class="text-end" style="font-size: .8em;">21:00</div>
+                </div>
+                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa</div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa</div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa</div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa</div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa
+                </div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa
+                </div>
+            </div>
+            <div class="pt-3">
+                <form class="row align-items-center">
+                    <div class="col-10 pe-0">
+                        <div class="input-group">
+                            <input type="hidden" name="user_id">
+                            <input type="hidden" name="target_id">
+                            <input type="hidden" name="post_id">
+                            <textarea name="message" type="text" class="form-control" id="message" placeholder="Message"
+                                style="resize: none"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <button id="sendMessage" class="btn btn-dark btn-sm"><i
+                                class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </form>
+            </div>
+
         </div>
     </div>
 

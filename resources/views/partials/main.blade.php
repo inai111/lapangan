@@ -19,7 +19,7 @@
                 <a href="/user-transactions" class="btn mx-1">
                     <i class="far fa-list-alt"></i>
                 </a>
-                <button data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" class="btn mx-1">
+                <button data-bs-toggle="offcanvas" data-bs-target="#listMessage" class="btn mx-1">
                     <i class="fa-solid fa-message"></i>
                 </button>
                 <div class="dropdown">
