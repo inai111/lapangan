@@ -62,10 +62,10 @@
         id="messageOpened" aria-labelledby="messageOpenedLabel">
         <div class="offcanvas-header border-bottom">
             <div class="d-flex align-items-center">
-                <img class="rounded-circle bg-light" src="{{ asset('assets/img/profilpic/default.png') }}"
+                <img id="msgContImgMerchant" class="rounded-circle bg-light" src="{{ asset('assets/img/profilpic/default.png') }}"
                     style="width: 20%" alt="">
                 <div class="ps-3 text-start">
-                    <h5 class="offcanvas-title">Nama Pengirim</h5>
+                    <h5 id="msgContNameMerchant" class="offcanvas-title">Nama Pengirim</h5>
                     {{-- <small>{{ date('d-F-Y H:i:s') }}</small> --}}
                 </div>
             </div>

@@ -21,6 +21,8 @@ return new class extends Migration
             $table->dateTime('jam_awal')->nullable();
             $table->dateTime('jam_akhir')->nullable();
             $table->integer('length');
+            $table->integer('rating')->nullable();
+            $table->integer('review')->nullable();
             $table->enum('type_pembayaran',['cash','transfer']);
             $table->enum('status',['pending','on_going','complete','cancel']);
             $table->timestamps();

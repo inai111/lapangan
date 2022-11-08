@@ -58,11 +58,16 @@
                             <button data-login="{{ session('id_user') }}" data-id="{{ $lapangan->id }}" id="pesanNow"
                                 onclick="event.preventDefault()" class="mx-1 btn adds btn-success"><i
                                     class="fa-solid fa-plus"></i> Pesan Sekarang</button>
-                            <button data-login="{{ session('id_user') }}" data-id="{{ $lapangan->id }}" id="pesanNow"
-                                onclick="event.preventDefault()" data-bs-toggle="offcanvas"
-                                data-bs-target="#offcanvasScrolling" class="mx-1 btn adds btn-outline-dark"><i
-                                    class="fa-solid fa-comment"></i> Kirim Pesan</button>
+                            @if (session()->has('id_user'))
+                                <button data-login="{{ session('id_user') }}"
+                                    data-merchant="{{ base64_encode(json_encode($merchant)) }}"
+                                    data-lapangan="{{ base64_encode(json_encode($lapangan)) }}" id="chatThis"
+                                    onclick="event.preventDefault()" class="mx-1 btn adds btn-outline-dark"><i
+                                        class="fa-solid fa-comment"></i> Kirim Pesan</button>
+                            @endif
                         </div>
+                        @if (session('id_user') != $merchant->id_user)
+                        @endif
                         <div class="d-flex">
                         </div>
                         <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
@@ -70,6 +75,11 @@
                                 <button class="nav-link active" id="info-tab" data-bs-toggle="tab"
                                     data-bs-target="#info-tab-pane" type="button" role="tab"
                                     aria-controls="info-tab-pane" aria-selected="true">Info Lapangan</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="rating-tab" data-bs-toggle="tab"
+                                    data-bs-target="#rating-tab-pane" type="button" role="tab"
+                                    aria-controls="rating-tab-pane" aria-selected="false">Rating (0)</button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="address-tab" data-bs-toggle="tab"
@@ -84,7 +94,46 @@
                                     echo nl2br($lapangan->additional_info);
                                 @endphp
                             </div>
-                            <div class="tab-pane fade show active" id="address-tab-pane" role="tabpanel"
+                            <div class="tab-pane fade" id="rating-tab-pane" role="tabpanel" aria-labelledby="rating-tab"
+                                tabindex="0">
+                                <div class="row my-2 mx-1">
+                                    <div class="col-md-12">
+                                        <div class="py-2 px-1 border-bottom">
+                                            <div class="row">
+                                                <div class="col-md-2">
+                                                    <img src="{{ asset('assets/img/profilpic/default.png') }}"
+                                                        alt="" class="rounded-circle border" width="100%">
+                                                </div>
+                                                <div class="col-md-10">
+                                                    <div class="ms-3 w-100" style="font-size:.8em">
+                                                        <div class="row">
+                                                            <div class="d-flex col-md-6 starRating">
+                                                                <i class="fa fa-star text-warning"></i>
+                                                                <i class="fa fa-star text-warning"></i>
+                                                                <i class="fa fa-star text-warning"></i>
+                                                                <i class="fa fa-star text-muted"></i>
+                                                                <i class="fa fa-star text-muted"></i>
+                                                            </div>
+                                                            <div class="col-md-6 text-end">{{ date('d-M-Y') }}</div>
+                                                        </div>
+                                                        <div>
+                                                            Nama reviewer
+                                                        </div>
+                                                        <div class="">
+                                                            isi dari review nya
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- <div class="text-muted justify-content-center mt-5 d-flex align-items-center">
+                                    <i class="fa fa-box-open fa-2x"></i>
+                                    <div class="ms-2">Tidak ada Data</div>
+                                </div> --}}
+                            </div>
+                            <div class="tab-pane fade" id="address-tab-pane" role="tabpanel"
                                 aria-labelledby="address-tab" tabindex="0">
                                 {{ $merchant->address }}
                             </div>
@@ -96,9 +145,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="sticky-md-bottom">
-        <div class="bg-primary w-100">asdasd</div>
     </div>
 
 
@@ -229,7 +275,7 @@
     <script>
         pesanNow.addEventListener(`click`, function(e) {
             if (!this.dataset.login) {
-                loginBtn.click();
+                document.querySelector('.loginBtn').click();
                 return;
             }
             let lengthVal = Number(lengthForm.value) > 0 ? lengthForm.value : "1";
@@ -241,9 +287,9 @@
                     }
                 })
         })
-        document.querySelector(`.adds`).addEventListener('click', function(e) {
-            let length = document.querySelector(`input[name="length"]`).value;
-        });
+        // document.querySelector(`.adds`).addEventListener('click', function(e) {
+        //     let length = document.querySelector(`input[name="length"]`).value;
+        // });
 
         function onlyNumericInputs(elemSelector) {
             document.querySelectorAll(elemSelector).forEach(el => {
@@ -277,6 +323,18 @@
         document.querySelector(`[type="number"]`).addEventListener('change', function(e) {
             if (!this.value || this.value < 1 || isNaN(this.value)) return this.value = 1;
         })
+        if(document.querySelector('#chatThis')) chatThis.addEventListener(`click`, function(e) {
+            let dataLapangan = JSON.parse(atob(this.dataset.lapangan));
+            let dataMerchant = JSON.parse(atob(this.dataset.merchant));
+            let msgCont = new bootstrap.Offcanvas(messageOpened);
+            console.log(dataLapangan)
+            console.log(dataMerchant)
+        })
+
+        function gantiMsgCont(data) {
+            msgContImgMerchant.src = `assets/img/profilpic/${data.profilePic}`;
+            msgContNameMerchant.innerHTML = data.merchantName;
+        }
     </script>
 @endsection
 @section('js-tambahan')
