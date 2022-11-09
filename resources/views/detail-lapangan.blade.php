@@ -52,6 +52,7 @@
                             </h6>
                         </div>
                         <p class="card-text">{{ ucwords($merchant->name_merchant) }}</p>
+                        @if (session('id_user') != $merchant->user_id)
                         <div class="d-flex">
                             <input type="number" min="1" name="lengthForm" id="lengthForm" value="1"
                                 class="form-control w-25 mx-1">
@@ -60,13 +61,11 @@
                                     class="fa-solid fa-plus"></i> Pesan Sekarang</button>
                             @if (session()->has('id_user'))
                                 <button data-login="{{ session('id_user') }}"
-                                    data-merchant="{{ base64_encode(json_encode($merchant)) }}"
-                                    data-lapangan="{{ base64_encode(json_encode($lapangan)) }}" id="chatThis"
+                                    data-msgObj="{{ $objMsg }}"
                                     onclick="event.preventDefault()" class="mx-1 btn adds btn-outline-dark"><i
                                         class="fa-solid fa-comment"></i> Kirim Pesan</button>
                             @endif
                         </div>
-                        @if (session('id_user') != $merchant->id_user)
                         @endif
                         <div class="d-flex">
                         </div>
@@ -273,7 +272,7 @@
         </div>
     </div>
     <script>
-        pesanNow.addEventListener(`click`, function(e) {
+        if(document.querySelector("#pesanNow")) pesanNow.addEventListener(`click`, function(e) {
             if (!this.dataset.login) {
                 document.querySelector('.loginBtn').click();
                 return;
@@ -320,20 +319,47 @@
             });
         }
         onlyNumericInputs(`[type="number"]`)
-        document.querySelector(`[type="number"]`).addEventListener('change', function(e) {
+        if(document.querySelector(`[type="number"]`))document.querySelector(`[type="number"]`).addEventListener('change', function(e) {
             if (!this.value || this.value < 1 || isNaN(this.value)) return this.value = 1;
         })
-        if(document.querySelector('#chatThis')) chatThis.addEventListener(`click`, function(e) {
-            let dataLapangan = JSON.parse(atob(this.dataset.lapangan));
-            let dataMerchant = JSON.parse(atob(this.dataset.merchant));
+        if (document.querySelector('#chatThis')) chatThis.addEventListener(`click`, function(e) {
+            let dataMsg = JSON.parse(atob(this.dataset.msgobj));
             let msgCont = new bootstrap.Offcanvas(messageOpened);
-            console.log(dataLapangan)
-            console.log(dataMerchant)
+            gantiMsgCont(dataMsg);
+            msgCont.show();
         })
 
         function gantiMsgCont(data) {
-            msgContImgMerchant.src = `assets/img/profilpic/${data.profilePic}`;
+            msgContImgMerchant.src = `/assets/img/profilpic/${data.profilePic}`;
             msgContNameMerchant.innerHTML = data.merchantName;
+            document.querySelector(`form [name="target_id"]`).value = data.userId;
+            // msgContBody.innerHTML = `
+        // <div class="start-0 end-0 text-center top-0 position-absolute">
+        //     <div class="spinner-border" role="status">
+        //         <span class="visually-hidden">Loading...</span>
+        //     </div>
+        // </div>`;
+            let tagElem = `
+            <div id="tagLapanganActive" data-refid="${data.userId}" class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light position-sticky bottom-0">
+                <div class="row">
+                    <div class="col-2">
+                        <img src="${data.urlCover}" style="width: 50px;">
+                    </div>
+                    <div class="col-9">
+                        <div>${data.namaLapangan}</div>
+                        <div>${data.hargaLapangan}</div>
+                    </div>
+                    <div class="col-1">
+                        <button id="tagLapanganClose" style="font-size: .6em;vertical-align: top;"
+                            class="btn-close pt-1"></button>
+                    </div>
+                </div>
+            </div>
+            `;
+            msgContBody.insertAdjacentHTML('afterEnd', tagElem);
+            if(tagLapanganClose) tagLapanganClose.addEventListener('click', function(e) {
+                if(tagLapanganActive)tagLapanganActive.remove()
+            })
         }
     </script>
 @endsection

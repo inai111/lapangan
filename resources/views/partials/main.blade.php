@@ -30,7 +30,7 @@
                         <li><a href="/dashboard" class="dropdown-item" href="#">Dashboard</a></li>
                       <li><a href="/settings" class="dropdown-item" href="#">Setting</a></li>
                       <li><hr class="dropdown-divider"></li>
-                      <li><a href="logout" class="dropdown-item" href="#">Logout</a></li>
+                      <li><a href="/logout" class="dropdown-item" href="#">Logout</a></li>
                     </ul>
                 </div>
                 @else

@@ -126,7 +126,7 @@ class Home extends Controller
                     $lapangan = Lapangan::orderBy('id',$sort_by)->where('nama','like',"%$search_arr[0]%");
                     $lapangan = $lapangan->take(3)->get()->toArray();
                     foreach($lapangan as $key => $item){
-                        $lapangan[$key]['merchant'] = Merchant::find($item['merchant_id']);
+                        $lapangan[$key]['merchant'] = Merchant::where('id',$item['merchant_id']);
                     }
                     $result = array_merge($merchant,$lapangan);
                 break;
@@ -139,11 +139,24 @@ class Home extends Controller
 
     public function detail_lapangan($id)
     {
-        $lapangan = Lapangan::find($id)->first();
+        $lapangan = Lapangan::where('id',$id)->first();
+        $lapangan->harga = number_format($lapangan->harga,0,',','.');
+        $merchant = Merchant::where('id',$lapangan->merchant_id)->first();
+        $objMsg = [
+            'profilePic'=>$merchant->user->photo,
+            'merchantName'=>$merchant->name_merchant,
+            'id_merchant'=>$merchant->id,
+            'lapaganId'=>$lapangan->id,
+            'userId'=>$merchant->user_id,
+            'namaLapangan'=>ucwords(strtolower($lapangan->nama)),
+            'hargaLapangan'=>"Rp. {$lapangan->harga} /Jam",
+            'urlCover'=>"/assets/img/profilpic/default.png",
+        ];
         $data = [
             'lapangan'=>$lapangan,
             'galeries'=>Gallery::where('ref_id',$id)->get()->toArray(),
-            'merchant'=>Merchant::find($lapangan->merchant_id)->first()
+            'merchant'=>$merchant,
+            'objMsg'=>base64_encode(json_encode($objMsg))
         ];
         return view("detail-lapangan",$data);
     }
@@ -155,10 +168,10 @@ class Home extends Controller
             "message"=>"Tidak ada Jadwal yang dapat di ambil"
         ];
         if(empty($lengthThisBook)) return response()->json($response);
-        $thisBook = Booklists::find($id)->first();
-        $lapangan = Lapangan::find($thisBook->lapangan_id)->first();
+        $thisBook = Booklists::where('id',$id)->first();
+        $lapangan = Lapangan::where('id',$thisBook->lapangan_id)->first();
         if(empty($lapangan)) return response()->json($response);
-        $merchant = Merchant::find($lapangan->merchant_id)->first();
+        $merchant = Merchant::where('id',$lapangan->merchant_id)->first();
         if(empty($merchant)) return response()->json($response);
         $booklists = Booklists::where('lapangan_id','=',$thisBook->lapangan_id)
         ->where('jam_akhir',">=",date("Y-m-d H:0:0"))->get()->all();
@@ -210,8 +223,9 @@ class Home extends Controller
 
     public function detail_merchant($id)
     {
-        $merchant = Merchant::find($id)->first();
-        $user = User::find($merchant->user_id)->first();
+        $merchant = Merchant::where('id',$id)->where('active','active')->first();
+        if(empty($merchant)) return abort(404);
+        $user = User::where('id',$merchant->user_id)->first();
         $lapangan = Lapangan::where("merchant_id",$merchant->id)->get()->all();
         $data = [
             'merchant'=>$merchant,

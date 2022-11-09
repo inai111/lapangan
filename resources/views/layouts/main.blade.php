@@ -62,8 +62,8 @@
         id="messageOpened" aria-labelledby="messageOpenedLabel">
         <div class="offcanvas-header border-bottom">
             <div class="d-flex align-items-center">
-                <img id="msgContImgMerchant" class="rounded-circle bg-light" src="{{ asset('assets/img/profilpic/default.png') }}"
-                    style="width: 20%" alt="">
+                <img id="msgContImgMerchant" class="rounded-circle bg-light"
+                    src="{{ asset('assets/img/profilpic/default.png') }}" style="width: 20%" alt="">
                 <div class="ps-3 text-start">
                     <h5 id="msgContNameMerchant" class="offcanvas-title">Nama Pengirim</h5>
                     {{-- <small>{{ date('d-F-Y H:i:s') }}</small> --}}
@@ -73,7 +73,7 @@
                 data-bs-target="#listMessage"><i class="fa fa-chevron-left"></i></button>
         </div>
         <div class="offcanvas-body">
-            <div class="position-relative h-75" style="overflow-y:scroll;word-wrap:anywhere">
+            <div id="msgContBody" class="position-relative h-75" style="overflow-y:scroll;word-wrap:anywhere">
                 <div class="rounded-pill position-sticky top-0 bg-secondary mx-auto px-3 py-1 my-2 mb-4 text-light"
                     style="width:fit-content">{{ date('d-M-Y', strtotime('-5month')) }}</div>
                 <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
@@ -98,17 +98,20 @@
                 </div>
                 <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
                 </div>
-                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa</div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa
                 </div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa</div>
                 <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
                 </div>
                 <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
                 </div>
-                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa</div>
+                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa
+                </div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
+                </div>
+                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa
+                </div>
                 <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
                 </div>
                 <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
@@ -123,7 +126,7 @@
                 </div>
             </div>
             <div class="pt-3">
-                <form class="row align-items-center">
+                <form id="messageForm" class="row align-items-center">
                     <div class="col-10 pe-0">
                         <div class="input-group">
                             <input type="hidden" name="user_id">
@@ -142,6 +145,17 @@
 
         </div>
     </div>
+    <script>
+        if(document.querySelector(`#sendMessage`)) sendMessage.addEventListener('click',function(e){
+            e.preventDefault();
+            let myData = new FormData(messageForm);
+            if(document.querySelector('#tagLapanganActive'))myData.append('ref_id',tagLapanganActive.dataset.refid);
+            fetch('/send-message',{method:"POST",body:myData})
+            .then(ee=>ee.json())
+            .then(res=>console.log(res))
+            
+        });
+    </script>
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"
