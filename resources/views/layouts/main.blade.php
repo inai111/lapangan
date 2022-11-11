@@ -129,9 +129,9 @@
                 <form id="messageForm" class="row align-items-center">
                     <div class="col-10 pe-0">
                         <div class="input-group">
+                            @csrf
                             <input type="hidden" name="user_id">
                             <input type="hidden" name="target_id">
-                            <input type="hidden" name="post_id">
                             <textarea name="message" type="text" class="form-control" id="message" placeholder="Message"
                                 style="resize: none"></textarea>
                         </div>
@@ -152,9 +152,78 @@
             if(document.querySelector('#tagLapanganActive'))myData.append('ref_id',tagLapanganActive.dataset.refid);
             fetch('/send-message',{method:"POST",body:myData})
             .then(ee=>ee.json())
-            .then(res=>console.log(res))
+            .then(res=>{
+                console.log(res);
+                messageForm.querySelector('textarea[name="message"]').classList.remove('is-invalid');
+                if(res.validation.message){
+                    messageForm.querySelector('textarea[name="message"]').classList.add('is-invalid');
+                }
+                if(res.status) 
+                {
+                    messageForm.querySelector('textarea[name="message"]').value = '';
+                    if(document.querySelector('#tagLapanganActive'))document.querySelector('#tagLapanganActive').remove();
+                }
+            })
             
         });
+        let currentTarget,messageVault;
+        function updateMsgCont()
+        {
+            if(!document.querySelector(`#messageForm input[name="target_id"]`))return;
+            let target = document.querySelector(`#messageForm input[name="target_id"]`).value;
+            if(!target)return;
+            fetch(`/get-message?target_id=${target}`)
+            .then(ee=>ee.json())
+            .then(res=>{
+                // cek dulu apakah sama? kalau sama maka ambil last nya aja dan append
+                // if(currentTarget != target)
+                // {
+                //     res
+                // }
+                currentTarget = target;
+                let messageElem = ``;
+                let tanggal;
+                res.messages.forEach(msg=>{
+                    if(tanggal != msg.tanggal){
+                        tanggal = msg.tanggal;
+                        messageElem +=`
+                        <div class="rounded-pill position-sticky top-0 bg-secondary mx-auto px-3 py-1 my-2 mb-4 text-light"
+                    style="width:fit-content">${msg.tanggal}</div>
+                        `;
+                    }
+                    let pos = `bg-dark ms-auto`;//kanan
+                    if(msg.from_id == target)pos = `bg-secondary me-auto`//kiri
+                    if(msg.ref_id){
+                        let pos2 = pos.indexOf('ms-auto')>=0?"ms-auto":"me-auto";
+                        messageElem += `
+                        <div data-href="/lapangan/${msg.ref_id}" style="cursor:pointer" class="rounded ${pos2} bg-danger px-3 py-1 mb-1 text-light w-75 clickAbleMessage">
+                            <div class="row">
+                                <div class="col-2">
+                                    <img src="${msg.lapangan.cover}" style="width: 50px;">
+                                </div>
+                                <div class="col-10 text-end">
+                                    <div>${msg.lapangan.nama}</div>
+                                    <div>${msg.lapangan.harga}</div>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    }
+                    messageElem += `
+                    <div class="rounded ${pos} px-3 py-1 mb-1 text-light" style="width:fit-content">
+                        ${msg.body}
+                        <div class="text-end" style="font-size: .8em;">${msg.jam}</div>
+                    </div>`;
+                })
+                msgContBody.insertAdjacentHTML('afterbegin',messageElem);
+                document.querySelectorAll(`.clickAbleMessage`).forEach(elem=>{
+                    elem.addEventListener(`click`,function(e){
+                        window.location.href = this.dataset.href;
+                    })
+                })
+                console.log(res);
+            })
+        }
     </script>
 
 

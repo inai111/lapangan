@@ -62,7 +62,8 @@
                             @if (session()->has('id_user'))
                                 <button data-login="{{ session('id_user') }}"
                                     data-msgObj="{{ $objMsg }}"
-                                    onclick="event.preventDefault()" class="mx-1 btn adds btn-outline-dark"><i
+                                    id="chatThis"
+                                    onclick="event.preventDefault()" class="mx-1 btn btn-outline-dark"><i
                                         class="fa-solid fa-comment"></i> Kirim Pesan</button>
                             @endif
                         </div>
@@ -333,6 +334,8 @@
             msgContImgMerchant.src = `/assets/img/profilpic/${data.profilePic}`;
             msgContNameMerchant.innerHTML = data.merchantName;
             document.querySelector(`form [name="target_id"]`).value = data.userId;
+            msgContBody.innerHTML = ``;
+            updateMsgCont();
             // msgContBody.innerHTML = `
         // <div class="start-0 end-0 text-center top-0 position-absolute">
         //     <div class="spinner-border" role="status">
@@ -356,9 +359,10 @@
                 </div>
             </div>
             `;
+            if(document.querySelector('#tagLapanganActive')) document.querySelector('#tagLapanganActive').remove();
             msgContBody.insertAdjacentHTML('afterEnd', tagElem);
             if(tagLapanganClose) tagLapanganClose.addEventListener('click', function(e) {
-                if(tagLapanganActive)tagLapanganActive.remove()
+                if(tagLapanganActive)tagLapanganActive.remove();
             })
         }
     </script>

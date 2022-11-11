@@ -6,6 +6,7 @@ use App\Models\Booklists;
 use App\Models\Gallery;
 use App\Models\Lapangan;
 use App\Models\Merchant;
+use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -233,5 +234,65 @@ class Home extends Controller
             'lapangan'=>$lapangan
         ];
         return view("beranda-merchant",$data);
+    }
+
+    public function sending_message(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'message'=> 'required',
+            'target_id'=> 'required',
+        ]);
+        $response = [
+            'status'=>false,
+            'validation'=>[],
+            'message'=>'',
+        ];
+        if($validator->fails()){
+            $response['validation'] = $validator->errors();
+            $response['message'] = "Please check your input again!";
+            return response()->json($response);
+        }
+        $message = new Message();
+        $message->from_id = session('id_user');
+        $message->to_id = $request->target_id;
+        $message->body = $request->message;
+        $message->read = 0;
+        $message->ref_id = $request->ref_id;
+        $response['status'] = $message->save();
+        return response()->json($response);
+    }
+
+    public function get_message(Request $request)
+    {
+        if(!session()->has('id_user')) return redirect('/');
+        $target = $request->get('target_id');
+        if(!$target) return response()->json(['message'=>[]]);
+        $user_id = session('id_user');
+        // $messages = Message::where("from_id",$user_id)->orwhere('to_id',$user_id)->orwhere('from_id',$target)->orwhere('to_id',$target)->get()->all();
+        $messages = Message::where(function($query) use($target,$user_id){
+            $query->where('from_id',$target);
+            $query->where('to_id',$user_id);
+        })->orwhere(function($query) use($target,$user_id){
+            $query->where('from_id',$user_id);
+            $query->where('to_id',$target);
+        })->get()->all();
+        foreach($messages as $key => $msg)
+        {
+            $messages[$key]['tanggal'] = date('d-M-Y',strtotime($msg['created_at']));
+            $messages[$key]['jam'] = date('H:i',strtotime($msg['created_at']));
+            if($msg['ref_id']) {
+                $lapangan = Lapangan::select('nama','harga','cover')->where('id',$msg['ref_id'])->get()->first();
+                $messages[$key]['lapangan'] = $lapangan;
+                $messages[$key]['lapangan']['cover'] = asset("assets/img/profilpic/{$lapangan->cover}");//path cover lapangan message
+                $messages[$key]['lapangan']['harga'] = number_format($lapangan->harga,0,',','.');//path cover lapangan message
+                $messages[$key]['lapangan']['nama'] = ucwords(strtolower($lapangan->nama));//path cover lapangan message
+            }
+        }
+        $result = [
+            'messages'=>$messages,
+            'last'=>end($messages),
+        ];
+        // dd(($messages));
+        return response()->json($result);
     }
 }
