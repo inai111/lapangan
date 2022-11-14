@@ -203,7 +203,7 @@
                                 </div>
                                 <div class="col-10 text-end">
                                     <div>${msg.lapangan.nama}</div>
-                                    <div>${msg.lapangan.harga}</div>
+                                    <div>Rp. ${msg.lapangan.harga}</div>
                                 </div>
                             </div>
                         </div>

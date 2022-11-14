@@ -22,7 +22,7 @@ return new class extends Migration
             $table->dateTime('jam_akhir')->nullable();
             $table->integer('length');
             $table->integer('rating')->nullable();
-            $table->integer('review')->nullable();
+            $table->text('review')->nullable();
             $table->enum('type_pembayaran',['cash','transfer']);
             $table->enum('status',['pending','on_going','complete','cancel']);
             $table->timestamps();

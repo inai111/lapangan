@@ -11,8 +11,15 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Midtrans\Config;
+use Midtrans\Transaction;
+use Midtrans\Snap;
 class Dashboard extends Controller
 {
+    public function __construct()
+    {
+        Config::$serverKey = "SB-Mid-server-0PUgUrRzyAhpN0qslKhm01fM";
+    }
     public function index()
     {
         $user = User::where('id',session('id_user'))->first();
@@ -162,7 +169,9 @@ class Dashboard extends Controller
     public function trans_lapangan()
     {
         $user = User::where('id',session('id_user'))->first();
-        $booklists = Booklists::where('user_id', $user['id'])->get()->all();
+        $booklists['pending'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','pending')->get()->all();
+        $booklists['ongoing'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','on_going')->get()->all();
+        $booklists['complete'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','complete')->get()->all();
         $data = [
             'user' => $user,
             'booklists'=>$booklists,
@@ -270,5 +279,99 @@ class Dashboard extends Controller
             $response['status'] = true;
         }
         return response()->json($response);
+    }
+
+    public function deleting_transaction(Request $request)
+    {
+        if(empty($request->post('id'))) return redirect()->back()->with("failed-message","Tidak ada transaksi yang dihapus!");
+        $booklist = Booklists::where('id',$request->post('id'))->get()->first();
+        if(empty($booklist)) return redirect()->back()->with("failed-message","Tidak ada transaksi yang dihapus!");
+        $booklist->status = 'cancel';
+        $booklist->updated_at = date("Y-m-d H:i:s");
+        if($booklist->save()) return redirect()->back()->with("success-message","Tidak ada transaksi yang dihapus!");
+        return redirect()->back()->with("failed-message","Tidak ada transaksi yang dihapus!");
+    }
+    
+    public function booking_date(Request $request)
+    {
+        if(empty($request->post('id'))) return redirect()->back()->with("failed-message","Jadwal Gagal di booking!");
+        $booklist = Booklists::where('id',$request->post('id'))->get()->first();
+        if(empty($booklist)) return redirect()->back()->with("failed-message","Jadwal Gagal di booking!");
+        $hours = explode(' - ',$request->post('hour'));
+        $date = $request->post('date');
+        $booklist->jam_awal = "{$date} {$hours[0]}";
+        $booklist->jam_akhir = "{$date} {$hours[1]}";
+        $booklist->updated_at = date("Y-m-d H:i:s");
+        if($booklist->save()) return redirect()->back()->with("success-message","Jadwal berhasil di booking!");
+        return redirect()->back()->with("failed-message","Jadwal Gagal di booking!");
+    }
+
+    public function checking_transaction(Request $request)
+    {
+        $response = [
+            'status'=>false,
+            'token'=>'',
+            'message'=>"Tidak ada data."
+        ];
+        if(!session()->has('id_user')) return response()->json($response);
+        $id = $request->get('id');
+        if(!$id) return response()->json($response);
+        $user = User::where('id',session('id_user'))->get()->first();
+        $booklist = Booklists::where('id',$id)->get()->first();
+        if(!$booklist) return response()->json($response);
+        $transaction = Transactions::where('booklists_id',$id)->get()->first();
+        $response['message'] = '';
+        if(!$transaction)
+        {
+            $transaction = new Transactions();
+            $transaction->token = "LAP-$id".session('id_user').rand(000000,999999);
+            $transaction->status = "pending";
+            $transaction->booklists_id = $id;
+            if($transaction->save()){
+                $params = [
+                    'transaction_details'=>[
+                        'order_id'=>$transaction->token,
+                        'gross_amount'=>$booklist->length
+                    ],
+                    'customer_details'=>[
+                        'first_name'=>$user->name,
+                        'phone'=>$user->number,
+                    ]
+                ];
+                // $midtransTrans = Snap::createTransaction($params);
+                $midtransTrans = Snap::getSnapToken($params);
+            }
+        }
+        $params = [
+            'transaction_details'=>[
+                'order_id'=>$transaction->token,
+                'gross_amount'=>$booklist->length
+            ],
+            'customer_details'=>[
+                'first_name'=>$user->name,
+                'phone'=>$user->number,
+            ]
+        ];
+        // $midtransTrans = Snap::createTransaction($params);
+        // dd(Snap::createTransaction($params));
+        dd(Transaction::status("516b28e5-a9f8-4e82-b8b3-60f199aecf5a"));
+        // 53b10ae9-861e-4875-879a-4e0ac51e7fa4
+        // 516b28e5-a9f8-4e82-b8b3-60f199aecf5a
+        $response['midtrans']=Transaction::status($transaction->token);
+        $response['status'] = true;
+        $response['token'] = $transaction->token;
+        return response()->json($response);
+    }
+
+    public function saving_review(Request $request)
+    {
+        if(!session()->has('id_user')) return redirect()->back()->with("failed-message","Rating kamu gagal kami simpan!");
+        $user_id = session('id_user');
+        $booklist = Booklists::where('id',$request->id)->get()->first();
+        if($booklist->status != 'complete') return redirect()->back()->with("failed-message","Rating kamu gagal kami simpan!");
+        $booklist->rating = $request->rating;
+        $booklist->review = $request->review;
+        if(!$booklist->save()) return redirect()->back()->with("failed-message","Rating kamu gagal kami simpan!");
+        return redirect()->back()->with("success-message","Rating kamu berhasil kami simpan!");
     }
 }

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('token');
             $table->foreignId('booklists_id');
             // $table->string('bukti')->nullable();
-            $table->enum('status',['gagal','berhasil'])->nullable();
+            $table->enum('status',['gagal','pending','berhasil'])->nullable();
             $table->timestamps();
         });
     }

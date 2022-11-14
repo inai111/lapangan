@@ -15,8 +15,8 @@ use Illuminate\Support\Facades\Hash;
 
 class Home extends Controller
 {
-    public function index(){
-        
+    public function index()
+    {
         return view('home');
     }
 

@@ -40,8 +40,12 @@ Route::controller(Dashboard::class)->group(function(){
     Route::get('/add-lapangan', 'lapangan_store');
     Route::post('/add-lapangan', 'add_lapangan_store');
     Route::post('/admin-merchant-status', 'merchant_status_change');
+    Route::post('/delete-trans', 'deleting_transaction');
+    Route::post('/book-date', 'booking_date');
+    Route::post('/save-review', 'saving_review');
     Route::get('/user-transactions', 'trans_lapangan')->middleware('auth');
     Route::get('/admin-merchant', 'merchant_list');
+    Route::get('/cek-transaksi', 'checking_transaction');
     // Route::get('/user-transactions', 'book_lapangan');
     // Route::post('/login', 'login');
     Route::get('/registes', 'tesget');
