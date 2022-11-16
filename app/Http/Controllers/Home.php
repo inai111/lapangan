@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking_date;
 use App\Models\Booklists;
 use App\Models\Gallery;
 use App\Models\Lapangan;
@@ -86,7 +87,7 @@ class Home extends Controller
             $userCreate->username = $username;
             $userCreate->number = $number;
             $userCreate->password = Hash::make($password);
-            // $userCreate->save();
+            $userCreate->save();
             $response['status'] = true;
             $response['message'] = "Account has been registered and activated.";
 
@@ -163,59 +164,79 @@ class Home extends Controller
     }
     public function get_jadwal_lapangan($id,Request $request)
     {
-        $lengthThisBook = $request->get('length');
         $response = [
             'status'=>false,
             "message"=>"Tidak ada Jadwal yang dapat di ambil"
         ];
-        if(empty($lengthThisBook)) return response()->json($response);
+        $tanggal = $request->get('tanggal');
+        if(empty($tanggal)) return response()->json($response);
         $thisBook = Booklists::where('id',$id)->first();
         $lapangan = Lapangan::where('id',$thisBook->lapangan_id)->first();
+        $bookingan = Booking_date::where('lapangan_id',$id)->where('tanggal',$tanggal)->get()->all();
         if(empty($lapangan)) return response()->json($response);
         $merchant = Merchant::where('id',$lapangan->merchant_id)->first();
         if(empty($merchant)) return response()->json($response);
-        $booklists = Booklists::where('lapangan_id','=',$thisBook->lapangan_id)
-        ->where('jam_akhir',">=",date("Y-m-d H:0:0"))->get()->all();
-        $init_jam = strtotime($merchant->open);
-        $jam = $init_jam;
-        $open_jam = $init_jam;
-        $close_jam = strtotime($merchant->close);
+        $open = date("H",strtotime($merchant->open));
+        $close = date("H",strtotime($merchant->close));
         $available_jam = [];
-        $i = 0;
-        $end_loop = strtotime("+3day".$merchant->open);
-        do{
-            $i ++;
-            if($jam<$close_jam && $jam>=$open_jam){
-                if($booklists){
-                    foreach($booklists as $booklist){
-                        // $available_jam[]=date("Y-m-d H:00:00",$jam);
-                        $book_awal = strtotime($booklist->jam_awal);
-                        $book_akhir = strtotime($booklist->jam_akhir);
-                        $thisBookEnd = strtotime("+$lengthThisBook hour".date("Y-m-d H:00:00",$jam));
-                        if($book_awal !== $jam && $thisBookEnd < $close_jam && $jam !== $close_jam){
-                            $available_jam[date("Y-m-d",$jam)][]= date('H:00:00',$jam)." - ".date('H:00:00',$thisBookEnd) ;
-                            $jam = strtotime("+1Hour".date("Y-m-d H:00:00",$jam));
-                        }else if($book_awal == $jam){
-                            $lengthBook = $booklist->length;
-                            $jam = strtotime("+$lengthBook Hour".date("Y-m-d H:00:00",$jam));
-                        }else{
-                            $jam = strtotime("+1Hour".date("Y-m-d H:00:00",$jam));
-                        }
-                    }
-                }else{
-                    if($jam !== $close_jam){
-                        $thisBookEnd = strtotime("+$lengthThisBook hour".date("Y-m-d H:00:00",$jam));
-                        $available_jam[date("Y-m-d",$jam)][]= date('H:00:00',$jam)." - ".date('H:00:00',$thisBookEnd) ;
-                        $jam = strtotime("+1Hour".date("Y-m-d H:00:00",$jam));
-                    }
-                }
-            }else {
-                $open_jam = strtotime("+1day".date("Y-m-d H:00:00",$open_jam));
-                $jam = $open_jam;
-                $close_jam = strtotime("+1day".date("Y-m-d H:00:00",$close_jam));
-            }
+        $i =0;
+        for($open;$open<$close;$open++){
 
-        }while($jam < $end_loop);
+            $available_jam [$i] = [
+                'tanggal'=>$tanggal,
+                'jam'=>"$open:00",
+                'harga'=>$lapangan->harga,
+                'book'=>false
+            ];
+            if($bookingan){
+                foreach($bookingan as $book){
+                    if($open == date("H",strtotime($book->jam))) $available_jam[$i]['book'] = true;
+                }
+            }
+            $i++;
+        }
+        // $booklists = Booklists::where('lapangan_id','=',$thisBook->lapangan_id)
+        // ->where('jam_akhir',">=",date("Y-m-d H:0:0"))->get()->all();
+        // $init_jam = strtotime($merchant->open);
+        // $jam = $init_jam;
+        // $open_jam = $init_jam;
+        // $close_jam = strtotime($merchant->close);
+        // $available_jam = [];
+        // $i = 0;
+        // $end_loop = strtotime("+3day".$merchant->open);
+        // do{
+        //     $i ++;
+        //     if($jam<$close_jam && $jam>=$open_jam){
+        //         if($booklists){
+        //             foreach($booklists as $booklist){
+        //                 // $available_jam[]=date("Y-m-d H:00:00",$jam);
+        //                 $book_awal = strtotime($booklist->jam_awal);
+        //                 $book_akhir = strtotime($booklist->jam_akhir);
+        //                 $thisBookEnd = strtotime("+$lengthThisBook hour".date("Y-m-d H:00:00",$jam));
+        //                 if($book_awal !== $jam && $thisBookEnd < $close_jam && $jam !== $close_jam){
+        //                     $available_jam[date("Y-m-d",$jam)][]= date('H:00:00',$jam)." - ".date('H:00:00',$thisBookEnd) ;
+        //                     $jam = strtotime("+1Hour".date("Y-m-d H:00:00",$jam));
+        //                 }else if($book_awal == $jam){
+        //                     $lengthBook = $booklist->length;
+        //                     $jam = strtotime("+$lengthBook Hour".date("Y-m-d H:00:00",$jam));
+        //                 }else{
+        //                     $jam = strtotime("+1Hour".date("Y-m-d H:00:00",$jam));
+        //                 }
+        //             }
+        //         }else{
+        //             if($jam !== $close_jam){
+        //                 $thisBookEnd = strtotime("+$lengthThisBook hour".date("Y-m-d H:00:00",$jam));
+        //                 $available_jam[date("Y-m-d",$jam)][]= date('H:00:00',$jam)." - ".date('H:00:00',$thisBookEnd) ;
+        //                 $jam = strtotime("+1Hour".date("Y-m-d H:00:00",$jam));
+        //             }
+        //         }
+        //     }else {
+        //         $open_jam = strtotime("+1day".date("Y-m-d H:00:00",$open_jam));
+        //         $jam = $open_jam;
+        //         $close_jam = strtotime("+1day".date("Y-m-d H:00:00",$close_jam));
+        //     }
+
+        // }while($jam < $end_loop);
         $response['status']=true;
         $response['data']=$available_jam;
         $response['message']='';
@@ -288,11 +309,40 @@ class Home extends Controller
                 $messages[$key]['lapangan']['nama'] = ucwords(strtolower($lapangan->nama));//path cover lapangan message
             }
         }
+        // update read
+        $update_batch = Message::where('to_id',$user_id)->where('from_id',$target)->where('read',0)->get();
+        foreach($update_batch as $update)
+        {
+            $update->read = 1;
+            $update->save();
+        }
         $result = [
             'messages'=>$messages,
             'last'=>end($messages),
         ];
         // dd(($messages));
         return response()->json($result);
+    }
+
+    public function get_unread_message()
+    {
+        $response = [
+            'status'=> false
+        ];
+        if(!session()->has('id_user')) return response()->json($response);
+        $id = session('id_user');
+        $unread_message = Message::where('to_id',$id)->where('read',0)->get()->all();
+        $messages = Message::where('to_id',$id)->orderby('id','desc')->get()->unique('from_id');
+        foreach($messages as $key => $val){
+            $user = User::select('id','name','photo')->where('id',$val['from_id'])->get()->first();
+            $user->name = ucwords(strtolower($user['name']));
+            $user->photo = "/assets/img/profilpic/".$user->photo;
+            $messages[$key]['user'] = $user;
+            $messages[$key]['tanggal'] = date("d-F-Y H:i:s",strtotime($val['created_at']));
+        }
+        $response['status']=true;
+        $response['unreadMessages']=$unread_message;
+        $response['messages']=$messages;
+        return response()->json($response);
     }
 }

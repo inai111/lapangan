@@ -40,20 +40,6 @@
                         </button>
                     </div>
                 </div>
-                <div class="col-md-12">
-                    <div class="pb-1">
-                        <button data-bs-toggle="offcanvas" data-bs-target="#messageOpened" data-obj=""
-                            class="btn d-flex align-items-center btn-secondary text-light rounded-pill openMessage">
-                            <img class="rounded-circle bg-light" src="{{ asset('assets/img/profilpic/default.png') }}"
-                                style="width: 20%" alt="">
-                            <div class="ps-3 text-start">
-                                <div>Nama Pengirim</div>
-                                <div>asdasdasdasd</div>
-                                <small>{{ date('d-F-Y H:i:s') }}</small>
-                            </div>
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -73,58 +59,7 @@
                 data-bs-target="#listMessage"><i class="fa fa-chevron-left"></i></button>
         </div>
         <div class="offcanvas-body">
-            <div id="msgContBody" class="position-relative h-75" style="overflow-y:scroll;word-wrap:anywhere">
-                <div class="rounded-pill position-sticky top-0 bg-secondary mx-auto px-3 py-1 my-2 mb-4 text-light"
-                    style="width:fit-content">{{ date('d-M-Y', strtotime('-5month')) }}</div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded-pill position-sticky top-0 bg-secondary mx-auto px-3 py-1 my-2 mb-4 text-light"
-                    style="width:fit-content">{{ date('d-M-Y') }}</div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa</div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">
-                    'asdasdasd'
-                    <div class="text-end" style="font-size: .8em;">21:00</div>
-                </div>
-                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa</div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa
-                </div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa
-                </div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa
-                </div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa
-                </div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-dark ms-auto px-3 py-1 mb-1 text-light" style="width:fit-content">asdasdasdas
-                </div>
-                <div class="rounded bg-secondary me-auto px-3 py-1 mb-1 text-light" style="width:fit-content">apa
-                </div>
-            </div>
+            <div id="msgContBody" class="position-relative h-75" style="overflow-y:scroll;word-wrap:anywhere"></div>
             <div class="pt-3">
                 <form id="messageForm" class="row align-items-center">
                     <div class="col-10 pe-0">
@@ -162,6 +97,8 @@
                 {
                     messageForm.querySelector('textarea[name="message"]').value = '';
                     if(document.querySelector('#tagLapanganActive'))document.querySelector('#tagLapanganActive').remove();
+                    updateMsgCont();
+                    msgContBody.scrollTop = msgContBody.scrollHeight;
                 }
             })
             
@@ -176,12 +113,8 @@
             .then(ee=>ee.json())
             .then(res=>{
                 // cek dulu apakah sama? kalau sama maka ambil last nya aja dan append
-                // if(currentTarget != target)
-                // {
-                //     res
-                // }
-                currentTarget = target;
                 let messageElem = ``;
+                currentTarget = target;
                 let tanggal;
                 res.messages.forEach(msg=>{
                     if(tanggal != msg.tanggal){
@@ -215,15 +148,69 @@
                         <div class="text-end" style="font-size: .8em;">${msg.jam}</div>
                     </div>`;
                 })
-                msgContBody.insertAdjacentHTML('afterbegin',messageElem);
+                messageVault = messageElem;
+                // msgContBody.insertAdjacentHTML('afterbegin',messageElem);
+                msgContBody.innerHTML = messageElem;
                 document.querySelectorAll(`.clickAbleMessage`).forEach(elem=>{
                     elem.addEventListener(`click`,function(e){
                         window.location.href = this.dataset.href;
                     })
                 })
-                console.log(res);
+                // document.querySelector(`textarea#message`).value = '';
             })
         }
+        let worker = new Worker('/assets/js/worker.js')
+        worker.addEventListener('message',e=>{
+            let data = e.data;
+            if(data.status){
+                if(data.unreadMessages.length > 0){
+                    messageBadge.style.display = '';
+                    messageBadge.innerText = data.unreadMessages.length;
+
+                }else messageBadge.style.display = 'none';
+                if(data.messages){
+                    let messageElem = ``;
+                    data.messages.forEach(message=>{
+                        messageElem += `
+                        <div class="col-md-12">
+                            <div class="pb-1">
+                                <button data-obj="${btoa(JSON.stringify(message.user))}"
+                                    class="btn d-flex align-items-center btn-secondary text-light rounded position-relative openMessage">
+                                    ${message.read?'':`<span class="badge bg-danger position-absolute end-0 mt-1 me-1">New</span>`}
+                                    <img class="rounded-circle bg-light" src="${message.user.photo}"
+                                        style="width: 20%" alt="">
+                                    <div class="ps-3 text-start">
+                                        <div>${message.user.name}</div>
+                                        <div>${message.body}</div>
+                                        <small>${message.tanggal}</small>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    })
+                    document.querySelector(`#listMessage .offcanvas-body .row`).innerHTML = messageElem;
+                    document.querySelectorAll(`.openMessage`).forEach(elem=>{
+                        elem.addEventListener('click',function(e){
+                            let user = JSON.parse(atob(this.dataset.obj))
+                            if(document.querySelector(`#messageForm input[name="target_id"]`)) document.querySelector(`#messageForm input[name="target_id"]`).value = user.id;
+                            updateMsgCont();
+                            msgContImgMerchant.src = user.photo;
+                            msgContNameMerchant.innerText = user.name
+                            let message = new bootstrap.Offcanvas(`#messageOpened`);
+                            message.show();
+                            msgContBody.scrollTop = msgContBody.scrollHeight;
+
+                        })
+                    })
+                }
+                setTimeout(() => {
+                    worker.postMessage('tes');
+                    updateMsgCont();
+                }, 5000);
+            }
+        })
+        if(document.querySelector(`#messageBadge`)) worker.postMessage('tes');
     </script>
 
 

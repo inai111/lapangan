@@ -68,7 +68,7 @@
                                         <input type="time" name="open" value="{{ old('open', $merchant['open']) }}"
                                             class="form-control @error('open') is-invalid @enderror" id="openElem"
                                             placeholder="open">
-                                        <label for="open">Nomor Telepon</label>
+                                        <label for="open">Jam Buka</label>
                                         <div class="@error('open') invalid-feedback @enderror">
                                             @error('open')
                                                 {{ $errors->first('open') }}
@@ -81,7 +81,7 @@
                                         <input type="time" name="close" value="{{ old('close', $merchant['close']) }}"
                                             class="form-control @error('close') is-invalid @enderror" id="closeElem"
                                             placeholder="close">
-                                        <label for="close">Nomor Telepon</label>
+                                        <label for="close">Jam Tutup</label>
                                         <div class="@error('close') invalid-feedback @enderror">
                                             @error('close')
                                                 {{ $errors->first('close') }}

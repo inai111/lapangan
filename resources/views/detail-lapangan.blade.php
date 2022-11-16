@@ -278,8 +278,9 @@
                 document.querySelector('.loginBtn').click();
                 return;
             }
-            let lengthVal = Number(lengthForm.value) > 0 ? lengthForm.value : "1";
-            fetch(`/add-transaction/${this.dataset.id}?length=${lengthVal}`)
+            // let lengthVal = Number(lengthForm.value) > 0 ? lengthForm.value : "1";
+            // fetch(`/add-transaction/${this.dataset.id}?length=${lengthVal}`)
+            fetch(`/add-transaction/${this.dataset.id}`)
                 .then(ee => ee.json())
                 .then(res => {
                     if (res.status) {
@@ -287,9 +288,6 @@
                     }
                 })
         })
-        // document.querySelector(`.adds`).addEventListener('click', function(e) {
-        //     let length = document.querySelector(`input[name="length"]`).value;
-        // });
 
         function onlyNumericInputs(elemSelector) {
             document.querySelectorAll(elemSelector).forEach(el => {

@@ -19,8 +19,9 @@
                 <a href="/user-transactions" class="btn mx-1">
                     <i class="far fa-list-alt"></i>
                 </a>
-                <button data-bs-toggle="offcanvas" data-bs-target="#listMessage" class="btn mx-1">
+                <button data-bs-toggle="offcanvas" data-bs-target="#listMessage" class="btn mx-1 position-relative">
                     <i class="fa-solid fa-message"></i>
+                    <span id="messageBadge" class="position-absolute top-0 start-100 mt-1 translate-middle badge rounded-pill bg-danger" style="display: none;"></span>
                 </button>
                 <div class="dropdown">
                     <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">

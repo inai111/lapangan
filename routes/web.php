@@ -25,6 +25,7 @@ Route::controller(Home::class)->group(function(){
     Route::get('/merchant/{num}', 'detail_merchant');
     Route::get('/get-jadwal-lapangan/{num}', 'get_jadwal_lapangan');
     Route::get('/get-message', 'get_message');
+    Route::get('/get-unread-message', 'get_unread_message');
     Route::post('/send-message', 'sending_message');
 });
 Route::controller(Dashboard::class)->group(function(){

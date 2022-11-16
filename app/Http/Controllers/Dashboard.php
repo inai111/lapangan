@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking_date;
 use App\Models\Booklists;
 use App\Models\Gallery;
 use App\Models\Lapangan;
@@ -170,6 +171,12 @@ class Dashboard extends Controller
     {
         $user = User::where('id',session('id_user'))->first();
         $booklists['pending'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','pending')->get()->all();
+        foreach($booklists['pending'] as $key => $book){
+            $cek = Booking_date::select('tanggal','jam')->where('booklists_id',$book->id)->get()->all();
+            $booklists['pending'][$key]['jadwal'] = false;
+            if($cek) $booklists['pending'][$key]['jadwal'] = $cek;
+        }
+        // dd($booklists['pending']);
         $booklists['ongoing'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','on_going')->get()->all();
         $booklists['complete'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','complete')->get()->all();
         $data = [
@@ -263,17 +270,14 @@ class Dashboard extends Controller
         $merchant->active = $status;
         return response()->json($merchant->save());
     }
-    public function add_transaction($id,Request $request)
+    public function add_transaction($id)
     {
-        $lapangan = Lapangan::find($id)->first();
-        $length = $request->get('length');
-        $length = (int)$length>0?$length:1;
-        $user = User::where('id',session("id_user"));
+        // $lapangan = Lapangan::where('id',$id)->first();
+        // $user = User::where('id',session("id_user"));
         $booklist = new Booklists();
         $booklist->user_id = session('id_user');
         $booklist->lapangan_id = $id;
         $booklist->status = 'pending';
-        $booklist->length = $length;
         $response['status'] = false;
         if($booklist->save()){
             $response['status'] = true;
@@ -294,16 +298,33 @@ class Dashboard extends Controller
     
     public function booking_date(Request $request)
     {
-        if(empty($request->post('id'))) return redirect()->back()->with("failed-message","Jadwal Gagal di booking!");
+        $response = [
+            'status'=>false,
+            'message'=>"Jadwal Gagal di booking!"
+        ];
+        if(empty($request->post('id'))) return response()->json($response);
         $booklist = Booklists::where('id',$request->post('id'))->get()->first();
-        if(empty($booklist)) return redirect()->back()->with("failed-message","Jadwal Gagal di booking!");
-        $hours = explode(' - ',$request->post('hour'));
+        if(empty($booklist)) return response()->json($response);
+        $hours = explode(',',$request->post('hour'));
+        $length = count($hours);
         $date = $request->post('date');
-        $booklist->jam_awal = "{$date} {$hours[0]}";
-        $booklist->jam_akhir = "{$date} {$hours[1]}";
-        $booklist->updated_at = date("Y-m-d H:i:s");
-        if($booklist->save()) return redirect()->back()->with("success-message","Jadwal berhasil di booking!");
-        return redirect()->back()->with("failed-message","Jadwal Gagal di booking!");
+        // update length
+        $booklist->length = $length;
+        if(!$booklist->save()) return response()->json($response);
+        // insert booking date
+        foreach($hours as $hour){
+            $cek = Booking_date::where('lapangan_id',$booklist['lapangan_id'])->where('jam',$hour)->where('tanggal',$date)->get()->all();
+            if($cek) return response()->json($response);
+            $booking_date = new Booking_date();
+            $booking_date->booklists_id = $request->post('id');
+            $booking_date->lapangan_id = $booklist['lapangan_id'];
+            $booking_date->tanggal = $date;
+            $booking_date->jam = $hour;
+            if(!$booking_date->save()) return response()->json($response);
+        }
+        $response['status']=true;
+        $response['message']="Jadwal Berhasil di booking!";
+        return response()->json($response);
     }
 
     public function checking_transaction(Request $request)

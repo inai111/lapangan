@@ -14,16 +14,12 @@ return new class extends Migration
     public function up()
     {
         //
-        Schema::create('booklists',function(Blueprint $table){
+        Schema::create('booking_date',function(Blueprint $table){
             $table->id();
-            $table->foreignId('user_id');
+            $table->foreignId('booklists_id');
             $table->foreignId('lapangan_id');
-            $table->integer('length')->default(1);
-            $table->integer('rating')->nullable();
-            $table->text('review')->nullable();
-            $table->string('down_payment')->nullable();
-            $table->enum('type_pembayaran',['cash','transfer']);
-            $table->enum('status',['pending','on_going','complete','cancel']);
+            $table->date('tanggal')->nullable();
+            $table->string('jam')->nullable();
             $table->timestamps();
         });
     }

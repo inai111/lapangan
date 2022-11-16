@@ -19,12 +19,10 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('number');
             $table->string('photo')->default('default.jpg');
-            $table->enum('level',['admin','merchant','user'])->default('user');
+            $table->enum('role',['admin','merchant','user'])->default('user');
             $table->enum('active',['activated','suspended'])->default('activated');
             $table->string('username')->unique();
-            // $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            // $table->rememberToken();
             $table->timestamps();
         });
     }

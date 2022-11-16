@@ -65,11 +65,13 @@
                                                         alt="{{ $booklist->lapangan->nama }}">
                                                 </td>
                                                 <td>{{ $booklist->lapangan->nama }}</td>
-                                                @if ($booklist->jam_awal && $booklist->jam_akhir)
-                                                    <td>
-                                                        <div>{{ date('d-M-Y', strtotime($booklist->jam_awal)) }}</div>
-                                                        <div>{{ date('H:i', strtotime($booklist->jam_awal)) }} -
-                                                            {{ date('H:i', strtotime($booklist->jam_akhir)) }}</div>
+                                                @if ($booklist->jadwal)
+                                                    <td class="text-center">
+                                                        <div>{{ date('d-M-Y', strtotime($booklist->jadwal[0]['tanggal'])) }}</div>
+                                                        @foreach ($booklist->jadwal as $item)
+                                                            <div class="btn btn-success btn-sm">{{$item->jam}}</div>
+                                                        @endforeach
+                                                        
                                                     </td>
                                                 @else
                                                     <td class="text-center">
@@ -86,7 +88,7 @@
                                                 <td>Rp. {{ number_format($booklist->length * $booklist->lapangan->harga) }}
                                                 </td>
                                                 <td>
-                                                    @if ($booklist->jam_awal || $booklist->jam_akhir)
+                                                    @if ($booklist->jadwal)
                                                         <button data-id="{{$booklist->id}}" class="btn btn-outline-dark bayarNow">Bayar</button>
                                                     @endif
                                                     <button data-id="{{$booklist->id}}" class="btn btn-outline-danger deleteTrans"><i
@@ -102,7 +104,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="tab-pane fade" id="pending-tab-pane" role="tabpanel" aria-labelledby="pending-tab"
+                        <div class="tab-pane fade" id="ongoing-tab-pane" role="tabpanel" aria-labelledby="ongoing-tab"
                             tabindex="0">...</div>
                         <div class="tab-pane fade" id="complete-tab-pane" role="tabpanel" aria-labelledby="complete-tab"
                             tabindex="0">
@@ -172,8 +174,12 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <ul class="nav nav-tabs" id="tanggalTab" role="tablist"></ul>
-                    <div class="tab-content" id="jamContent"></div>
+                    <div id="messageFormPemesanan"></div>
+                    <div class="mb-3">
+                        <label for="dateBook" class="form-label">Tanggal</label>
+                        <input type="date" class="form-control" id="dateBook" min="{{date("Y-m-d")}}">
+                      </div>                      
+                    <div class="row" id="jamContent"></div>
                 </div>
                 <div class="modal-footer">
                     <form id="formPesanJadwal" action="/book-date" method="post">
@@ -238,53 +244,99 @@
     </div>
 
     <script>
+        document.querySelector(`#dateBook`).addEventListener('change',function(e){
+            let date = this.value;
+            let id = document.querySelector(`#formPesanJadwal input[name="id"]`).value;
+            fetch(`get-jadwal-lapangan/${id}?tanggal=${date}`)
+                .then(ee => ee.json())
+                .then(res => {
+                    console.log(`get-jadwal-lapangan/${id}?tanggal=${date}`,res)
+                    let content = (data) => {
+                        let hasilTemplateContent = ``;
+                        let hasilTemplateLi = ``;
+                        let buttonTemplate = (jam,tanggal,harga,book) => `
+                        <div class="col-md-3 p-1">
+                            <button data-tanggal="${tanggal}" data-jam="${jam}" 
+                            data-harga="${harga}" class="${book?"disabled btn-dark":"btn-outline-primary"} btn px-3 selectableSchedule" >
+                            ${jam}
+                            Rp.${new Intl.NumberFormat("id-ID").format(harga)}
+                            </button>
+                        </div>
+                        `;
+                        data.forEach(jam=>{
+                            hasilTemplateContent += buttonTemplate(jam.jam,jam.tanggal,jam.harga,jam.book);
+                        })
+                        return hasilTemplateContent;
+                    }
+                    if (res.data) {
+                        let temp = content(res.data);
+                        jamContent.innerHTML = temp;
+                        document.querySelectorAll(`.selectableSchedule`).forEach(elem=>{
+                            elem.addEventListener('click',function(e){
+                                if(!this.classList.contains('active') && document.querySelectorAll(`.selectableSchedule.active`).length>2){
+                                    messageFormPemesanan.innerHTML = `
+                                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                        <strong>Gagal</strong> tidak dapat memesan lebih dari 3 jam.
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>`;
+                                    return;
+                                }
+                                if(this.classList.contains('active')){
+                                    this.classList.remove('active')
+                                }else this.classList.add('active');
+                                if(document.querySelectorAll(`.selectableSchedule.active`).length>0){
+                                    document.querySelector(`#formPesanJadwal [type="submit"]`).disabled = false;
+                                }else document.querySelector(`#formPesanJadwal [type="submit"]`).disabled = true;
+                            })
+                        })
+                    }
+                });
+            
+        })
+        document.querySelector(`#formPesanJadwal`).addEventListener('submit',function(e){
+            e.preventDefault();
+            let myData = new FormData(this);
+            let hour = new Array();
+            document.querySelectorAll(`.selectableSchedule.active`).forEach(elem=>{
+                hour.push(elem.dataset.jam);
+            })
+            myData.set('hour',hour);
+            myData.set('date',document.querySelector(`.selectableSchedule.active`).dataset.tanggal);
+            window.tes = myData;
+            fetch(this.action,{method:"POST",body:myData})
+            .then(ee=>ee.json())
+            .then(res=>{
+                if(res.status){
+                    if(res.message){
+                        messageFormPemesanan.innerHTML = `
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            ${res.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>`;
+                    }
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                    return;
+                }
+                if(res.message){
+                    messageFormPemesanan.innerHTML = `
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        ${res.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`;
+                }
+                console.log(res)
+            })
+        })
         document.querySelectorAll(".btnPemesanan").forEach(element => {
             element.addEventListener('click', function(e) {
-                let lengthVal = this.dataset.length;
                 document.querySelector(`#formPesanJadwal [type="submit"]`).disabled = true;
                 document.querySelector(`#formPesanJadwal input[name="id"]`).value = this.dataset.id;
-                fetch(`get-jadwal-lapangan/${this.dataset.id}?length=${lengthVal}`)
-                    .then(ee => ee.json())
-                    .then(res => {
-                        if (res.message) {
-
-                        }
-                        let content = (data) => {
-                            let hasilTemplateContent = ``;
-                            let hasilTemplateLi = ``;
-                            let paneTemplate = (val, content,cek) => `
-                            <div class="tab-pane ${cek?"pane show active":"fade"}" id="pane${val}" role="tabpanel" aria-labelledby="pane${val}"
-                            tabindex="0">${content}</div>
-                            `;
-                            let liTemplate = (val,cek) => `
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link ${cek?"active":""}" id="tab${val}" data-bs-toggle="tab"
-                                    data-bs-target="#pane${val}" type="button" role="tab" aria-controls="tab${val}"
-                                    aria-selected="true">${val}</button>
-                            </li>
-                            `;
-                            let i = 0;
-                            for (const [index, val] of Object.entries(data)) {
-                                console.log(index,val)
-                                let temp = `<div class="list-group">`;
-                                let cek = i==0;
-                                val.forEach(str => temp += `  <button data-date="${index}" type="button" class="list-group-item list-group-item-action selectableButton">${str}</button>`);
-                                temp +=`</div>`;
-                                hasilTemplateContent += paneTemplate(index, temp, cek);
-                                hasilTemplateLi += liTemplate(index, cek);
-                                i++;
-                            }
-                            return [hasilTemplateContent, hasilTemplateLi];
-                        }
-                        if (res.data) {
-                            let temp = content(res.data);
-                            tanggalTab.innerHTML=temp[1];
-                            jamContent.innerHTML=temp[0];
-                        }
-                        let modal = new bootstrap.Modal(pemesananModal);
-                        initSelectableDate();
-                        modal.show();
-                    });
+                let modal = new bootstrap.Modal(pemesananModal);
+                dateBook.value = '';
+                jamContent.innerHTML = '';
+                modal.show();
             });
         });
         document.querySelectorAll(`.deleteTrans`).forEach(elem=>{

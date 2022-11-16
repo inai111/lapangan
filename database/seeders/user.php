@@ -20,11 +20,21 @@ class user extends Seeder
         //
         DB::table('user')->insert([
             'name' => Str::random(10),
+            'username' => 'merchant',
+            'password' => Hash::make('1'),
+            'photo' => "default.png",
+            'number' => "888888",
+            'role' => "merchant",
+            'active' => "activated",
+            'created_at'=>now(),
+        ]);
+        DB::table('user')->insert([
+            'name' => Str::random(10),
             'username' => 'user',
             'password' => Hash::make('1'),
             'photo' => "default.png",
             'number' => "888888",
-            'level' => "user",
+            'role' => "user",
             'active' => "activated",
             'created_at'=>now(),
         ]);
@@ -34,7 +44,7 @@ class user extends Seeder
             'password' => Hash::make('1'),
             'photo' => "default.png",
             'number' => "888888",
-            'level' => "user",
+            'role' => "admin",
             'active' => "activated",
             'created_at'=>now(),
         ]);
@@ -114,46 +124,6 @@ class user extends Seeder
                 - E toll terkadang sulit ditemukan atau pada saat digunakan sangat mudah terjatuh,",
                 'created_at'=>now()
             ]
-        ]);
-        DB::table('booklists')->insert([
-            'user_id' => "1",
-            'lapangan_id' => '1',
-            'jam_awal' => date("Y-m-d H:00:00",strtotime("+3Hour")),
-            'jam_akhir' => date("Y-m-d H:00:00",strtotime("+4Hour")),
-            'length'=>'1',
-            "type_pembayaran"=>'cash',
-            "status"=>'pending',
-            'created_at'=>now(),
-        ]);
-        DB::table('booklists')->insert([
-            'user_id' => "1",
-            'lapangan_id' => '1',
-            'jam_awal' => date("Y-m-d H:00:00",strtotime("+4Hour")),
-            'jam_akhir' => date("Y-m-d H:00:00",strtotime("+6Hour")),
-            'length'=>'2',
-            "type_pembayaran"=>'cash',
-            "status"=>'pending',
-            'created_at'=>now(),
-        ]);
-        DB::table('booklists')->insert([
-            'user_id' => "1",
-            'lapangan_id' => '1',
-            'jam_awal' => date("Y-m-d H:00:00",strtotime("+8Hour")),
-            'jam_akhir' => date("Y-m-d H:00:00",strtotime("+10Hour")),
-            'length'=>'2',
-            "type_pembayaran"=>'cash',
-            "status"=>'pending',
-            'created_at'=>now(),
-        ]);
-        DB::table('booklists')->insert([
-            'user_id' => "1",
-            'lapangan_id' => '1',
-            'jam_awal' => null,
-            'jam_akhir' => null,
-            'length'=>'2',
-            "type_pembayaran"=>'cash',
-            "status"=>'pending',
-            'created_at'=>now(),
         ]);
     }
 }

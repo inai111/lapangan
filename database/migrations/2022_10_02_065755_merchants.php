@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('bank_number');
             $table->time('open');
             $table->time('close');
+            $table->enum('status_close',['open','close'])->default('open');
             $table->timestamps();
         });
     }
