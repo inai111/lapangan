@@ -125,5 +125,45 @@ class user extends Seeder
                 'created_at'=>now()
             ]
         ]);
+        DB::table('fasilitas')->insert([
+            'fasilitas' => "wifi",
+            'fasilitas_icon' => '<i class="fa-solid fa-wifi"></i>',
+        ]);
+        DB::table('fasilitas')->insert([
+            'fasilitas' => "wifi",
+            'fasilitas_icon' => '<i class="fa-solid fa-wifi"></i>',
+        ]);
+        DB::table('fasilitas')->insert([
+            'fasilitas' => "wifi",
+            'fasilitas_icon' => '<i class="fa-solid fa-wifi"></i>',
+        ]);
+        DB::table('fasilitas')->insert([
+            'fasilitas' => "wifi",
+            'fasilitas_icon' => '<i class="fa-solid fa-wifi"></i>',
+        ]);
+        DB::table('fasilitas')->insert([
+            'fasilitas' => "wifi",
+            'fasilitas_icon' => '<i class="fa-solid fa-wifi"></i>',
+        ]);
+        DB::table('fasilitas')->insert([
+            'fasilitas' => "wifi",
+            'fasilitas_icon' => '<i class="fa-solid fa-wifi"></i>',
+        ]);
+        DB::table('fasilitas')->insert([
+            'fasilitas' => "wifi",
+            'fasilitas_icon' => '<i class="fa-solid fa-wifi"></i>',
+        ]);
+        DB::table('fasilitas')->insert([
+            'fasilitas' => "wifi",
+            'fasilitas_icon' => '<i class="fa-solid fa-wifi"></i>',
+        ]);
+        DB::table('fasilitas')->insert([
+            'fasilitas' => "wifi",
+            'fasilitas_icon' => '<i class="fa-solid fa-wifi"></i>',
+        ]);
+        DB::table('fasilitas')->insert([
+            'fasilitas' => "wifi",
+            'fasilitas_icon' => '<i class="fa-solid fa-wifi"></i>',
+        ]);
     }
 }

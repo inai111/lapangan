@@ -99,7 +99,37 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="dp" name="dp" aria-label="Floating label select example">
+                                            <option {{old('dp')=='1'?'selected':''}} value="1">Perlu DP</option>
+                                            <option {{old('dp')=='0'?'selected':''}} value="0">Tidak Perlu</option>
+                                        </select>
+                                        <label for="dp">Down Payment (DP)</label>
+                                    </div>
+                                    <div class="@error('dp') invalid-feedback @enderror">
+                                    @error('dp')
+                                    {{$errors->first('dp')}}
+                                    @enderror
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="pembayaran" name="pembayaran" aria-label="Floating label select example">
+                                            <option {{old('pembayaran')=='both'?'selected':''}} value="both" selected>Cash dan Transfer</option>
+                                            <option {{old('pembayaran')=='cash'?'selected':''}} value="cash">Hanya Cash</option>
+                                        </select>
+                                        <label for="pembayaran">Menerima Pembayaran</label>
+                                    </div>
+                                    <div class="@error('pembayaran') invalid-feedback @enderror">
+                                        @error('pembayaran')
+                                        {{$errors->first('pembayaran')}}
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                              
                             <div class="form-floating mb-3">
                                 <input type="text" name="number" value="{{ old('number', $merchant['number']) }}"
                                     class="form-control @error('number') is-invalid @enderror" id="number"

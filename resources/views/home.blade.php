@@ -7,19 +7,96 @@
     <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}">
 @endsection
 @section('content')
-    <div class="text-center my-4">
-        <button class="searchBar w-75 mx-auto text-start btn border btn-xl my-auto bg-light">
-            <i class="fa-solid fa-magnifying-glass me-3"></i>
-            <span id="searchText">
-                Pencarian
-            </span>
-        </button>
-    </div>
     <div class="banner-1 py-3 px-5 mt-2 shadow">
         <div class="mx-3 my-4">
-            <div class="">
-
+            {{-- <h1>Jenis Olahraga</h1> --}}
+            <div class="row justify-content-center">
+                <div class="col-2 text-center">
+                    <button class="btn btn-outline-dark w-100">
+                        <div class="p-3 py-5">
+                            <i class="fa-solid fa-basketball fa-3x"></i>
+                        </div>
+                        <h3 class="my-2">Bola Basket</h3>
+                    </button>
+                </div>
+                <div class="col-2 text-center">
+                    <button class="btn btn-outline-dark w-100">
+                        <div class="p-3 py-5">
+                            <i class="fa-regular fa-futbol fa-3x"></i>
+                        </div>
+                        <h3 class="my-2">Sepak Bola</h3>
+                    </button>
+                </div>
+                <div class="col-2 text-center">
+                    <button class="btn btn-outline-dark w-100">
+                        <div class="p-3 py-5">
+                            <i class="fa-regular fa-futbol fa-3x"></i>
+                        </div>
+                        <h3 class="my-2">Mini Soccer</h3>
+                    </button>
+                </div>
+                <div class="col-2 text-center">
+                    <button class="btn btn-outline-dark w-100">
+                        <div class="p-3 py-5">
+                            <i class="fa-regular fa-futbol fa-3x"></i>
+                        </div>
+                        <h3 class="my-2">Futsal</h3>
+                    </button>
+                </div>
+                <div class="col-2 text-center">
+                    <button class="btn btn-outline-dark w-100">
+                        <div class="p-3 py-5">
+                            <i class="fa-solid fa-baseball fa-3x"></i>
+                        </div>
+                        <h3 class="my-2">Tennis</h3>
+                    </button>
+                </div>
             </div>
+        </div>
+    </div>
+    <div class="py-3 px-5 mt-2">
+        <div class="me-3 my-4">
+            {{-- <h1>Jenis Olahraga</h1> --}}
+            <div class="row justify-content-center align-items-center">
+                <div class="col-3 text-center">
+                    <div class="card">
+                        <div class="card-body">
+                          <h5 class="card-title">Lapangan</h5>
+                          <h6 class="card-subtitle mb-2 text-muted">Rekomendasi</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-2 text-center">
+                    <button class="btn btn-outline-dark w-100">
+                        <div class="p-3 py-5">
+                            <i class="fa-solid fa-basketball fa-3x"></i>
+                        </div>
+                        <h3 class="my-2">Bola Basket</h3>
+                    </button>
+                </div>
+                <div class="col-2 text-center">
+                    <button class="btn btn-outline-dark w-100">
+                        <div class="p-3 py-5">
+                            <i class="fa-solid fa-basketball fa-3x"></i>
+                        </div>
+                        <h3 class="my-2">Bola Basket</h3>
+                    </button>
+                </div>
+                <div class="col-2 text-center">
+                    <button class="btn btn-outline-dark w-100">
+                        <div class="p-3 py-5">
+                            <i class="fa-solid fa-basketball fa-3x"></i>
+                        </div>
+                        <h3 class="my-2">Bola Basket</h3>
+                    </button>
+                </div>
+                <div class="col-1 text-center">
+                    <button class="btn btn-outline-dark w-100">
+                            <i class="fa-solid fa-chevron-right fa-3x"></i>
+                    </button>
+                </div>
+            </div>
+            
         </div>
     </div>
     {{-- modal regis&login --}}

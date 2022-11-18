@@ -47,6 +47,73 @@
                                     @enderror
                                 </div>
                             </div>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <input type="time" name="open" value="{{ old('open') }}"
+                                            class="form-control @error('open') is-invalid @enderror" id="openElem"
+                                            placeholder="open">
+                                        <label for="open">Jam Buka</label>
+                                        <div class="@error('open') invalid-feedback @enderror">
+                                            @error('open')
+                                                {{ $errors->first('open') }}
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <input type="time" name="close" value="{{ old('close') }}"
+                                            class="form-control @error('close') is-invalid @enderror" id="closeElem"
+                                            placeholder="close">
+                                        <label for="close">Jam Tutup</label>
+                                        <div class="@error('close') invalid-feedback @enderror">
+                                            @error('close')
+                                                {{ $errors->first('close') }}
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <div class="alert alert-info alert-dismissible fade show"><i
+                                            class="fa-solid fa-circle-exclamation"></i> waktu yang akan disimpan hanya jam
+                                        nya saja, menit dan detik akan dibulatkan menjadi 00:00.<br><em
+                                            style="font-size: .7em;">(AM = 00:00-12:00, PM = 12:00-24:00)</em> <button
+                                            type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="dp" name="dp" aria-label="Floating label select example">
+                                            <option {{old('dp')=='1'?'selected':''}} value="1">Perlu DP</option>
+                                            <option {{old('dp')=='0'?'selected':''}} value="0">Tidak Perlu</option>
+                                        </select>
+                                        <label for="dp">Down Payment (DP)</label>
+                                    </div>
+                                    <div class="@error('dp') invalid-feedback @enderror">
+                                        @error('dp')
+                                        {{$errors->first('dp')}}
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="pembayaran" name="pembayaran" aria-label="Floating label select example">
+                                            <option {{old('pembayaran')=='both'?'selected':''}} value="both" selected>Cash dan Transfer</option>
+                                            <option {{old('pembayaran')=='cash'?'selected':''}} value="cash">Hanya Cash</option>
+                                        </select>
+                                        <label for="pembayaran">Menerima Pembayaran</label>
+                                    </div>
+                                    <div class="@error('pembayaran') invalid-feedback @enderror">
+                                        @error('pembayaran')
+                                        {{$errors->first('pembayaran')}}
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
                             <div class="form-floating mb-3">
                                 <input  type="text" name="number" value="{{ old('number',$merchant?$merchant['number']:$user->number) }}"
                                     class="form-control @error('number') is-invalid @enderror" id="number" placeholder="number">

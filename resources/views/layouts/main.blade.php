@@ -16,6 +16,57 @@
 <body>
     @yield('navbar')
     @yield('content')
+    <div class="position-relative py-3 px-5 w-100 bottom-0 bg-light mt-5">
+       <div class="row">
+        <div class="col-4">
+            <h4><strong>Sewa Lapangan</strong></h4>
+            <p>asdkljasndlkajsn alskda lskdnalskdna</p>
+        </div>
+        <div class="col-4">
+            <h4><strong>Halaman</strong></h4>
+            <ul class="list-unstyled">
+                <li class="mb-2"><a style="text-decoration: none;color:#495057" href="">Home</a></li>
+                <li class="mb-2"><a style="text-decoration: none;color:#495057" href="">About</a></li>
+                <li class="mb-2"><a style="text-decoration: none;color:#495057" href="">Lainnya</a></li>
+            </ul>
+        </div>
+        <div class="col-3">
+            <h4><strong>Payment</strong></h4>
+            <div class="row m-0 p-0">
+                <div class="col-4 col-md-4">
+                    <img class="my-2" style="width:100%" src="https://www.gelora.id/img/icons/payment_icons/ovo.png" alt="">
+                </div>
+                <div class="col-6 col-md-4">
+                    <img class="my-2" style="width:100%" src="https://www.gelora.id/img/icons/payment_icons/gopay.png" alt="">
+                </div>
+                <div class="col-6 col-md-4">
+                    <img class="my-2" style="width:100%" src="https://www.gelora.id/img/icons/payment_icons/kredivo.png" alt="">
+                </div>
+                <div class="col-4 col-md-4">
+                    <img class="my-2" style="width:100%" src="https://www.gelora.id/img/icons/payment_icons/shopeepay.png" alt="">
+                </div>
+                <div class="col-6 col-md-4">
+                    <img class="my-2" style="width:100%" src="https://www.gelora.id/img/icons/payment_icons/dana.png" alt="">
+                </div>
+                <div class="col-6 col-md-4">
+                    <img class="my-2" style="width:100%" src="https://www.gelora.id/img/icons/payment_icons/qris.png" alt="">
+                </div>
+                <div class="col-6 col-md-4">
+                    <img class="my-2" style="width:100%" src="https://www.gelora.id/img/icons/payment_icons/bca.png" alt="">
+                </div>
+                <div class="col-6 col-md-4">
+                    <img class="my-2" style="width:100%" src="https://www.gelora.id/img/icons/payment_icons/bni.png" alt="">
+                </div>
+                <div class="col-6 col-md-4">
+                    <img class="my-2" style="width:100%" src="https://www.gelora.id/img/icons/payment_icons/bank-dki.png" alt="">
+                </div>
+                <div class="col-6 col-md-4">
+                    <img class="my-2" style="width:100%" src="https://www.gelora.id/img/icons/payment_icons/permata.png" alt="">
+                </div>
+            </div>
+        </div>
+       </div>
+    </div>
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1"
         id="listMessage" aria-labelledby="listMessage">
         <div class="offcanvas-header border-bottom">

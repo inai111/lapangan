@@ -57,7 +57,7 @@ class Dashboard extends Controller
     public function merchant_register_store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name_merchant' => 'required|alpha|unique:merchants,name_merchant',
+            'name_merchant' => 'required|unique:merchants,name_merchant',
             'number' => 'required|numeric',
             'bank' => 'required',
             'address' => 'required',
@@ -83,8 +83,12 @@ class Dashboard extends Controller
         $merchant->name_merchant = strtolower($request->name_merchant);
         $merchant->address = $request->address;
         $merchant->number = $request->number;
-        $merchant->active = "pending"; //default nya adalah deactived, tunggu admin menyetujui
+        $merchant->active = "pending"; //default nya adalah pending, tunggu admin menyetujui
         $merchant->bank = $request->bank;
+        $merchant->open = $request->open;
+        $merchant->close = $request->close;
+        $merchant->dp = $request->dp;
+        $merchant->pembayaran = $request->pembayaran;
         $merchant->user_id = session('id_user');
         $merchant->bank_number = $request->bank_number;
         $response['message'] = "Data merchant kamu gagal kami proses! Mohon coba kembali di beberapa menit kedepan!";
@@ -129,6 +133,8 @@ class Dashboard extends Controller
                 $merchant->number = $request->post('number');
                 $merchant->bank = $request->post('bank');
                 $merchant->bank_number = $request->post('bank_number');
+                $merchant->dp = $request->post('dp');
+                $merchant->pembayaran = $request->post('pembayaran');
                 $merchant->open = date("H:00:00",strtotime($request->post('open')));
                 $merchant->close = date("H:00:00",strtotime($request->post('close')));
                 if($merchant->save()) return redirect()->back()->with('success-message','Data Berhasil Diupdate');
@@ -187,7 +193,7 @@ class Dashboard extends Controller
     }
     public function lapangan()
     {
-        $user = User::where('id',session('id_user'));
+        $user = User::where('id',session('id_user'))->first();
         $merchant = $user->merchant;
         if(!$merchant && in_array($merchant,['rejected','pending'])) return redirect('/merchant-regist');
         $lapangan = $merchant->lapangan;
@@ -263,11 +269,15 @@ class Dashboard extends Controller
     public function merchant_status_change(Request $request)
     {
         $user = User::where('id',session('id_user'))->first();
-        if($user['level']!='admin')return response()->json('mana boleh di akses',400);
+        if($user['role']!='admin')return response()->json('mana boleh di akses',400);
         $id = $request->post('id_merchant');
         $status = $request->post('status');
-        $merchant = Merchant::find($id)->first();
+        $merchant = Merchant::where('id',$id)->first();
+        $user = User::where('id',$merchant->user_id)->first();
+        $user->role = 'merchant';
+        $user->save();
         $merchant->active = $status;
+
         return response()->json($merchant->save());
     }
     public function add_transaction($id)
@@ -339,8 +349,9 @@ class Dashboard extends Controller
         if(!$id) return response()->json($response);
         $user = User::where('id',session('id_user'))->get()->first();
         $booklist = Booklists::where('id',$id)->get()->first();
+        $lapangan = Lapangan::where('id',$booklist->lapangan_id)->get()->first();
         if(!$booklist) return response()->json($response);
-        $transaction = Transactions::where('booklists_id',$id)->get()->first();
+        $transaction = Transactions::where('booklists_id',$id)->where('status','!=','gagal')->get()->first();
         $response['message'] = '';
         if(!$transaction)
         {
@@ -348,39 +359,46 @@ class Dashboard extends Controller
             $transaction->token = "LAP-$id".session('id_user').rand(000000,999999);
             $transaction->status = "pending";
             $transaction->booklists_id = $id;
-            if($transaction->save()){
+            $params = [
+                'transaction_details'=>[
+                    'order_id'=>$transaction->token,
+                    'gross_amount'=>$booklist->length
+                ],
+                'customer_details'=>[
+                    'first_name'=>$user->name,
+                    'phone'=>$user->number,
+                ]
+            ];
+            $midtransTrans = Snap::createTransaction($params);
+            $transaction->midtrans_token = $midtransTrans;
+            $transaction->save();
+        }else{
+            $midtrans_cek = (Object)Transaction::status($transaction->midtrans_token);
+            // dd($midtrans_cek);
+            if($midtrans_cek->status_code == 200 && $midtrans_cek->transaction_status=='cancel'){
+                $transaction->status = 'gagal';
+                $transaction->save();
+                $transaction = new Transactions();
+                $transaction->token = "LAP-$id".session('id_user').rand(000000,999999);
+                $transaction->status = "pending";
+                $transaction->booklists_id = $id;
                 $params = [
                     'transaction_details'=>[
                         'order_id'=>$transaction->token,
-                        'gross_amount'=>$booklist->length
+                        'gross_amount'=>($booklist->length*$lapangan->harga)
                     ],
                     'customer_details'=>[
                         'first_name'=>$user->name,
                         'phone'=>$user->number,
                     ]
                 ];
-                // $midtransTrans = Snap::createTransaction($params);
-                $midtransTrans = Snap::getSnapToken($params);
+                $midtransTrans = Snap::createTransaction($params);
+                $transaction->midtrans_token = $midtransTrans->token;
+                $transaction->save();
             }
         }
-        $params = [
-            'transaction_details'=>[
-                'order_id'=>$transaction->token,
-                'gross_amount'=>$booklist->length
-            ],
-            'customer_details'=>[
-                'first_name'=>$user->name,
-                'phone'=>$user->number,
-            ]
-        ];
-        // $midtransTrans = Snap::createTransaction($params);
-        // dd(Snap::createTransaction($params));
-        dd(Transaction::status("516b28e5-a9f8-4e82-b8b3-60f199aecf5a"));
-        // 53b10ae9-861e-4875-879a-4e0ac51e7fa4
-        // 516b28e5-a9f8-4e82-b8b3-60f199aecf5a
-        $response['midtrans']=Transaction::status($transaction->token);
         $response['status'] = true;
-        $response['token'] = $transaction->token;
+        $response['token'] = $transaction->midtrans_token;
         return response()->json($response);
     }
 
