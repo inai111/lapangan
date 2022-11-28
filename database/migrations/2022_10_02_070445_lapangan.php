@@ -16,12 +16,14 @@ return new class extends Migration
         //
         Schema::create('lapangan',function(Blueprint $table){
             $table->id();
+            $table->foreignId('merchant_id');
+            $table->foreignId('jenis_olahraga_id');
             $table->string('nama');
             $table->string('harga');
-            $table->string('type');
             $table->string('cover');
-            $table->foreignId('merchant_id');
-            $table->text('additional_info')->nullable();
+            $table->string('type');
+            $table->text('deskripsi')->nullable();
+            $table->enum('status',['ada','tidak_ada'])->default('ada');
             $table->timestamps();
         });
     }

@@ -12,10 +12,22 @@ class Lapangan extends Model
 
     public function merchant()
     {
-        return $this->hasOne(Merchant::class);
+        return $this->belongsTo(Merchant::class);
     }
-    public function gallery()
+    public function galleries()
     {
-        return $this->hasMany(Gallery::class,'ref_id');
+        return $this->hasMany(Gallery::class,'lapangan_id');
+    }
+    public function messages()
+    {
+        return $this->hasMany(Message::class,'lapangan_id');
+    }
+    public function booklist()
+    {
+        return $this->hasMany(Booklists::class);
+    }
+    public function jenis()
+    {
+        return $this->hasOne(Jenis_olahraga::class);
     }
 }

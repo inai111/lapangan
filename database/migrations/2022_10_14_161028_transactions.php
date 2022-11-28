@@ -16,11 +16,11 @@ return new class extends Migration
         //
         Schema::create('transactions',function(Blueprint $table){
             $table->id();
-            $table->string('token');
             $table->foreignId('booklists_id');
+            $table->string('token');
             $table->string('midtrans_token')->nullable();
-            $table->string('total')->nullable();
             $table->enum('status',['gagal','pending','berhasil'])->nullable();
+            $table->string('total')->nullable();
             $table->timestamps();
         });
     }

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('from_id');
             $table->foreignId('to_id');
-            $table->foreignId('ref_id')->nullable();
+            $table->foreignId('lapangan_id')->nullable();
             $table->integer('read')->default(0);
             $table->longText('body');
             $table->timestamps();

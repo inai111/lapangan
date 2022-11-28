@@ -12,6 +12,6 @@ class History_Balance extends Model
 
     public function merchant()
     {
-        return $this->hasOne(Merchant::class,'merchant_id','id');
+        return $this->belongsTo(Merchant::class);
     }
 }

@@ -16,8 +16,8 @@ return new class extends Migration
         //
         Schema::create('galleries',function(Blueprint $table){
             $table->id();
+            $table->foreignId('lapangan_id');
             $table->string('photo');
-            $table->foreignId('ref_id');
             $table->timestamps();
         });
     }

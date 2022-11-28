@@ -44,4 +44,16 @@ class User extends Authenticatable
     {
         return $this->hasOne(Merchant::class);
     }
+    public function menerima_pesan()
+    {
+        return $this->hasMany(Message::class,'to_id');
+    }
+    public function mengirim_pesan()
+    {
+        return $this->hasMany(Message::class,'from_id');
+    }
+    public function booklist()
+    {
+        return $this->hasMany(Booklists::class,'from_id');
+    }
 }

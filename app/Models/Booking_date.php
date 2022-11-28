@@ -9,4 +9,9 @@ class Booking_date extends Model
 {
     use HasFactory;
     protected $table = 'booking_date';
+
+    public function booklist()
+    {
+        return $this->belongsTo(Booklists::class,'booklists_id');
+    } 
 }

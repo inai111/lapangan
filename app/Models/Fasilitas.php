@@ -9,4 +9,9 @@ class Fasilitas extends Model
 {
     use HasFactory;
     protected $table = 'fasilitas';
+
+    public function fasilitas_merchant()
+    {
+        return $this->hasMany(Fasilitas::class);
+    }
 }

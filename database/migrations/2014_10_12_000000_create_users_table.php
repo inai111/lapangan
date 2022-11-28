@@ -15,10 +15,10 @@ return new class extends Migration
     {
         Schema::create('user', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('address')->nullable();
-            $table->string('number');
-            $table->string('photo')->default('default.jpg');
+            $table->string('nama');
+            $table->string('alamat')->nullable();
+            $table->string('nomor');
+            $table->string('foto')->default('default.jpg');
             $table->enum('role',['admin','merchant','user'])->default('user');
             $table->enum('active',['activated','suspended'])->default('activated');
             $table->string('username')->unique();

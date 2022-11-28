@@ -11,10 +11,18 @@ class Booklists extends Model
 
     public function lapangan()
     {
-        return $this->hasOne(Lapangan::class,"id","lapangan_id");
+        return $this->belongsTo(Lapangan::class,"lapangan_id");
     }
     public function transaction()
     {
-        return $this->hasOne(Transactions::class,'booklists_id','id');
+        return $this->hasMany(Transactions::class,'booklists_id','id');
+    }
+    public function booking_date()
+    {
+        return $this->hasOne(Booking_date::class,'booklists_id');
+    }
+    public function user()
+    {
+        return $this->belongsTo(Users::class,'user_id');
     }
 }

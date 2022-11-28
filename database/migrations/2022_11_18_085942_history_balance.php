@@ -17,9 +17,9 @@ return new class extends Migration
         Schema::create('history_balance',function(Blueprint $table){
             $table->id();
             $table->foreignId('merchant_id');
-            $table->enum('type',['masuk','keluar'])->default('masuk');
+            $table->enum('type',['masuk','keluar','pending'])->default('pending');
             $table->string('total');
-            $table->text('note')->nullable();
+            $table->text('catatan')->nullable();
             $table->string('bukti')->nullable();
             $table->timestamps();
         });

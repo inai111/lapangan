@@ -16,7 +16,7 @@ return new class extends Migration
         //
         Schema::create('fasilitas_merchant',function(Blueprint $table){
             $table->id();
-            $table->foreignId('merchant_id');
+            $table->foreignId('merchants_id');
             $table->foreignId('fasilitas_id');
         });
     }

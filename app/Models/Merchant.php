@@ -21,4 +21,12 @@ class Merchant extends Model
     {
         return $this->hasMany(Lapangan::class);
     }
+    public function history_balance()
+    {
+        return $this->hasMany(History_Balance::class);
+    }
+    public function fasilitas_merchant()
+    {
+        return $this->hasMany(Fasilitas_merchant::class);
+    }
 }

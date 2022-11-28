@@ -17,7 +17,6 @@ return new class extends Migration
         Schema::create('booking_date',function(Blueprint $table){
             $table->id();
             $table->foreignId('booklists_id');
-            $table->foreignId('lapangan_id');
             $table->date('tanggal')->nullable();
             $table->string('jam')->nullable();
             $table->timestamps();

@@ -9,4 +9,9 @@ class Fasilitas_merchant extends Model
 {
     use HasFactory;
     protected $table = 'fasilitas_merchant';
+
+    public function fasilitas()
+    {
+        return $this->belongsTo(Fasilitas::class,'fasilitas_id');
+    }
 }

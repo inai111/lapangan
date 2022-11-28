@@ -5,14 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Gallery extends Model
+class Jenis_olahraga extends Model
 {
     use HasFactory;
-    protected $table = 'galleries';
+    protected $table = 'jenis_olahraga';
 
     public function lapangan()
     {
         return $this->belongsTo(Lapangan::class);
     }
-
 }
