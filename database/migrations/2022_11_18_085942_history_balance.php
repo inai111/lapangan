@@ -14,13 +14,13 @@ return new class extends Migration
     public function up()
     {
         //
-        Schema::create('transactions',function(Blueprint $table){
+        Schema::create('history_balance',function(Blueprint $table){
             $table->id();
-            $table->string('token');
-            $table->foreignId('booklists_id');
-            $table->string('midtrans_token')->nullable();
-            $table->string('total')->nullable();
-            $table->enum('status',['gagal','pending','berhasil'])->nullable();
+            $table->foreignId('merchant_id');
+            $table->enum('type',['masuk','keluar'])->default('masuk');
+            $table->string('total');
+            $table->text('note')->nullable();
+            $table->string('bukti')->nullable();
             $table->timestamps();
         });
     }

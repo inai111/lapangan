@@ -45,11 +45,11 @@ class Home extends Controller
             $userdata = User::where('username',$data['username'])->first();
             $request->session()->regenerate();
             $request->session()->put('id_user',$userdata['id']);
-            $request->session()->put('level',$userdata['level']);
+            $request->session()->put('role',$userdata['role']);
             $request->session()->put('username',$userdata['username']);
             $response['message'] = "welcome back {$request->username}, please wait.";
             $response['status'] = true;
-            if($userdata['level'] == 'admin')$response['href'] = "/dashboard";
+            if($userdata['role'] == 'admin') $response['href'] = "/dashboard";
         }else{
             $response['message']="Please check your input, username or password incorect";
         }
@@ -144,6 +144,18 @@ class Home extends Controller
         $lapangan = Lapangan::where('id',$id)->first();
         $lapangan->harga = number_format($lapangan->harga,0,',','.');
         $merchant = Merchant::where('id',$lapangan->merchant_id)->first();
+        $booklist = Booklists::where('lapangan_id',$id)->where('status','complete')->get()->all();
+        $rating = 0;
+        if($booklist){
+            $jumlah = 0;
+            foreach($booklist as $book){
+                if($book->rating){
+                    $rating += $book->rating;
+                    $jumlah ++;
+                }
+            }
+            if($rating && $jumlah) $rating = $rating/$jumlah;
+        }
         $objMsg = [
             'profilePic'=>$merchant->user->photo,
             'merchantName'=>$merchant->name_merchant,
@@ -158,6 +170,9 @@ class Home extends Controller
             'lapangan'=>$lapangan,
             'galeries'=>Gallery::where('ref_id',$id)->get()->toArray(),
             'merchant'=>$merchant,
+            'rating'=>$rating,
+            'jumlah'=>$jumlah,
+            'booklist'=>$booklist,
             'objMsg'=>base64_encode(json_encode($objMsg))
         ];
         return view("detail-lapangan",$data);

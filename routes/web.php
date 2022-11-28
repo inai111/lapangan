@@ -37,6 +37,7 @@ Route::controller(Dashboard::class)->group(function(){
     Route::post('/merchant-regist', 'merchant_register_store')->middleware('auth');
     Route::get('/user-booklists', 'book_lapangan');
     Route::get('/merchant-lapangan', 'lapangan');
+    Route::get('/merchant-lapangan/{num}', 'lapangan_ini');
     Route::get('/add-transaction/{num}', 'add_transaction')->middleware('auth');
     Route::get('/add-lapangan', 'lapangan_store');
     Route::post('/add-lapangan', 'add_lapangan_store');
@@ -47,11 +48,12 @@ Route::controller(Dashboard::class)->group(function(){
     Route::get('/user-transactions', 'trans_lapangan')->middleware('auth');
     Route::get('/admin-merchant', 'merchant_list');
     Route::get('/cek-transaksi', 'checking_transaction');
+    Route::get('/request-balance', 'request_balance');
+    Route::post('/request-balance', 'requesting_balance');
+    Route::get('/request-saldo', 'request_saldo');
+    Route::post('/request-saldo', 'requesting_saldo');
     // Route::get('/user-transactions', 'book_lapangan');
     // Route::post('/login', 'login');
     Route::get('/registes', 'tesget');
 });
-// Route::post('/login', function(){
-    //     return response()->json([new Request()]);
-    // });
     

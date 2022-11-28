@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Booking_date;
 use App\Models\Booklists;
 use App\Models\Gallery;
+use App\Models\History_Balance;
 use App\Models\Lapangan;
 use App\Models\Merchant;
 use App\Models\Transactions;
@@ -25,9 +26,18 @@ class Dashboard extends Controller
     {
         $user = User::where('id',session('id_user'))->first();
         $merchant = $user->merchant;
+        $pending_merchant = Merchant::where('active','pending')->get()->all();
+        $ongoing_booklist = 0;
+        if($user->role == 'merchant'){
+            $ongoing_booklist = Booklists::where('status','on_going')->get()->all();
+        }
+        $request_saldo = 0;
         $data = [
             'user' => $user,
             'merchant' => $merchant,
+            'request_saldo' => $request_saldo,
+            'pending_merchant' => $pending_merchant,
+            'ongoing_booklist' => $ongoing_booklist,
         ];
         return view('user.dashboard', $data);
     }
@@ -56,15 +66,17 @@ class Dashboard extends Controller
     }
     public function merchant_register_store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name_merchant' => 'required|unique:merchants,name_merchant',
+        $merchant = Merchant::where('user_id',session('id_user'))->first();
+        $rules = [
             'number' => 'required|numeric',
             'bank' => 'required',
             'address' => 'required',
             'bank_number' => 'required|numeric',
             'open' => 'required',
             'close' => 'required',
-        ]);
+        ];
+        if(!$merchant) $rules['name_merchant'] = 'required|unique:merchants,name_merchant';
+        $validator = Validator::make($request->all(), $rules);
         
         $response = [
             'status' => !$validator->fails(),
@@ -78,9 +90,8 @@ class Dashboard extends Controller
         $open = strtotime($request->post('open'));
         $close = strtotime($request->post('close'));
         if($open > $close) return redirect()->back()->withInput()->with("failed-message","Gagal Menyimpan!, Waktu tutup lebih awal dari waktu buka");
-        $merchant = Merchant::where('user_id',session('id_user'))->first();
         if(!$merchant) $merchant = new Merchant;
-        $merchant->name_merchant = strtolower($request->name_merchant);
+        if(!$merchant) $merchant->name_merchant = strtolower($request->name_merchant);
         $merchant->address = $request->address;
         $merchant->number = $request->number;
         $merchant->active = "pending"; //default nya adalah pending, tunggu admin menyetujui
@@ -181,8 +192,14 @@ class Dashboard extends Controller
             $cek = Booking_date::select('tanggal','jam')->where('booklists_id',$book->id)->get()->all();
             $booklists['pending'][$key]['jadwal'] = false;
             if($cek) $booklists['pending'][$key]['jadwal'] = $cek;
+            $merchant = Merchant::where('id',$book->lapangan->merchant_id)->first();
+            $transaction = Transactions::where('booklists_id',$book->id)->where('status','!=','gagal')->first();
+            $booklists['pending'][$key]['dp'] = $merchant->dp;
+            $booklists['pending'][$key]['pembayaran'] = $merchant->pembayaran;
+            $booklists['pending'][$key]['name_merchant'] = $merchant->name_merchant;
+            $booklists['pending'][$key]['id_merchant'] = $merchant->id;
+            $booklists['pending'][$key]['transaction'] = $transaction;
         }
-        // dd($booklists['pending']);
         $booklists['ongoing'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','on_going')->get()->all();
         $booklists['complete'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','complete')->get()->all();
         $data = [
@@ -191,21 +208,58 @@ class Dashboard extends Controller
         ];
         return view('user.transaction-list', $data);
     }
+    public function lapangan_ini($id,Request $request)
+    {
+        $user = User::where('id',session('id_user'))->first();
+        $merchant = $user->merchant;
+        $lapangan = Lapangan::where('id',$id)->where('merchant_id',$merchant->id)->get()->first();
+        $tanggal = $request->get('tanggal');
+        $booking_date = Booking_date::where('lapangan_id',$lapangan->id);
+        if($tanggal){
+            $booking_date->where('tanggal',$tanggal);
+        }
+        $booking_date = $booking_date->get()->all();
+        $data = [
+            'lapangan'=>$lapangan,
+            'booking_date'=>$booking_date,
+            'user'=>$user,
+            'merchant'=>$merchant,
+        ];
+        return view('merchant.jadwal-lapangan',$data);
+    }
     public function lapangan()
     {
         $user = User::where('id',session('id_user'))->first();
         $merchant = $user->merchant;
         if(!$merchant && in_array($merchant,['rejected','pending'])) return redirect('/merchant-regist');
         $lapangan = $merchant->lapangan;
+        foreach($lapangan as $key=>$item){
+            $booklist = Booklists::where('lapangan_id',$item->id)->where('status','complete')->get()->all();
+            $rating = 0;
+            $total_rating=0;
+            if($booklist){
+                foreach($booklist as $book){
+                    if($book->rating){
+                        $total_rating++;
+                        $rating += $book->rating;
+                    }
+                }
+                if($total_rating != 0) $rating /= $total_rating;
+            }
+            $lapangan[$key]['rating'] = $rating;
+            $lapangan[$key]['total_rating'] = $total_rating;
+            $lapangan[$key]['total_book'] = count($booklist);
+        }
         $data = [
             'lapangan'=>$lapangan,
             'user'=>$user,
             'merchant'=>$merchant,
         ];
-        return view('merchant.list-lapangan');
+        return view('merchant.list-lapangan',$data);
     }
     public function add_lapangan_store(Request $request)
     {
+        if(session('role')!='merchant') return redirect()->to('/add-lapangan')->withInput()->with("failed-message","Anda bukan seorang merchant");
         // file_put_contents('/assets/img/asdasd.png',$request->cover_lapangan);
         $validator = Validator::make($request->all(), [
             'cover_lapangan' => 'required',
@@ -219,13 +273,14 @@ class Dashboard extends Controller
         if ($request->cover_lapangan) {
             $request->cover_lapangan->store("/img/$nama_dir/cover/", ['disk' => 'public']);
         }
-
+        $merchant = Merchant::where('user_id',session('id_user'))->first();
         $lapangan = new Lapangan();
         $lapangan->nama = $request->nama_lapangan;
         $lapangan->harga = $request->harga;
         $lapangan->type = $request->type_lapangan;
         $lapangan->additional_info = $request->additional_info;
         $lapangan->cover = $request->cover_lapangan->hashName();
+        $lapangan->merchant_id = $merchant->id;
         $lapangan->save();
         $gallery = [];
         if ($request->gallery) {
@@ -346,57 +401,110 @@ class Dashboard extends Controller
         ];
         if(!session()->has('id_user')) return response()->json($response);
         $id = $request->get('id');
-        if(!$id) return response()->json($response);
+        $pembayaran = $request->get('pembayaran');
+        if(!$id || !$pembayaran) return response()->json($response);
         $user = User::where('id',session('id_user'))->get()->first();
         $booklist = Booklists::where('id',$id)->get()->first();
         $lapangan = Lapangan::where('id',$booklist->lapangan_id)->get()->first();
+        $merchant = Merchant::where('id',$lapangan->merchant_id)->first();
         if(!$booklist) return response()->json($response);
         $transaction = Transactions::where('booklists_id',$id)->where('status','!=','gagal')->get()->first();
         $response['message'] = '';
+        $total = $lapangan->harga * $booklist->length;
+        $transfer = false;
+        $pembayaran1 = $pembayaran=='dp'?'both':$pembayaran;
+        $beda = $pembayaran1 != $booklist->type_pembayaran;
+        switch($pembayaran){
+            case "dp":
+                $booklist->type_pembayaran = 'both';
+                $total /= 2;
+            case "full":
+                $booklist->type_pembayaran = 'transfer';
+                $transfer = true;
+                break;
+            case "cash":
+                $booklist->type_pembayaran = 'cash';
+                $booklist->status = 'on_going';
+                break;
+        }
         if(!$transaction)
         {
             $transaction = new Transactions();
             $transaction->token = "LAP-$id".session('id_user').rand(000000,999999);
             $transaction->status = "pending";
+            $transaction->total = $total;
             $transaction->booklists_id = $id;
-            $params = [
-                'transaction_details'=>[
-                    'order_id'=>$transaction->token,
-                    'gross_amount'=>$booklist->length
-                ],
-                'customer_details'=>[
-                    'first_name'=>$user->name,
-                    'phone'=>$user->number,
-                ]
-            ];
-            $midtransTrans = Snap::createTransaction($params);
-            $transaction->midtrans_token = $midtransTrans;
-            $transaction->save();
-        }else{
-            $midtrans_cek = (Object)Transaction::status($transaction->midtrans_token);
-            // dd($midtrans_cek);
-            if($midtrans_cek->status_code == 200 && $midtrans_cek->transaction_status=='cancel'){
-                $transaction->status = 'gagal';
-                $transaction->save();
-                $transaction = new Transactions();
-                $transaction->token = "LAP-$id".session('id_user').rand(000000,999999);
-                $transaction->status = "pending";
-                $transaction->booklists_id = $id;
+
+            if($transfer){
                 $params = [
                     'transaction_details'=>[
                         'order_id'=>$transaction->token,
-                        'gross_amount'=>($booklist->length*$lapangan->harga)
+                        'gross_amount'=>$total
                     ],
                     'customer_details'=>[
                         'first_name'=>$user->name,
                         'phone'=>$user->number,
                     ]
                 ];
+                
                 $midtransTrans = Snap::createTransaction($params);
                 $transaction->midtrans_token = $midtransTrans->token;
-                $transaction->save();
+            }
+        // return response()->json($transaction->save());
+            $transaction->save();
+        }else{
+            if($transaction->midtrans_token){
+                $midtrans_cek = (Object)Transaction::status($transaction->midtrans_token);
+                $response['midtrans']=$midtrans_cek;
+                // dd($midtrans_cek);
+                if($midtrans_cek->status_code == 200 && $midtrans_cek->transaction_status=='cancel'){
+                    $transaction->status = 'gagal';
+                    $transaction->save();
+                    $transaction = new Transactions();
+                    $transaction->token = "LAP-$id".session('id_user').rand(000000,999999);
+                    $transaction->status = "pending";
+                    $transaction->booklists_id = $id;
+                    $transaction->total = $total;
+                    $params = [
+                        'transaction_details'=>[
+                            'order_id'=>$transaction->token,
+                            'gross_amount'=>$total
+                        ],
+                        'customer_details'=>[
+                            'first_name'=>$user->name,
+                            'phone'=>$user->number,
+                        ]
+                    ];
+                    $midtransTrans = Snap::createTransaction($params);
+                    $transaction->midtrans_token = $midtransTrans->token;
+                    $transaction->save();
+                }
+            // }else{
+            //     if($beda){
+            //         $transaction->status = 'gagal';
+            //         $transaction->save();
+            //         $transaction = new Transactions();
+            //         $transaction->token = "LAP-$id".session('id_user').rand(000000,999999);
+            //         $transaction->status = "pending";
+            //         $transaction->booklists_id = $id;
+            //         $transaction->total = $total;
+            //         $params = [
+            //             'transaction_details'=>[
+            //                 'order_id'=>$transaction->token,
+            //                 'gross_amount'=>$total
+            //             ],
+            //             'customer_details'=>[
+            //                 'first_name'=>$user->name,
+            //                 'phone'=>$user->number,
+            //             ]
+            //         ];
+            //         $midtransTrans = Snap::createTransaction($params);
+            //         $transaction->midtrans_token = $midtransTrans->token;
+            //         $transaction->save();
+            //     }
             }
         }
+        $booklist->save();
         $response['status'] = true;
         $response['token'] = $transaction->midtrans_token;
         return response()->json($response);
@@ -412,5 +520,61 @@ class Dashboard extends Controller
         $booklist->review = $request->review;
         if(!$booklist->save()) return redirect()->back()->with("failed-message","Rating kamu gagal kami simpan!");
         return redirect()->back()->with("success-message","Rating kamu berhasil kami simpan!");
+    }
+
+    // sisi merchant
+    public function requesting_balance(Request $request)
+    {
+        $jumlah = $request->post('jumlah');
+        $merchant = Merchant::where('user_id',session('id_user'))->first();
+        $history = History_Balance::where('merchant_id',$merchant->id)->get()->all();
+        $saldo = 0;
+        if($history){
+            foreach($history as $item){
+                if($item->status == 'masuk'){
+                    $saldo += $item->total;
+                }
+                if($item->status == 'keluar'){
+                    $saldo -= $item->total;
+                }
+            }
+        }
+        if($saldo<$jumlah) return redirect()->back()->with('failed-message','Saldo tidak mencukupi');
+        if(50000>$jumlah) return redirect()->back()->with('failed-message','Penarikan Saldo harus lebih dari Rp.50.000');
+    }
+    public function request_balance(Request $request)
+    {
+        $merchant = Merchant::where('user_id',session('id_user'))->first();
+        $history = History_Balance::where('merchant_id',$merchant->id)->get()->all();
+        $saldo = 0;
+        if($history){
+            foreach($history as $item){
+                if($item->status == 'masuk'){
+                    $saldo += $item->total;
+                }
+                if($item->status == 'keluar'){
+                    $saldo -= $item->total;
+                }
+            }
+        }
+        $data = [
+            'history'=>$history,
+            'merchant'=>$merchant,
+            'saldo'=>$saldo
+        ];
+        return view('user.laporan-saldo',$data);
+    }
+
+    // sisi admin
+    public function request_saldo()
+    {
+        $request = History_Balance::where('type','pending')->get()->all();
+        $data = [
+            'request'=>$request
+        ];
+        return view('admin.request-saldo',$data);
+    }
+    public function requesting_saldo()
+    {
     }
 }

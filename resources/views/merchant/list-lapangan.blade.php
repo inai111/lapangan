@@ -21,24 +21,25 @@
                             <tr>
                                 <th>No.</th>
                                 <th>Lapangan</th>
-                                <th>Tanggal</th>
-                                <th>Jam Pesan</th>
                                 <th>Harga</th>
+                                <th>Telah Dipesan</th>
+                                <th>Rating</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach($lapangan as $item)
                             <tr>
-                                <td>1</td>
-                                <td>Lapangan</td>
-                                <td>Tanggal</td>
-                                <td>Jam Pesan</td>
-                                <td>Harga</td>
+                                <td>{{$loop->iteration}}</td>
+                                <td><a href="/merchant-lapangan/{{$item->id}}" class="text-dark" style="text-decoration: none">{{$item->nama}}</a></td>
+                                <td>Rp.{{number_format($item->harga,0,',','.')}}</td>
+                                <td>{{$item->total_book}}</td>
+                                <td>{{$item->rating}} <i class="fa fa-star text-warning"></i>({{$item->total_rating}})</td>
                                 <td>
-                                    <button class="btn btn-outline-dark">Bayar</button>
-                                    <button class="btn btn-outline-danger">Cancel</button>
+                                    <button class="btn btn-outline-dark">Edit</button>
                                 </td>
                             </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

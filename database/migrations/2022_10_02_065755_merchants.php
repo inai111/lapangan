@@ -26,7 +26,7 @@ return new class extends Migration
             $table->time('open');
             $table->time('close');
             $table->enum('status_close',['open','close'])->default('open');
-            $table->enum('pembayaran',['cash','both'])->default('both');
+            $table->enum('pembayaran',['cash','transfer','both'])->default('both');
             $table->enum('dp',[1,0])->default(1);
             $table->timestamps();
         });

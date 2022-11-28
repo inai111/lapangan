@@ -11,7 +11,9 @@
                 data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                 <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+                @if(session('role')!='admin')
                 <li><a class="dropdown-item" href="/settings">Settings</a></li>
+                @endif
                 <li>
                     <hr class="dropdown-divider" />
                 </li>

@@ -45,17 +45,15 @@
                         <div class="d-flex">
                             <h6 class="card-subtitle me-3 text-muted"><i class="fa-solid fa-basketball"></i>
                                 {{ $lapangan->type }}</h6>
-                            <h6 class="card-subtitle me-3 text-muted">Telah Dipesan(0)</h6>
+                            <h6 class="card-subtitle me-3 text-muted">Telah Dipesan({{count($booklist)}})</h6>
                             <h6 class="card-subtitle me-3 text-muted">
-                                <strong>0</strong>
-                                <i class="fa fa-star text-warning"></i>(0)
+                                <strong>{{$rating}}</strong>
+                                <i class="fa fa-star text-warning"></i>({{$jumlah}})
                             </h6>
                         </div>
                         <p class="card-text">{{ ucwords($merchant->name_merchant) }}</p>
-                        @if (session('id_user') != $merchant->user_id)
+                        @if (session('id_user') != $merchant->user_id && session('role')=='user')
                         <div class="d-flex">
-                            <input type="number" min="1" name="lengthForm" id="lengthForm" value="1"
-                                class="form-control w-25 mx-1">
                             <button data-login="{{ session('id_user') }}" data-id="{{ $lapangan->id }}" id="pesanNow"
                                 onclick="event.preventDefault()" class="mx-1 btn adds btn-success"><i
                                     class="fa-solid fa-plus"></i> Pesan Sekarang</button>
@@ -68,8 +66,6 @@
                             @endif
                         </div>
                         @endif
-                        <div class="d-flex">
-                        </div>
                         <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="info-tab" data-bs-toggle="tab"
@@ -79,7 +75,7 @@
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="rating-tab" data-bs-toggle="tab"
                                     data-bs-target="#rating-tab-pane" type="button" role="tab"
-                                    aria-controls="rating-tab-pane" aria-selected="false">Rating (0)</button>
+                                    aria-controls="rating-tab-pane" aria-selected="false">Rating ({{$jumlah}})</button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="address-tab" data-bs-toggle="tab"

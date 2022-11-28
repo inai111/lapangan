@@ -64,7 +64,9 @@
                                                         class="img-thumbnail" style="width:80px;height:80px"
                                                         alt="{{ $booklist->lapangan->nama }}">
                                                 </td>
-                                                <td>{{ $booklist->lapangan->nama }}</td>
+                                                <td>
+                                                    <h5>{{ $booklist->lapangan->nama }}</h5>
+                                                    <a href="/merchant/{{$booklist->id_merchant}}">{{$booklist->name_merchant}}</a></td>
                                                 @if ($booklist->jadwal)
                                                     <td class="text-center">
                                                         <div>{{ date('d-M-Y', strtotime($booklist->jadwal[0]['tanggal'])) }}</div>
@@ -89,7 +91,31 @@
                                                 </td>
                                                 <td>
                                                     @if ($booklist->jadwal)
-                                                        <button data-id="{{$booklist->id}}" class="btn btn-outline-dark bayarNow">Bayar</button>
+                                                        <div class="btn-group dropup">
+                                                            @if($booklist->transaction)
+                                                            <button type="button" data-pembayaran="{{$booklist->type_pembayaran}}" data-id="{{$booklist->id}}" class="btn btn-outline-dark bayarNow" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                Bayar <span class="text-danger">(00:00)</span>
+                                                            </button>
+                                                            @else
+                                                            <button type="button" class="btn btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                Bayar
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                @if($booklist->dp == 1 && in_array($booklist->pembayaran,['both','transfer']))
+                                                                <li><a data-pembayaran="dp" data-id="{{$booklist->id}}" class="dropdown-item bayarNow" href="#">Bayar DP <span class="text-danger">(Bayar 50%)</span></a></li>
+                                                                @endif
+                                                                @if(in_array($booklist->pembayaran,['both','transfer']))
+                                                                <li><a data-pembayaran="full" data-id="{{$booklist->id}}" class="dropdown-item bayarNow" href="#">Bayar Full Transfer <span class="text-danger">(Bayar 100%)</span></a></li>
+                                                                @endif
+                                                                @if(in_array($booklist->pembayaran,['both','cash']))
+                                                                <li><a data-pembayaran="cash" data-id="{{$booklist->id}}" class="dropdown-item bayarNow" href="#">Bayar Full Ditempat</a></li>                                                            
+                                                                @endif
+                                                            </ul>
+                                                            @endif
+
+                                                        </div>
+                                                      
+                                                        {{-- <button data-id="{{$booklist->id}}" class="btn btn-outline-dark bayarNow">Bayar</button> --}}
                                                     @endif
                                                     <button data-id="{{$booklist->id}}" class="btn btn-outline-danger deleteTrans"><i
                                                             class="fa fa-trash"></i></button>
@@ -411,10 +437,14 @@
             elem.addEventListener(`click`,function(e){
                 e.preventDefault();
                 let id = this.dataset.id;
-                fetch(`/cek-transaksi?id=${id}`)
+                let pembayaran = this.dataset.pembayaran;
+                fetch(`/cek-transaksi?id=${id}&pembayaran=${pembayaran}`)
                 .then(ee=>ee.json())
                 .then(res=>{
-                    console.log(res);
+                    // console.log(res);
+                    if(res.token){
+                        snap.pay(res.token);
+                    }
                 })
             })
         })

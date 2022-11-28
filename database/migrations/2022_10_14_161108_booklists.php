@@ -18,11 +18,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id');
             $table->foreignId('lapangan_id');
+            $table->foreignId('merchant_id');
             $table->integer('length')->default(1);
             $table->integer('rating')->nullable();
             $table->text('review')->nullable();
             $table->string('down_payment')->nullable();
-            $table->enum('type_pembayaran',['cash','transfer']);
+            $table->enum('type_pembayaran',['cash','transfer','both']);
             $table->enum('status',['pending','on_going','complete','cancel']);
             $table->timestamps();
         });

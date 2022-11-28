@@ -13,4 +13,8 @@ class Booklists extends Model
     {
         return $this->hasOne(Lapangan::class,"id","lapangan_id");
     }
+    public function transaction()
+    {
+        return $this->hasOne(Transactions::class,'booklists_id','id');
+    }
 }
