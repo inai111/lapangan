@@ -30,7 +30,7 @@ class user extends Seeder
             'created_at'=>now(),
         ]);
         DB::table('user')->insert([
-            'name' => Str::random(10),
+            'nama' => Str::random(10),
             'alamat' => Str::random(10),
             'nomor' => "888888",
             'foto' => "default.png",
@@ -41,7 +41,7 @@ class user extends Seeder
             'created_at'=>now(),
         ]);
         DB::table('user')->insert([
-            'name' => Str::random(10),
+            'nama' => Str::random(10),
             'alamat' => Str::random(10),
             'foto' => "default.png",
             'username' => 'admin',
@@ -142,6 +142,14 @@ class user extends Seeder
             'fasilitas_icon' => '<i class="fa-solid fa-wifi"></i>'],
             ['fasilitas' => "wifi",
             'fasilitas_icon' => '<i class="fa-solid fa-wifi"></i>'],
+        ]);
+        DB::table('jenis_olahraga')->insert([
+            ['nama' => "Volley"],
+            ['nama' => "Basket"],
+            ['nama' => "Sepak Bola"],
+            ['nama' => "Futsal"],
+            ['nama' => "Badminton"],
+            ['nama' => "Bowling"],
         ]);
     }
 }

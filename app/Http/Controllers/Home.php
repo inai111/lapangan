@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class Home extends Controller
@@ -113,24 +114,29 @@ class Home extends Controller
         $query_to = !empty($search_arr[1])?$search_arr[1]:"";
         switch($query_to){
             case "merchant":
-                $merchant = Merchant::orderBy('id',$sort_by)->where('name_merchant','like',"%$search_arr[0]%");
+                $merchant = Merchant::select(DB::raw('*,"merchant" as type'))->orderBy('id',$sort_by)->where('nama','like',"%$search_arr[0]%")->where('status_merchant','active');
                 $merchant = $merchant->take(6)->get();
                 $result = $merchant;
                 break;
             case "lapangan":
-                $lapangan = Lapangan::orderBy('id',$sort_by)->where('nama','like',"%$search_arr[0]%");
+                $lapangan = Lapangan::select(DB::raw('*,"lapangan" as type'))->orderBy('id',$sort_by)->where('nama','like',"%$search_arr[0]%");
                 $lapangan = $lapangan->take(6)->get();
+                foreach($lapangan as $key => $item){
+                    $lapangan[$key]['merchant'] = $item->merchant;
+                    $lapangan[$key]['jenis'] = $item->jenis;
+                }
                 $result = $lapangan;
                 break;
             default:
-                    $merchant = Merchant::orderBy('id',$sort_by)->where('name_merchant','like',"%$search_arr[0]%");
+                    $merchant = Merchant::select(DB::raw('*,"merchant" as type'))->orderBy('id',$sort_by)->where('nama','like',"%$search_arr[0]%")->where('status_merchant','active');
                     $merchant = $merchant->take(3)->get()->toArray();
-                    $lapangan = Lapangan::orderBy('id',$sort_by)->where('nama','like',"%$search_arr[0]%");
-                    $lapangan = $lapangan->take(3)->get()->toArray();
+                    $lapangan = Lapangan::select(DB::raw('*,"lapangan" as type'))->orderBy('id',$sort_by)->where('nama','like',"%$search_arr[0]%");
+                    $lapangan = $lapangan->take(3)->get();
                     foreach($lapangan as $key => $item){
-                        $lapangan[$key]['merchant'] = Merchant::where('id',$item['merchant_id']);
+                        $lapangan[$key]['merchant'] = $item->merchant;
+                        $lapangan[$key]['jenis'] = $item->jenis;
                     }
-                    $result = array_merge($merchant,$lapangan);
+                    $result = array_merge($merchant,$lapangan->toArray());
                 break;
         }
         $response = [
@@ -143,8 +149,8 @@ class Home extends Controller
     {
         $lapangan = Lapangan::where('id',$id)->first();
         $lapangan->harga = number_format($lapangan->harga,0,',','.');
-        $merchant = Merchant::where('id',$lapangan->merchant_id)->first();
-        $booklist = Booklists::where('lapangan_id',$id)->where('status','complete')->get()->all();
+        $merchant = $lapangan->merchant;
+        $booklist = $lapangan->booklist;
         $rating = 0;
         if($booklist){
             $jumlah = 0;
@@ -168,7 +174,7 @@ class Home extends Controller
         ];
         $data = [
             'lapangan'=>$lapangan,
-            'galeries'=>Gallery::where('ref_id',$id)->get()->toArray(),
+            'galeries'=>$lapangan->galleries,
             'merchant'=>$merchant,
             'rating'=>$rating,
             'jumlah'=>$jumlah,
@@ -260,10 +266,10 @@ class Home extends Controller
 
     public function detail_merchant($id)
     {
-        $merchant = Merchant::where('id',$id)->where('active','active')->first();
+        $merchant = Merchant::where('id',$id)->where('status_merchant','active')->first();
         if(empty($merchant)) return abort(404);
-        $user = User::where('id',$merchant->user_id)->first();
-        $lapangan = Lapangan::where("merchant_id",$merchant->id)->get()->all();
+        $user = $merchant->user;
+        $lapangan = $merchant->lapangan;
         $data = [
             'merchant'=>$merchant,
             'user'=>$user,

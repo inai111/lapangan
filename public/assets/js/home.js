@@ -164,8 +164,8 @@ document.querySelectorAll(`[data-sort]`).forEach(elem=>{
 let fetchAllow = true;
 function fetchingDataLapangan(params)
 {
-    let listMerchant = (href,img,judul,type,location,harga)=> {
-        if(type){
+    let listMerchant = (href,img,judul,type,location,harga,jenis = null)=> {
+        if(type=='lapangan'){
             return `
             <a href="${href}" class="list-group-item list-group-item-action" aria-current="true">
                 <div class="row">
@@ -179,7 +179,7 @@ function fetchingDataLapangan(params)
                         </div>
                         <p class="mb-1"><i class="fa fa-location-dot"></i> ${location}</p>
                         <div class="d-flex justify-content-between">
-                        <small>Type : ${type}.</small>
+                        <small>Type : ${jenis.nama}.</small>
                         <h4 class="text-success py-1 px-4"><i class="fa-solid fa-tags"></i> Rp. ${new Intl.NumberFormat(['ban', 'id']).format(Number(harga||0))}/Jam</h4>
                         </div>
                     </div>
@@ -219,8 +219,8 @@ function fetchingDataLapangan(params)
             sortHasilSearch.style.display = '';
             let str = ``;
             res.result.forEach(data=>{
-                let href = data.name_merchant?`merchant/`:'lapangan/';
-                str += listMerchant(`/${href+data.id}`,`https://akcdn.detik.net.id/community/media/visual/2021/06/13/lapangan-galuh-pakuan-lapangan-bola-desa-3_169.jpeg?w=700&q=90`,data.nama||data.name_merchant,data.type,data.address||data.merchant.address,data.harga)
+                let href = data.type=='merchant'?`merchant/`:'lapangan/';
+                str += listMerchant(`/${href+data.id}`,`https://akcdn.detik.net.id/community/media/visual/2021/06/13/lapangan-galuh-pakuan-lapangan-bola-desa-3_169.jpeg?w=700&q=90`,data.nama||data.nama,data.type,data.alamat||data.merchant.alamat,data.harga,data.jenis)
             })
             hasilSearch.innerHTML = str;
             hasilSearch.style.display = '';

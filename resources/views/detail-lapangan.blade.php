@@ -44,14 +44,14 @@
                             {{ number_format($lapangan->harga ?: 0, 0, ',', '.') }}/Jam</h5>
                         <div class="d-flex">
                             <h6 class="card-subtitle me-3 text-muted"><i class="fa-solid fa-basketball"></i>
-                                {{ $lapangan->type }}</h6>
+                                {{ $lapangan->jenis->nama }}</h6>
                             <h6 class="card-subtitle me-3 text-muted">Telah Dipesan({{count($booklist)}})</h6>
                             <h6 class="card-subtitle me-3 text-muted">
                                 <strong>{{$rating}}</strong>
                                 <i class="fa fa-star text-warning"></i>({{$jumlah}})
                             </h6>
                         </div>
-                        <p class="card-text">{{ ucwords($merchant->name_merchant) }}</p>
+                        <p class="card-text">{{ ucwords($merchant->nama) }}</p>
                         @if (session('id_user') != $merchant->user_id && session('role')=='user')
                         <div class="d-flex">
                             <button data-login="{{ session('id_user') }}" data-id="{{ $lapangan->id }}" id="pesanNow"
@@ -87,7 +87,7 @@
                             <div class="tab-pane fade show active" id="info-tab-pane" role="tabpanel"
                                 aria-labelledby="info-tab" tabindex="0">
                                 @php
-                                    echo nl2br($lapangan->additional_info);
+                                    echo nl2br($lapangan->deskripsi);
                                 @endphp
                             </div>
                             <div class="tab-pane fade" id="rating-tab-pane" role="tabpanel" aria-labelledby="rating-tab"
@@ -131,7 +131,7 @@
                             </div>
                             <div class="tab-pane fade" id="address-tab-pane" role="tabpanel"
                                 aria-labelledby="address-tab" tabindex="0">
-                                {{ $merchant->address }}
+                                {{ $merchant->alamat }}
                             </div>
                         </div>
                     </div>

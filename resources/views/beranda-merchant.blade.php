@@ -11,13 +11,13 @@
         <div class="row">
             <div class="col-md-2">
                 <div class="img-thumbnail mx-auto rounded-circle"
-                    style="background-image:url({{ asset("assets/img/profilpic/{$user['photo']}") }});background-size: 130px;background-repeat: no-repeat;background-color: #8b8e90;background-position: center;width: 150px;height: 150px;">
+                    style="background-image:url({{ asset("assets/img/profilpic/{$user['foto']}") }});background-size: 130px;background-repeat: no-repeat;background-color: #8b8e90;background-position: center;width: 150px;height: 150px;">
                 </div>
             </div>
             <div class="col-md-10">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h4 class="display-5">{{ strtolower($merchant->name_merchant) }}</h4>
+                        <h4 class="display-5">{{ strtolower($merchant->nama) }}</h4>
                     </div>
                     <div class="col text-end">
                         {{-- <button class="btn btn-sm btn-success">asdas</button> --}}
@@ -30,7 +30,7 @@
                 </div>
                 <div class="text-muted me-2">Jam Buka {{ $merchant->open . ' - ' . $merchant->close }}</div>
                 <div><i class="fa fa-location-dot"></i>
-                    {{ !empty($merchant->address) ? $merchant->address : $user->address }}
+                    {{ !empty($merchant->alamat) ? $merchant->alamat : $user->alamat }}
                 </div>
 
             </div>
@@ -42,8 +42,8 @@
                         type="button" role="tab" aria-controls="info-tab-pane" aria-selected="true">Lapangan</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="address-tab" data-bs-toggle="tab" data-bs-target="#address-tab-pane"
-                        type="button" role="tab" aria-controls="address-tab-pane" aria-selected="false">Lokasi
+                    <button class="nav-link" id="alamat-tab" data-bs-toggle="tab" data-bs-target="#alamat-tab-pane"
+                        type="button" role="tab" aria-controls="alamat-tab-pane" aria-selected="false">Lokasi
                         Lapangan</button>
                 </li>
             </ul>
@@ -67,9 +67,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane fade" id="address-tab-pane" role="tabpanel" aria-labelledby="address-tab"
+                <div class="tab-pane fade" id="alamat-tab-pane" role="tabpanel" aria-labelledby="alamat-tab"
                     tabindex="0">
-                    asd
+                    {{$merchant->alamat}}
                 </div>
             </div>
         </div>

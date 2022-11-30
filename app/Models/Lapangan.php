@@ -28,6 +28,6 @@ class Lapangan extends Model
     }
     public function jenis()
     {
-        return $this->hasOne(Jenis_olahraga::class);
+        return $this->belongsTo(Jenis_olahraga::class,'jenis_olahraga_id');
     }
 }
