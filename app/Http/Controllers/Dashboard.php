@@ -405,9 +405,10 @@ class Dashboard extends Controller
         if(!$id || !$pembayaran) return response()->json($response);
         $user = User::where('id',session('id_user'))->get()->first();
         $booklist = Booklists::where('id',$id)->get()->first();
-        $lapangan = Lapangan::where('id',$booklist->lapangan_id)->get()->first();
-        $merchant = Merchant::where('id',$lapangan->merchant_id)->first();
         if(!$booklist) return response()->json($response);
+        $lapangan = $booklist->lapangan;
+        // $lapangan = Lapangan::where('id',$booklist->lapangan_id)->get()->first();
+        $merchant = $lapangan->merchant;
         $transaction = Transactions::where('booklists_id',$id)->where('status','!=','gagal')->get()->first();
         $response['message'] = '';
         $total = $lapangan->harga * $booklist->length;
@@ -416,14 +417,14 @@ class Dashboard extends Controller
         $beda = $pembayaran1 != $booklist->type_pembayaran;
         switch($pembayaran){
             case "dp":
-                $booklist->type_pembayaran = 'both';
+                $booklist->jenis_pembayaran = 'both';
                 $total /= 2;
             case "full":
-                $booklist->type_pembayaran = 'transfer';
+                $booklist->jenis_pembayaran = 'transfer';
                 $transfer = true;
                 break;
             case "cash":
-                $booklist->type_pembayaran = 'cash';
+                $booklist->jenis_pembayaran = 'cash';
                 $booklist->status = 'on_going';
                 break;
         }
@@ -434,20 +435,33 @@ class Dashboard extends Controller
             $transaction->status = "pending";
             $transaction->total = $total;
             $transaction->booklists_id = $id;
-
+            
             if($transfer){
-                $params = [
-                    'transaction_details'=>[
-                        'order_id'=>$transaction->token,
-                        'gross_amount'=>$total
-                    ],
-                    'customer_details'=>[
-                        'first_name'=>$user->name,
-                        'phone'=>$user->number,
-                    ]
-                ];
-                
-                $midtransTrans = Snap::createTransaction($params);
+                $item_details = array([
+                    'id' => $transaction->token,
+                    'price' => round($total),
+                    'quantity' => 1,
+                    'name' => "testing Lapangan"
+                ]);
+                $transaction_details = array(
+                    'order_id' => $transaction->token,
+                    'gross_amount' => round($total)
+                );
+                $customer_details = array(
+                    'first_name' => "asdasdzxc",
+                    'email' => "lapangankrisna@gmail.com",
+                    'phone' => "1231235435",
+                );
+                $credit_card['secure'] = true;
+                $transaction_data = array(
+                    'transaction_details'=> $transaction_details,
+                    'item_details' => $item_details,
+                    'customer_details' => $customer_details,
+                    'credit_card' => $credit_card,
+                    'whitelist_bins' => [],
+                    // 'expiry'             => $custom_expiry
+                );
+                $midtransTrans = Snap::createTransaction($transaction_data);
                 $transaction->midtrans_token = $midtransTrans->token;
             }
         // return response()->json($transaction->save());
@@ -465,17 +479,31 @@ class Dashboard extends Controller
                     $transaction->status = "pending";
                     $transaction->booklists_id = $id;
                     $transaction->total = $total;
-                    $params = [
-                        'transaction_details'=>[
-                            'order_id'=>$transaction->token,
-                            'gross_amount'=>$total
-                        ],
-                        'customer_details'=>[
-                            'first_name'=>$user->name,
-                            'phone'=>$user->number,
-                        ]
-                    ];
-                    $midtransTrans = Snap::createTransaction($params);
+                    $item_details = array([
+                        'id' => $transaction->token,
+                        'price' => round($total),
+                        'quantity' => 1,
+                        'name' => "testing Lapangan"
+                    ]);
+                    $transaction_details = array(
+                        'order_id' => $transaction->token,
+                        'gross_amount' => round($total)
+                    );
+                    $customer_details = array(
+                        'first_name' => "asdasdasd",
+                        'email' => "lapangankrisna@gmail.com",
+                        'phone' => $user->number,
+                    );
+                    $credit_card['secure'] = true;
+                    $transaction_data = array(
+                        'transaction_details'=> $transaction_details,
+                        'item_details' => $item_details,
+                        'customer_details' => $customer_details,
+                        'credit_card' => $credit_card,
+                        'whitelist_bins' => [],
+                        // 'expiry'             => $custom_expiry
+                    );
+                    $midtransTrans = Snap::createTransaction($transaction_data);
                     $transaction->midtrans_token = $midtransTrans->token;
                     $transaction->save();
                 }

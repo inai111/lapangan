@@ -192,15 +192,28 @@ class Home extends Controller
         $tanggal = $request->get('tanggal');
         if(empty($tanggal)) return response()->json($response);
         $thisBook = Booklists::where('id',$id)->first();
-        $lapangan = Lapangan::where('id',$thisBook->lapangan_id)->first();
-        $bookingan = Booking_date::where('lapangan_id',$id)->where('tanggal',$tanggal)->get()->all();
+        // $lapangan = Lapangan::where('id',$thisBook->lapangan_id)->first();
+        $lapangan = $thisBook->lapangan;
         if(empty($lapangan)) return response()->json($response);
-        $merchant = Merchant::where('id',$lapangan->merchant_id)->first();
+        $lapanganBook = Booklists::where('lapangan_id',$id)->where('status','!=','cancel')->get();
+        $bookingan = [];
+        foreach($lapanganBook as $item){
+            $itemBook = Booking_date::where('booklists_id',$item->id)->where('tanggal',$tanggal)->get();
+            if($itemBook){
+                foreach($itemBook as $book){
+                    $bookingan []=$book;
+                }
+            }
+        }
+        // $bookingan = Booking_date::where('lapangan_id',$id)->where('tanggal',$tanggal)->get()->all();
+        // $merchant = Merchant::where('id',$lapangan->merchant_id)->first();
+        $merchant = $lapangan->merchant->first();
         if(empty($merchant)) return response()->json($response);
-        $open = date("H",strtotime($merchant->open));
-        $close = date("H",strtotime($merchant->close));
+        $open = date("H",strtotime($merchant->buka));
+        $close = date("H",strtotime($merchant->tutup));
         $available_jam = [];
         $i =0;
+        // dd($open,$close);
         for($open;$open<$close;$open++){
 
             $available_jam [$i] = [

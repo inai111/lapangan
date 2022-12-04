@@ -93,7 +93,7 @@
                                                     @if ($booklist->jadwal)
                                                         <div class="btn-group dropup">
                                                             @if($booklist->transaction)
-                                                            <button type="button" data-pembayaran="{{$booklist->type_pembayaran}}" data-id="{{$booklist->id}}" class="btn btn-outline-dark bayarNow" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <button type="button" data-pembayaran="{{$booklist->type_pembayaran}}" data-id="{{$booklist->id}}" class="btn btn-outline-dark bayarNow" aria-expanded="false">
                                                                 Bayar <span class="text-danger">(00:00)</span>
                                                             </button>
                                                             @else
@@ -441,9 +441,20 @@
                 fetch(`/cek-transaksi?id=${id}&pembayaran=${pembayaran}`)
                 .then(ee=>ee.json())
                 .then(res=>{
-                    // console.log(res);
+                    console.log(res);
                     if(res.token){
-                        snap.pay(res.token);
+                        snap.pay(res.token,{
+                            onSuccess: function(result){
+                                console.log(result.status_message);
+
+                            },
+                            onPending: function(result){
+                                console.log(result.status_message);
+                            },
+                            onError: function(result){
+                                console.log(result.status_message);
+                            }
+                        });
                     }
                 })
             })

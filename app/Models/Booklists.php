@@ -19,7 +19,7 @@ class Booklists extends Model
     }
     public function booking_date()
     {
-        return $this->hasOne(Booking_date::class,'booklists_id');
+        return $this->hasMany(Booking_date::class,'booklists_id');
     }
     public function user()
     {
