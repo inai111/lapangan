@@ -36,19 +36,30 @@
                                 <div class="border p-3">
                                     <div class="row">
                                         @php
-                                            $tanggal = date("D, d F",strtotime("+$i days"));
-                                            $init = date("H",strtotime($merchant->open));
-                                            $close = date("H",strtotime($merchant->close));
+                                            $tanggal = date("d-m-Y",strtotime("+$i days {$tgl}"));
+                                            $tanggal_string = date("D, d F",strtotime("+$i days {$tgl}"));
+                                            $init = date("H",strtotime($merchant->buka));
+                                            $close = date("H",strtotime($merchant->tutup));
                                         @endphp
                                         <div class="col-12 mb-3">
                                         <div class="d-flex justify-content-between">
-                                            {{$tanggal}}
+                                            {{$tanggal_string}}
                                             <button class="btn rounded-pill px-1 py-0 btn-sm btn-danger">Full Book</button>
                                         </div>
                                         </div>
                                         @while ($init<($close))
+                                        @php
+                                        $disabled = false;
+                                        if($booking_date){
+                                            foreach ($booking_date as $value) {
+                                                if(strtotime($value) == strtotime(date('d-m-Y ',strtotime($tanggal))."{$init}:00:00")){
+                                                    $disabled = true;
+                                                }
+                                            }
+                                        }
+                                        @endphp
                                         <div class="col-lg-3 col-md-3 col-sm-3 col-3 my-1">
-                                            <button class="btn btn-sm btn-outline-primary">{{date("H:i",strtotime($init.":00"))}}</button>
+                                            <button class="btn btn-sm {{$disabled?'btn-dark disabled':'btn-outline-primary'}}">{{date("H:i",strtotime($init.":00"))}}</button>
                                         </div>
                                         @php
                                             $init++;

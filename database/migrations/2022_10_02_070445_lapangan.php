@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('nama');
             $table->string('harga');
             $table->string('cover');
-            // $table->string('type');
             $table->text('deskripsi')->nullable();
             $table->enum('status',['ada','tidak_ada'])->default('ada');
             $table->timestamps();

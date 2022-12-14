@@ -131,7 +131,63 @@
                             </table>
                         </div>
                         <div class="tab-pane fade" id="ongoing-tab-pane" role="tabpanel" aria-labelledby="ongoing-tab"
-                            tabindex="0">...</div>
+                            tabindex="0">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th colspan="6">List Lapangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if ($booklists['ongoing'])
+                                        @foreach ($booklists['ongoing'] as $booklist)
+                                            <tr>
+                                                <td>
+                                                    <img src="{{ asset("assets/img/lapangan/cover/{$booklist->lapangan->cover}") }}"
+                                                        class="img-thumbnail" style="width:80px;height:80px"
+                                                        alt="{{ $booklist->lapangan->nama }}">
+                                                </td>
+                                                <td>
+                                                    <h5>{{ $booklist->lapangan->nama }}</h5>
+                                                    <a href="/merchant/{{$booklist->lapangan->merchant->id}}">{{$booklist->lapangan->merchant->nama}}</a>
+                                                </td>
+                                                @if ($booklist->booking_date)
+                                                    <td class="text-center">
+                                                        <div>{{ date('d-F-Y', strtotime($booklist->booking_date[0]->tanggal)) }}</div>
+                                                        @foreach ($booklist->booking_date as $item)
+                                                            <div class="btn btn-success btn-sm">{{date("H:i",strtotime($item->jam))}}</div>
+                                                        @endforeach
+                                                        
+                                                    </td>
+                                                @else
+                                                    <td class="text-center">
+                                                        <div class="mb-1">
+                                                            Jadwal Belum Ada
+                                                        </div>
+                                                        <button data-length="{{ $booklist->length }}"
+                                                            data-id="{{ $booklist->id }}"
+                                                            class="btn btn-sm btnPemesanan btn-outline-success">Pilih
+                                                            Jadwal</button>
+                                                    </td>
+                                                @endif
+                                                <td>{{ $booklist->length }} Jam</td>
+                                                <td>Rp. {{ number_format($booklist->length * $booklist->lapangan->harga) }}
+                                                </td>
+                                                <td>
+                                                    <button data-id="{{$booklist->id}}" class="btn btn-outline-dark completeTrans">
+                                                        Selesaikan    
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="6">Tidak Ada Transaksi</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
                         <div class="tab-pane fade" id="complete-tab-pane" role="tabpanel" aria-labelledby="complete-tab"
                             tabindex="0">
                             <table class="table">
@@ -264,6 +320,27 @@
                 </div>
                 <div class="modal-footer">
                         <button class="btn btn-dark reviewSaveButton" type="button">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="confirmingComplete" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ratingModalLabel">Rating Lapangan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/complete-transaction" id="formCompleteBook" method="POST">
+                        <input type="hidden" id="idBooklist" name="id">
+                        @csrf
+                        Apakah anda yakin ingin menyelesaikan pemesanan ini?
+                    </form>
+                </div>
+                <div class="modal-footer">
+                        <button class="btn btn-outline-dark selesaikanTrans" data-bs-dismiss="modal" type="button">Simpan</button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Batal</button>
                 </div>
             </div>
         </div>
@@ -458,6 +535,18 @@
                     }
                 })
             })
+        })
+        document.querySelectorAll(`.completeTrans`).forEach(elem=>{
+            elem.addEventListener(`click`,function(e){
+                let id = this.dataset.id;
+                let modal = new bootstrap.Modal(document.querySelector("#confirmingComplete"));
+                document.querySelector("#confirmingComplete input#idBooklist").value = id;
+                modal.show();
+                // fetch(`/complete-transaksi?id=${id}`)
+            })
+        })
+        document.querySelector(`.selesaikanTrans`).addEventListener('click',function(e){
+            document.querySelector(`#formCompleteBook`).submit();
         })
 
     </script>

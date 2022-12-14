@@ -26,7 +26,7 @@ class Dashboard extends Controller
     {
         $user = User::where('id',session('id_user'))->first();
         $merchant = $user->merchant;
-        $pending_merchant = Merchant::where('active','pending')->get()->all();
+        $pending_merchant = Merchant::where('status_merchant','pending')->get()->all();
         $ongoing_booklist = 0;
         if($user->role == 'merchant'){
             $ongoing_booklist = Booklists::where('status','on_going')->get()->all();
@@ -189,18 +189,26 @@ class Dashboard extends Controller
         $user = User::where('id',session('id_user'))->first();
         $booklists['pending'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','pending')->get()->all();
         foreach($booklists['pending'] as $key => $book){
-            $cek = Booking_date::select('tanggal','jam')->where('booklists_id',$book->id)->get()->all();
-            $booklists['pending'][$key]['jadwal'] = false;
-            if($cek) $booklists['pending'][$key]['jadwal'] = $cek;
             $merchant = Merchant::where('id',$book->lapangan->merchant_id)->first();
             $transaction = Transactions::where('booklists_id',$book->id)->where('status','!=','gagal')->first();
+            if($transaction->midtrans_token){
+                $midtrans_cek = (Object)Transaction::status($transaction->midtrans_token);
+                if($midtrans_cek->status_code == 200 && $midtrans_cek->transaction_status == "settlement"){
+                        $transaction->status = 'berhasil';
+                        $book->status = 'on_going';
+                        $transaction->save();
+                        $book->save();
+                        return $this->trans_lapangan();
+                    }
+            }
+            $booklists['pending'][$key]['jadwal'] = $book->booking_date;
             $booklists['pending'][$key]['dp'] = $merchant->dp;
             $booklists['pending'][$key]['pembayaran'] = $merchant->pembayaran;
             $booklists['pending'][$key]['name_merchant'] = $merchant->name_merchant;
             $booklists['pending'][$key]['id_merchant'] = $merchant->id;
             $booklists['pending'][$key]['transaction'] = $transaction;
         }
-        $booklists['ongoing'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','on_going')->get()->all();
+        $booklists['ongoing'] = Booklists::where('user_id', $user['id'])->where('status','on_going')->get();
         $booklists['complete'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','complete')->get()->all();
         $data = [
             'user' => $user,
@@ -213,17 +221,26 @@ class Dashboard extends Controller
         $user = User::where('id',session('id_user'))->first();
         $merchant = $user->merchant;
         $lapangan = Lapangan::where('id',$id)->where('merchant_id',$merchant->id)->get()->first();
-        $tanggal = $request->get('tanggal');
-        $booking_date = Booking_date::where('lapangan_id',$lapangan->id);
-        if($tanggal){
-            $booking_date->where('tanggal',$tanggal);
+        $tanggal = $request->get('search');
+        $booklist = Booklists::whereHas('booking_date', function($query) use ($tanggal){
+            return $query->where('tanggal','>=', $tanggal);
+        })->where('lapangan_id', $lapangan->id)->get();
+        $booking_date = [];
+        if($booklist){
+            foreach($booklist as $book){
+                if($book->booking_date){
+                    foreach($book->booking_date as $bd){
+                        $booking_date [] = "{$bd['tanggal']} {$bd['jam']}";
+                    }
+                }
+            }
         }
-        $booking_date = $booking_date->get()->all();
         $data = [
             'lapangan'=>$lapangan,
             'booking_date'=>$booking_date,
             'user'=>$user,
             'merchant'=>$merchant,
+            'tgl'=>$tanggal
         ];
         return view('merchant.jadwal-lapangan',$data);
     }
@@ -559,28 +576,35 @@ class Dashboard extends Controller
         $saldo = 0;
         if($history){
             foreach($history as $item){
-                if($item->status == 'masuk'){
+                if($item->type == 'masuk'){
                     $saldo += $item->total;
                 }
-                if($item->status == 'keluar'){
+                if($item->type == 'keluar' || $item->type == 'pending'){
                     $saldo -= $item->total;
                 }
             }
         }
         if($saldo<$jumlah) return redirect()->back()->with('failed-message','Saldo tidak mencukupi');
         if(50000>$jumlah) return redirect()->back()->with('failed-message','Penarikan Saldo harus lebih dari Rp.50.000');
+        $history = new History_Balance;
+        $history->merchant_id = $merchant->id;
+        $history->total = $jumlah;
+        $history->type = 'pending';
+        $history->catatan = 'Tarik Saldo';
+        $history->save();
+        return redirect()->back()->with('success-message','Berhasil melakukan penarikan saldo, mohon tunggu beberapa saat');
     }
     public function request_balance(Request $request)
     {
         $merchant = Merchant::where('user_id',session('id_user'))->first();
-        $history = History_Balance::where('merchant_id',$merchant->id)->get()->all();
+        $history = History_Balance::where('merchant_id',$merchant->id)->orderBy('id','desc')->get();
         $saldo = 0;
         if($history){
             foreach($history as $item){
-                if($item->status == 'masuk'){
+                if($item->type == 'masuk'){
                     $saldo += $item->total;
                 }
-                if($item->status == 'keluar'){
+                if($item->type == 'keluar' || $item->type == 'pending'){
                     $saldo -= $item->total;
                 }
             }
@@ -602,7 +626,23 @@ class Dashboard extends Controller
         ];
         return view('admin.request-saldo',$data);
     }
-    public function requesting_saldo()
+    public function completing_transaction(Request $request)
     {
+        $id = $request->post('id');
+        // $booklist = Booklists::where('id',$id)->first();
+        $booklist = Booklists::whereHas('transaction',function($query){
+            return $query->where('status', 'berhasil');
+        })->where('id',$id)->first();
+        $booklist->status = 'complete';
+        $booklist->save();
+        $lapangan = $booklist->lapangan;
+        $merchant = $lapangan->merchant;
+        $history = new History_Balance();
+        $history->merchant_id = $merchant->id;
+        $history->type = 'masuk';
+        $history->total = $booklist->transaction[0]->total;
+        $history->catatan = "Booking Lapangan";
+        $history->save();
+        return redirect()->back();
     }
 }

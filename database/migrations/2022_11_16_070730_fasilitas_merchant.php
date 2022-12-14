@@ -18,6 +18,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('merchants_id');
             $table->foreignId('fasilitas_id');
+            $table->string('foto');
+            $table->text('deskripsi');
         });
     }
 

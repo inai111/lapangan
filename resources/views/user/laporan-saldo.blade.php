@@ -31,16 +31,52 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th colspan="6">List Lapangan</th>
+                                <th colspan="5">List Lapangan</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- @if () --}}
-                            {{-- @else --}}
+                            @if ($history)
+                            @foreach ($history as $item)
+                            <tr>
+                                <td>{{$item->updated_at}}</td>
+                                @switch($item->type)
+                                    @case('pending')
+                                    <td>{{$item->catatan}}</td>
+                                    <td colspan="2">Rp.{{number_format($item->total,0,',','.')}}</td>
+                                    <td>
+                                        <span class="badge badge-pill bg-warning px-3">
+                                            {{$item->type}}
+                                        </span>
+                                    </td>
+                                    @break
+                                    @case('masuk')
+                                    <td>{{$item->catatan}}</td>
+                                    <td colspan="2" class="text-success">Rp.{{number_format($item->total,0,',','.')}}</td>
+                                    <td>
+                                        <span class="badge badge-pill bg-success px-3">
+                                            {{$item->type}}
+                                        </span>
+                                    </td>
+                                    @break
+                                    @default
+                                    <td>{{$item->catatan}}</td>
+                                    <td colspan="2" class="text-danger">Rp.{{number_format($item->total,0,',','.')}}</td>
+                                    <td>
+                                        <span class="badge badge-pill bg-danger px-3">
+                                            {{$item->type}}
+                                        </span>
+                                        <button class="badge badge-pill bg-dark px-3">
+                                            Bukti
+                                        </button>
+                                    </td>
+                                @endswitch
+                            </tr>
+                            @endforeach
+                            @else
                                 <tr>
                                     <td colspan="6">Tidak Ada Transaksi</td>
                                 </tr>
-                            {{-- @endif --}}
+                            @endif
                         </tbody>
                     </table>
                 </div>

@@ -46,6 +46,7 @@ Route::controller(Dashboard::class)->group(function(){
     Route::post('/book-date', 'booking_date');
     Route::post('/save-review', 'saving_review');
     Route::get('/user-transactions', 'trans_lapangan')->middleware('auth');
+    Route::post('/complete-transaction', 'completing_transaction')->middleware('auth');
     Route::get('/admin-merchant', 'merchant_list');
     Route::get('/cek-transaksi', 'checking_transaction');
     Route::get('/request-balance', 'request_balance');

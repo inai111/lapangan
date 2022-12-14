@@ -312,7 +312,7 @@ class Home extends Controller
         $message->to_id = $request->target_id;
         $message->body = $request->message;
         $message->read = 0;
-        $message->ref_id = $request->ref_id;
+        $message->lapangan_id = $request->ref_id;
         $response['status'] = $message->save();
         return response()->json($response);
     }
@@ -335,8 +335,9 @@ class Home extends Controller
         {
             $messages[$key]['tanggal'] = date('d-M-Y',strtotime($msg['created_at']));
             $messages[$key]['jam'] = date('H:i',strtotime($msg['created_at']));
-            if($msg['ref_id']) {
-                $lapangan = Lapangan::select('nama','harga','cover')->where('id',$msg['ref_id'])->get()->first();
+            if($msg['lapangan_id']) {
+                $lapangan = $msg->lapangan;
+                // $lapangan = Lapangan::select('nama','harga','cover')->where('id',$msg['ref_id'])->get()->first();
                 $messages[$key]['lapangan'] = $lapangan;
                 $messages[$key]['lapangan']['cover'] = asset("assets/img/profilpic/{$lapangan->cover}");//path cover lapangan message
                 $messages[$key]['lapangan']['harga'] = number_format($lapangan->harga,0,',','.');//path cover lapangan message
@@ -345,14 +346,16 @@ class Home extends Controller
         }
         // update read
         $update_batch = Message::where('to_id',$user_id)->where('from_id',$target)->where('read',0)->get();
+        $unread = !empty($update_batch->all())?true:false;
         foreach($update_batch as $update)
         {
             $update->read = 1;
-            $update->save();
+            // $update->save();
         }
         $result = [
             'messages'=>$messages,
             'last'=>end($messages),
+            'unread'=>$unread,
         ];
         // dd(($messages));
         return response()->json($result);
@@ -367,10 +370,11 @@ class Home extends Controller
         $id = session('id_user');
         $unread_message = Message::where('to_id',$id)->where('read',0)->get()->all();
         $messages = Message::where('to_id',$id)->orderby('id','desc')->get()->unique('from_id');
+        // $messages = Message::where('to_id',$id)->orderby('id','desc')->get();
         foreach($messages as $key => $val){
-            $user = User::select('id','name','photo')->where('id',$val['from_id'])->get()->first();
-            $user->name = ucwords(strtolower($user['name']));
-            $user->photo = "/assets/img/profilpic/".$user->photo;
+            $user = $val->pengirim;
+            $user->nama = ucwords(strtolower($user->nama));
+            $user->foto = "/assets/img/profilpic/".$user->foto;
             $messages[$key]['user'] = $user;
             $messages[$key]['tanggal'] = date("d-F-Y H:i:s",strtotime($val['created_at']));
         }

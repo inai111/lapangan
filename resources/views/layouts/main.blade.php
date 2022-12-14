@@ -177,10 +177,10 @@
                     }
                     let pos = `bg-dark ms-auto`;//kanan
                     if(msg.from_id == target)pos = `bg-secondary me-auto`//kiri
-                    if(msg.ref_id){
+                    if(msg.lapangan_id){
                         let pos2 = pos.indexOf('ms-auto')>=0?"ms-auto":"me-auto";
                         messageElem += `
-                        <div data-href="/lapangan/${msg.ref_id}" style="cursor:pointer" class="rounded ${pos2} bg-danger px-3 py-1 mb-1 text-light w-75 clickAbleMessage">
+                        <div data-href="/lapangan/${msg.lapangan_id}" style="cursor:pointer" class="rounded ${pos2} bg-danger px-3 py-1 mb-1 text-light w-75 clickAbleMessage">
                             <div class="row">
                                 <div class="col-2">
                                     <img src="${msg.lapangan.cover}" style="width: 50px;">
@@ -202,6 +202,7 @@
                 messageVault = messageElem;
                 // msgContBody.insertAdjacentHTML('afterbegin',messageElem);
                 msgContBody.innerHTML = messageElem;
+                if(res.unread) msgContBody.scrollTop = msgContBody.scrollHeight;
                 document.querySelectorAll(`.clickAbleMessage`).forEach(elem=>{
                     elem.addEventListener(`click`,function(e){
                         window.location.href = this.dataset.href;
@@ -213,6 +214,7 @@
         let worker = new Worker('/assets/js/worker.js')
         worker.addEventListener('message',e=>{
             let data = e.data;
+            if(data.debug){console.log(data);return}
             if(data.status){
                 if(data.unreadMessages.length > 0){
                     messageBadge.style.display = '';
@@ -228,10 +230,10 @@
                                 <button data-obj="${btoa(JSON.stringify(message.user))}"
                                     class="btn d-flex align-items-center btn-secondary text-light rounded position-relative openMessage">
                                     ${message.read?'':`<span class="badge bg-danger position-absolute end-0 mt-1 me-1">New</span>`}
-                                    <img class="rounded-circle bg-light" src="${message.user.photo}"
+                                    <img class="rounded-circle bg-light" src="${message.user.foto}"
                                         style="width: 20%" alt="">
                                     <div class="ps-3 text-start">
-                                        <div>${message.user.name}</div>
+                                        <div>${message.user.nama}</div>
                                         <div>${message.body}</div>
                                         <small>${message.tanggal}</small>
                                     </div>

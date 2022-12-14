@@ -12,6 +12,6 @@ class Jenis_olahraga extends Model
 
     public function lapangan()
     {
-        return $this->belongsTo(Lapangan::class);
+        return $this->hasMany(Lapangan::class);
     }
 }
