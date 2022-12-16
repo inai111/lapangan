@@ -195,16 +195,21 @@ class Home extends Controller
         // $lapangan = Lapangan::where('id',$thisBook->lapangan_id)->first();
         $lapangan = $thisBook->lapangan;
         if(empty($lapangan)) return response()->json($response);
-        $lapanganBook = Booklists::where('lapangan_id',$id)->where('status','!=','cancel')->get();
+        $lapanganBook = Booklists::whereHas('booking_date', function($query) use ($tanggal){
+            return $query->where('tanggal','>=', $tanggal);
+        })->where('lapangan_id', $lapangan->id)->where('status','!=','cancel')->get();
+        // $lapanganBook = Booklists::where('lapangan_id',$id)->where('status','!=','cancel')->get();
         $bookingan = [];
         foreach($lapanganBook as $item){
-            $itemBook = Booking_date::where('booklists_id',$item->id)->where('tanggal',$tanggal)->get();
+            // $itemBook = Booking_date::where('booklists_id',$item->id)->where('tanggal',$tanggal)->get();
+            $itemBook = $item->booking_date;
             if($itemBook){
                 foreach($itemBook as $book){
                     $bookingan []=$book;
                 }
             }
         }
+        
         // $bookingan = Booking_date::where('lapangan_id',$id)->where('tanggal',$tanggal)->get()->all();
         // $merchant = Merchant::where('id',$lapangan->merchant_id)->first();
         $merchant = $lapangan->merchant->first();
@@ -227,6 +232,8 @@ class Home extends Controller
                     if($open == date("H",strtotime($book->jam))) $available_jam[$i]['book'] = true;
                 }
             }
+            // if(($open <= date('H') && date('Y-m-d') == $tanggal)) $available_jam[$i]['book'] = true;
+            if(($open <= date('H') && date('Y-m-d') == $tanggal)) $available_jam[$i]['book'] = true;
             $i++;
         }
         // $booklists = Booklists::where('lapangan_id','=',$thisBook->lapangan_id)

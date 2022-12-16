@@ -191,25 +191,35 @@ class Dashboard extends Controller
         foreach($booklists['pending'] as $key => $book){
             $merchant = Merchant::where('id',$book->lapangan->merchant_id)->first();
             $transaction = Transactions::where('booklists_id',$book->id)->where('status','!=','gagal')->first();
-            if($transaction->midtrans_token){
-                $midtrans_cek = (Object)Transaction::status($transaction->midtrans_token);
+            if(!empty($transaction->midtrans_token)){
+                $midtrans_cek = (Object)Transaction::status($transaction->token);
                 if($midtrans_cek->status_code == 200 && $midtrans_cek->transaction_status == "settlement"){
                         $transaction->status = 'berhasil';
                         $book->status = 'on_going';
+                        $book->down_payment = $transaction->total;
                         $transaction->save();
                         $book->save();
                         return $this->trans_lapangan();
                     }
             }
-            $booklists['pending'][$key]['jadwal'] = $book->booking_date;
-            $booklists['pending'][$key]['dp'] = $merchant->dp;
-            $booklists['pending'][$key]['pembayaran'] = $merchant->pembayaran;
-            $booklists['pending'][$key]['name_merchant'] = $merchant->name_merchant;
-            $booklists['pending'][$key]['id_merchant'] = $merchant->id;
-            $booklists['pending'][$key]['transaction'] = $transaction;
+            // kalau sudah punya tanggal dan terakhir update adalah 2 menit, maka ubah 
+            // status nya ke cancel
+            // if(!empty($book->booking_date->all()) && strtotime('now')>strtotime("+2 minutes {$book->updated_at}") && $book->status != 'on_going'){
+            if(!empty($book->booking_date->all()) && strtotime('now')>strtotime("+2 hour {$book->updated_at}") && $book->status != 'on_going'){
+                $book->status = 'cancel';
+                $book->save();
+                return $this->trans_lapangan(); // reload ulang
+            }else{
+                $booklists['pending'][$key]['jadwal'] = $book->booking_date;
+                $booklists['pending'][$key]['dp'] = $merchant->dp;
+                $booklists['pending'][$key]['pembayaran'] = $merchant->pembayaran;
+                $booklists['pending'][$key]['name_merchant'] = $merchant->name_merchant;
+                $booklists['pending'][$key]['id_merchant'] = $merchant->id;
+                $booklists['pending'][$key]['transaction'] = $transaction;
+            }
         }
         $booklists['ongoing'] = Booklists::where('user_id', $user['id'])->where('status','on_going')->get();
-        $booklists['complete'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','complete')->get()->all();
+        $booklists['complete'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','complete')->get();
         $data = [
             'user' => $user,
             'booklists'=>$booklists,
@@ -392,14 +402,17 @@ class Dashboard extends Controller
         $date = $request->post('date');
         // update length
         $booklist->length = $length;
+        $booklist->total_biaya = $length * $booklist->lapangan->harga;
         if(!$booklist->save()) return response()->json($response);
         // insert booking date
         foreach($hours as $hour){
-            $cek = Booking_date::where('lapangan_id',$booklist['lapangan_id'])->where('jam',$hour)->where('tanggal',$date)->get()->all();
-            if($cek) return response()->json($response);
+            $cek = Booklists::whereHas('booking_date', function($query) use ($date,$hour){
+                return $query->where('tanggal','=', $date)->where('jam',$hour);
+            })->where('lapangan_id', $booklist->lapangan->id)->where('status','!=','cancel')->get()->first();
+            // $cek = Booking_date::where('lapangan_id',$booklist['lapangan_id'])->where('jam',$hour)->where('tanggal',$date)->get()->all();
+            if(!empty($cek)) return response()->json($response);
             $booking_date = new Booking_date();
             $booking_date->booklists_id = $request->post('id');
-            $booking_date->lapangan_id = $booklist['lapangan_id'];
             $booking_date->tanggal = $date;
             $booking_date->jam = $hour;
             if(!$booking_date->save()) return response()->json($response);
@@ -419,7 +432,7 @@ class Dashboard extends Controller
         if(!session()->has('id_user')) return response()->json($response);
         $id = $request->get('id');
         $pembayaran = $request->get('pembayaran');
-        if(!$id || !$pembayaran) return response()->json($response);
+        if(!$id) return response()->json($response);
         $user = User::where('id',session('id_user'))->get()->first();
         $booklist = Booklists::where('id',$id)->get()->first();
         if(!$booklist) return response()->json($response);
@@ -437,17 +450,18 @@ class Dashboard extends Controller
                 $booklist->jenis_pembayaran = 'both';
                 $total /= 2;
             case "full":
-                $booklist->jenis_pembayaran = 'transfer';
-                $transfer = true;
+                    $booklist->jenis_pembayaran = 'transfer';
+                    $transfer = true;
                 break;
             case "cash":
                 $booklist->jenis_pembayaran = 'cash';
                 $booklist->status = 'on_going';
                 break;
         }
+
         if(!$transaction)
         {
-            $transaction = new Transactions();
+            $transaction = new Transactions;
             $transaction->token = "LAP-$id".session('id_user').rand(000000,999999);
             $transaction->status = "pending";
             $transaction->total = $total;
@@ -481,11 +495,10 @@ class Dashboard extends Controller
                 $midtransTrans = Snap::createTransaction($transaction_data);
                 $transaction->midtrans_token = $midtransTrans->token;
             }
-        // return response()->json($transaction->save());
             $transaction->save();
         }else{
             if($transaction->midtrans_token){
-                $midtrans_cek = (Object)Transaction::status($transaction->midtrans_token);
+                $midtrans_cek = (Object)Transaction::status($transaction->token);
                 $response['midtrans']=$midtrans_cek;
                 // dd($midtrans_cek);
                 if($midtrans_cek->status_code == 200 && $midtrans_cek->transaction_status=='cancel'){

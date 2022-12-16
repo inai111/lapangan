@@ -67,7 +67,7 @@
                                                 <td>
                                                     <h5>{{ $booklist->lapangan->nama }}</h5>
                                                     <a href="/merchant/{{$booklist->id_merchant}}">{{$booklist->name_merchant}}</a></td>
-                                                @if ($booklist->jadwal)
+                                                @if ($booklist->jadwal->all())
                                                     <td class="text-center">
                                                         <div>{{ date('d-M-Y', strtotime($booklist->jadwal[0]['tanggal'])) }}</div>
                                                         @foreach ($booklist->jadwal as $item)
@@ -94,7 +94,7 @@
                                                         <div class="btn-group dropup">
                                                             @if($booklist->transaction)
                                                             <button type="button" data-pembayaran="{{$booklist->type_pembayaran}}" data-id="{{$booklist->id}}" class="btn btn-outline-dark bayarNow" aria-expanded="false">
-                                                                Bayar <span class="text-danger">(00:00)</span>
+                                                                Bayar <span class="text-danger d-none">(<span class="minute">00</span>:<span class="second">00</span>)</span>
                                                             </button>
                                                             @else
                                                             <button type="button" class="btn btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -106,9 +106,6 @@
                                                                 @endif
                                                                 @if(in_array($booklist->pembayaran,['both','transfer']))
                                                                 <li><a data-pembayaran="full" data-id="{{$booklist->id}}" class="dropdown-item bayarNow" href="#">Bayar Full Transfer <span class="text-danger">(Bayar 100%)</span></a></li>
-                                                                @endif
-                                                                @if(in_array($booklist->pembayaran,['both','cash']))
-                                                                <li><a data-pembayaran="cash" data-id="{{$booklist->id}}" class="dropdown-item bayarNow" href="#">Bayar Full Ditempat</a></li>                                                            
                                                                 @endif
                                                             </ul>
                                                             @endif
@@ -206,12 +203,15 @@
                                                         alt="{{ $booklist->lapangan->nama }}">
                                                 </td>
                                                 <td>{{ $booklist->lapangan->nama }}</td>
-                                                @if ($booklist->jam_awal && $booklist->jam_akhir)
-                                                    <td>
-                                                        <div>{{ date('d-M-Y', strtotime($booklist->jam_awal)) }}</div>
-                                                        <div>{{ date('H:i', strtotime($booklist->jam_awal)) }} -
-                                                            {{ date('H:i', strtotime($booklist->jam_akhir)) }}</div>
-                                                    </td>
+                                                @if ($booklist->booking_date->all())
+                                                <td>
+                                                    @foreach ($booklist->booking_date->all() as $item)
+                                                    @if ($loop->iteration == 1)
+                                                    <div>{{ date('d-M-Y', strtotime($item->tanggal)) }}</div>
+                                                    @endif
+                                                    <button class="btn btn-dark" disabled>{{$item->jam}}</button>
+                                                    @endforeach
+                                                </td>
                                                 @else
                                                     <td class="text-center">
                                                         <div class="mb-1">
