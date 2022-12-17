@@ -36,7 +36,7 @@
                         @endif
                         <div class="my-3 mb-5">
                             <div class="form-floating mb-3">
-                                <input type="text" value="{{ ucwords(strtolower($merchant->name_merchant)) }}" disabled
+                                <input type="text" value="{{ ucwords(strtolower($merchant->nama)) }}" disabled
                                     readonly class="form-control" id="name">
                                 <label for="name">Name Merchant</label>
                             </div>
@@ -52,7 +52,7 @@
                                 </div>
                             </div>
                             <div class="form-floating mb-3">
-                                <input value="{{ old('bank_number', $merchant['bank_number']) }}" type="text"
+                                <input value="{{ old('bank_number', $merchant['norek']) }}" type="text"
                                     name="bank_number" class="form-control @error('bank_number') is-invalid @enderror"
                                     id="bank_number" placeholder="bank_number">
                                 <label for="bank_number">Bank Number</label>
@@ -65,7 +65,7 @@
                             <div class="row mb-3">
                                 <div class="col-6">
                                     <div class="form-floating">
-                                        <input type="time" name="open" value="{{ old('open', $merchant['open']) }}"
+                                        <input type="time" name="open" value="{{ old('open', $merchant['buka']) }}"
                                             class="form-control @error('open') is-invalid @enderror" id="openElem"
                                             placeholder="open">
                                         <label for="open">Jam Buka</label>
@@ -78,7 +78,7 @@
                                 </div>
                                 <div class="col-6">
                                     <div class="form-floating">
-                                        <input type="time" name="close" value="{{ old('close', $merchant['close']) }}"
+                                        <input type="time" name="close" value="{{ old('close', $merchant['tutup']) }}"
                                             class="form-control @error('close') is-invalid @enderror" id="closeElem"
                                             placeholder="close">
                                         <label for="close">Jam Tutup</label>
@@ -102,7 +102,7 @@
                             <div class="row mb-3">
                                 <div class="col-6">
                                     <div class="form-floating">
-                                        <select class="form-select" id="dp" name="dp" aria-label="Floating label select example">
+                                        <select class="form-select" disabled id="dp" name="dp" aria-label="Floating label select example">
                                             <option {{old('dp')=='1'?'selected':''}} value="1">Perlu DP</option>
                                             <option {{old('dp')=='0'?'selected':''}} value="0">Tidak Perlu</option>
                                         </select>
@@ -116,7 +116,7 @@
                                 </div>
                                 <div class="col-6">
                                     <div class="form-floating">
-                                        <select class="form-select" id="pembayaran" name="pembayaran" aria-label="Floating label select example">
+                                        <select class="form-select" id="pembayaran" disabled name="pembayaran" aria-label="Floating label select example">
                                             <option {{old('pembayaran')=='both'?'selected':''}} value="both" selected>Cash dan Transfer</option>
                                             <option {{old('pembayaran')=='cash'?'selected':''}} value="cash">Hanya Cash</option>
                                         </select>
@@ -131,7 +131,7 @@
                             </div>
                               
                             <div class="form-floating mb-3">
-                                <input type="text" name="number" value="{{ old('number', $merchant['number']) }}"
+                                <input type="text" name="number" value="{{ old('number', $merchant['nomor']) }}"
                                     class="form-control @error('number') is-invalid @enderror" id="number"
                                     placeholder="number">
                                 <label for="number">Nomor Telepon</label>
@@ -143,7 +143,7 @@
                             </div>
                             <div class="form-floating mb-3">
                                 <textarea class="form-control @error('address') is-invalid @enderror" id="address" name="address"
-                                    style="height: 100px">{{ old('address', $merchant['address']) }}</textarea>
+                                    style="height: 100px">{{ old('address', $merchant['alamat']) }}</textarea>
                                 <label for="address">Alamat</label>
                                 <div class="@error('address') invalid-feedback @enderror">
                                     @error('address')

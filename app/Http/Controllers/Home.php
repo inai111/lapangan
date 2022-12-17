@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -65,7 +66,7 @@ class Home extends Controller
                 'username'=> 'required|min:3|alpha_dash|unique:user,username',
                 'password'=> 'required|min:8',
                 'number'=> 'required|min:10|numeric'
-            ]
+                ]
             );
             $response = [
                 'status'=>false,
@@ -81,12 +82,12 @@ class Home extends Controller
             $name = $request->name;
             $number = $request->number;
             $password = $request->password;
-
+            
             // $userCreate  = User::first();
             $userCreate  = new User;
-            $userCreate->name = $name;
+            $userCreate->nama = $name;
             $userCreate->username = $username;
-            $userCreate->number = $number;
+            $userCreate->nomor = $number;
             $userCreate->password = Hash::make($password);
             $userCreate->save();
             $response['status'] = true;
@@ -112,6 +113,23 @@ class Home extends Controller
         $search_arr = explode(':',$search);
         $sort_by = $request->get('sort')=="newest"?"DESC":"ASC";
         $query_to = !empty($search_arr[1])?$search_arr[1]:"";
+        $pencarian_arr_percent = explode(' ',$search_arr[0]);
+        $arr_cookie = [];
+
+        if($request->cookie('pencarianHistory')){
+            $arr_cookie = (array)json_decode($request->cookie('pencarianHistory'));
+        }
+        foreach($pencarian_arr_percent as $value){
+            if(isset($arr_cookie[$value])){
+                // $arr_cookie->$value+=1;    
+                $arr_cookie[$value]+=1;    
+            }else{
+                if(strlen($value) > 4) {
+                    $arr_cookie[$value]=1;
+                }
+            }
+        }
+        $cookie = json_encode($arr_cookie);
         switch($query_to){
             case "merchant":
                 $merchant = Merchant::select(DB::raw('*,"merchant" as type'))->orderBy('id',$sort_by)->where('nama','like',"%$search_arr[0]%")->where('status_merchant','active');
@@ -140,11 +158,13 @@ class Home extends Controller
                 break;
         }
         $response = [
-            'result'=>$result
+            'result'=>$result,
+            'cookie'=>$request->cookie('pencarianHistory')
         ];
-        return response()->json($response);
+        return response()->json($response)->cookie('pencarianHistory',$cookie,1440);
     }
 
+    #lapangan/num
     public function detail_lapangan($id)
     {
         $lapangan = Lapangan::where('id',$id)->first();
@@ -389,5 +409,113 @@ class Home extends Controller
         $response['unreadMessages']=$unread_message;
         $response['messages']=$messages;
         return response()->json($response);
+    }
+
+
+    // function untuk item colaborative filtering 
+    public function similarityDistance($preferences, $person1, $person2)
+    {
+        $similar = array();
+        $sum = 0;
+    
+        foreach($preferences[$person1] as $key=>$value)
+        {
+            if(array_key_exists($key, $preferences[$person2]))
+                $similar[$key] = 1;
+        }
+        
+        if(count($similar) == 0)
+            return 0;
+        
+        foreach($preferences[$person1] as $key=>$value)
+        {
+            if(array_key_exists($key, $preferences[$person2]))
+                $sum = $sum + pow($value - $preferences[$person2][$key], 2);
+        }
+        
+        return  1/(1 + sqrt($sum));     
+    }
+    
+    
+    public function matchItems($preferences, $person)
+    {
+        $score = array();
+        
+            foreach($preferences as $otherPerson=>$values)
+            {
+                if($otherPerson !== $person)
+                {
+                    $sim = $this->similarityDistance($preferences, $person, $otherPerson);
+                    
+                    if($sim > 0)
+                        $score[$otherPerson] = $sim;
+                }
+            }
+        
+        array_multisort($score, SORT_DESC);
+        return $score;
+    
+    }
+    
+    
+    public function transformPreferences($preferences)
+    {
+        $result = array();
+        
+        foreach($preferences as $otherPerson => $values)
+        {
+            foreach($values as $key => $value)
+            {
+                $result[$key][$otherPerson] = $value;
+            }
+        }
+        
+        return $result;
+    }
+    
+    
+    public function getRecommendations($kumpulan_lapangan, $lapangan)
+    {
+        $total = [];
+        $simSums = [];
+        $ranks = [];
+        $sim = 0;
+        
+        foreach($preferences as $otherPerson=>$values)
+        {
+            if($otherPerson != $person)
+            {
+                $sim = $this->similarityDistance($preferences, $person, $otherPerson);
+            }
+            
+            if($sim > 0)
+            {
+                foreach($preferences[$otherPerson] as $key=>$value)
+                {
+                    if(!array_key_exists($key, $preferences[$person]))
+                    {
+                        if(!array_key_exists($key, $total)) {
+                            $total[$key] = 0;
+                        }
+                        $total[$key] += $preferences[$otherPerson][$key] * $sim;
+                        
+                        if(!array_key_exists($key, $simSums)) {
+                            $simSums[$key] = 0;
+                        }
+                        $simSums[$key] += $sim;
+                    }
+                }
+                
+            }
+        }
+
+        foreach($total as $key=>$value)
+        {
+            $ranks[$key] = $value / $simSums[$key];
+        }
+        
+        array_multisort($ranks, SORT_DESC);    
+        return $ranks;
+        
     }
 }

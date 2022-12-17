@@ -41,7 +41,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title text-success"><i class="fa fa-tags"></i> Rp.
-                            {{ number_format($lapangan->harga ?: 0, 0, ',', '.') }}/Jam</h5>
+                            {{ $lapangan->harga }}/Jam</h5>
                         <div class="d-flex">
                             <h6 class="card-subtitle me-3 text-muted"><i class="fa-solid fa-basketball"></i>
                                 {{ $lapangan->jenis->nama }}</h6>

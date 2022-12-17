@@ -54,11 +54,11 @@
                             @foreach ($merchants as $merchant)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $merchant->name_merchant }}</td>
-                                    <td>{{ $merchant->user->name }}</td>
+                                    <td>{{ $merchant->nama }}</td>
+                                    <td>{{ $merchant->user->nama }}</td>
                                     <td>{{ $merchant->user->username }}</td>
                                     <td>
-                                        @switch($merchant->active)
+                                        @switch($merchant->status_merchant)
                                             @case('pending')
                                                 <button class="btn btn-sm btn-warning">pending</button>
                                             @break
@@ -168,7 +168,7 @@
                 rejectBtn.style.display = 'none';
                 suspendBtn.style.display = 'none';
                 activeBtn.style.display = 'none';
-                switch (data.active) {
+                switch (data.status_merchant) {
                     case "pending":
                         rejectBtn.dataset.id = data.id;
                         activeBtn.dataset.id = data.id;
@@ -184,11 +184,11 @@
                         suspendBtn.style.display = '';
                         break
                 }
-                detailNamaMerchant.innerHTML = data.name_merchant;
-                detailNomorMerchant.innerHTML = data.number;
+                detailNamaMerchant.innerHTML = data.nama;
+                detailNomorMerchant.innerHTML = data.nomor;
                 detailBankMerchant.innerHTML = data.bank;
-                detailRekeningMerchant.innerHTML = data.bank_number;
-                detailAlamatMerchant.innerHTML = data.address;
+                detailRekeningMerchant.innerHTML = data.norek;
+                detailAlamatMerchant.innerHTML = data.alamat;
                 modal.show()
             })
         });

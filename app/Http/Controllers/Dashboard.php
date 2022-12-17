@@ -6,6 +6,7 @@ use App\Models\Booking_date;
 use App\Models\Booklists;
 use App\Models\Gallery;
 use App\Models\History_Balance;
+use App\Models\Jenis_olahraga;
 use App\Models\Lapangan;
 use App\Models\Merchant;
 use App\Models\Transactions;
@@ -31,7 +32,8 @@ class Dashboard extends Controller
         if($user->role == 'merchant'){
             $ongoing_booklist = Booklists::where('status','on_going')->get()->all();
         }
-        $request_saldo = 0;
+        $history = History_Balance::where('type','pending')->get()->all();
+        $request_saldo = count($history);
         $data = [
             'user' => $user,
             'merchant' => $merchant,
@@ -52,16 +54,17 @@ class Dashboard extends Controller
         $merchant->bank_number = "asdasd";
         return $merchant->save();
     }
+    #settings/num / settings/
     public function setting($param = null)
     {
         $user = User::where('id',session('id_user'))->first();
-        $merchant = $user->merchant()->where('active', '!=', 'rejected')->first();
+        $merchant = $user->merchant;
         $data = [
             'userdata' => $user,
             'merchant' => $merchant
         ];
         // jika ada data merchant dan ada parameter 1 maka akan diarahkan ke halaman merchant
-        if(!empty($param) && $param == 1 && !empty($merchant) && !in_array($merchant->active,['pending','rejected'])) return view('user.setting-merchant', $data);
+        if(!empty($param) && $param == 1 && !empty($merchant) && !in_array($merchant->status_merchant,['pending','rejected'])) return view('user.setting-merchant', $data);
         return view('user.setting', $data);
     }
     public function merchant_register_store(Request $request)
@@ -75,7 +78,7 @@ class Dashboard extends Controller
             'open' => 'required',
             'close' => 'required',
         ];
-        if(!$merchant) $rules['name_merchant'] = 'required|unique:merchants,name_merchant';
+        if(!$merchant) $rules['name_merchant'] = 'required|unique:merchants,nama';
         $validator = Validator::make($request->all(), $rules);
         
         $response = [
@@ -91,17 +94,18 @@ class Dashboard extends Controller
         $close = strtotime($request->post('close'));
         if($open > $close) return redirect()->back()->withInput()->with("failed-message","Gagal Menyimpan!, Waktu tutup lebih awal dari waktu buka");
         if(!$merchant) $merchant = new Merchant;
-        if(!$merchant) $merchant->name_merchant = strtolower($request->name_merchant);
-        $merchant->address = $request->address;
-        $merchant->number = $request->number;
-        $merchant->active = "pending"; //default nya adalah pending, tunggu admin menyetujui
-        $merchant->bank = $request->bank;
-        $merchant->open = $request->open;
-        $merchant->close = $request->close;
-        $merchant->dp = $request->dp;
-        $merchant->pembayaran = $request->pembayaran;
+        $merchant->nama = strtolower($request->name_merchant);
         $merchant->user_id = session('id_user');
-        $merchant->bank_number = $request->bank_number;
+        $merchant->alamat = $request->address;
+        $merchant->nomor = $request->number;
+        $merchant->status_merchant = "pending"; //default nya adalah pending, tunggu admin menyetujui
+        $merchant->bank = $request->bank;
+        $merchant->norek = $request->bank_number;
+        $merchant->buka = $request->open;
+        $merchant->tutup = $request->close;
+        $merchant->status_ = 'open'; //default
+        $merchant->pembayaran = 'both';
+        $merchant->dp = 1;
         $response['message'] = "Data merchant kamu gagal kami proses! Mohon coba kembali di beberapa menit kedepan!";
         if ($merchant->save()) {
             $response['message'] = "Data merchant kamu telah di terima! Untuk selanjutnya, tunggu hingga admin memproses data kamu!";
@@ -120,13 +124,13 @@ class Dashboard extends Controller
         ];
         return view('user.merchant-regist', $data);
     }
-    public function settingStore($param = null, Request $request)
+    public function settingStore(Request $request,$param = null)
     {
         // untuk menyimpan data update merchant
+        $user = User::where('id',session('id_user'))->get()->first();
         if(!empty($param) && $param == 1){
-            $user = User::where('id',session('id_user'))->first();
             $merchant = $user->merchant;
-            if(!empty($merchant) && !in_array($merchant->active,['pending','rejected'])) 
+            if(!empty($merchant) && !in_array($merchant->status_merchant,['pending','rejected'])) 
             {
                 $validator = Validator::make($request->all(), [
                     'address' => 'required',
@@ -140,14 +144,12 @@ class Dashboard extends Controller
                 $close = strtotime($request->post('close'));
                 if($validator->fails()) return redirect()->back()->withInput()->withErrors($validator->errors());
                 if($open > $close) return redirect()->back()->withInput()->with("failed-message","Gagal Menyimpan!, Waktu tutup lebih awal dari waktu buka");
-                $merchant->address = $request->post('address');
-                $merchant->number = $request->post('number');
+                $merchant->alamat = $request->post('address');
+                $merchant->norek = $request->post('number');
                 $merchant->bank = $request->post('bank');
-                $merchant->bank_number = $request->post('bank_number');
-                $merchant->dp = $request->post('dp');
-                $merchant->pembayaran = $request->post('pembayaran');
-                $merchant->open = date("H:00:00",strtotime($request->post('open')));
-                $merchant->close = date("H:00:00",strtotime($request->post('close')));
+                $merchant->norek = $request->post('bank_number');
+                $merchant->buka = date("H:00:00",strtotime($request->post('open')));
+                $merchant->tutup = date("H:00:00",strtotime($request->post('close')));
                 if($merchant->save()) return redirect()->back()->with('success-message','Data Berhasil Diupdate');
                 return redirect()->back()->with('failed-message','Data Gagal Berhasil Diupdate');
             }
@@ -163,14 +165,12 @@ class Dashboard extends Controller
             'message' => 'Mohon cek kembali pada data yang anda ingin simpan.',
         ];
         if ($validator->fails()) return response()->json($response);
-        $user = User::where('id',session('id_user'));
-        $user->name = $request->nama;
-        $user->address = $request->address;
-        $user->number = $request->number;
-        $user->photo = $request->photo;
+        $user->nama = $request->nama;
+        $user->alamat = $request->address;
+        $user->nomor = $request->number;
+        $user->foto = $request->photo;
         $response['status'] = $user->save();
         if ($response['status']) $response['message'] = "Data berhasil disimpan";
-        $user = User::where('id',session('id_user'));
         $request->session()->put('userdata', $user);
         return response()->json($response);
     }
@@ -226,6 +226,8 @@ class Dashboard extends Controller
         ];
         return view('user.transaction-list', $data);
     }
+
+    #merchant-lapangan/num
     public function lapangan_ini($id,Request $request)
     {
         $user = User::where('id',session('id_user'))->first();
@@ -233,7 +235,7 @@ class Dashboard extends Controller
         $lapangan = Lapangan::where('id',$id)->where('merchant_id',$merchant->id)->get()->first();
         $tanggal = $request->get('search');
         $booklist = Booklists::whereHas('booking_date', function($query) use ($tanggal){
-            return $query->where('tanggal','>=', $tanggal);
+            return $query->where('tanggal','=>', $tanggal);
         })->where('lapangan_id', $lapangan->id)->get();
         $booking_date = [];
         if($booklist){
@@ -258,7 +260,7 @@ class Dashboard extends Controller
     {
         $user = User::where('id',session('id_user'))->first();
         $merchant = $user->merchant;
-        if(!$merchant && in_array($merchant,['rejected','pending'])) return redirect('/merchant-regist');
+        if(!$user->role == 'merchant') return redirect('/merchant-regist');
         $lapangan = $merchant->lapangan;
         foreach($lapangan as $key=>$item){
             $booklist = Booklists::where('lapangan_id',$item->id)->where('status','complete')->get()->all();
@@ -302,20 +304,20 @@ class Dashboard extends Controller
         }
         $merchant = Merchant::where('user_id',session('id_user'))->first();
         $lapangan = new Lapangan();
+        $lapangan->merchant_id = $merchant->id;
+        $lapangan->jenis_olahraga_id = $request->type_lapangan;
         $lapangan->nama = $request->nama_lapangan;
         $lapangan->harga = $request->harga;
-        $lapangan->type = $request->type_lapangan;
-        $lapangan->additional_info = $request->additional_info;
         $lapangan->cover = $request->cover_lapangan->hashName();
-        $lapangan->merchant_id = $merchant->id;
+        $lapangan->deskripsi = $request->additional_info;
         $lapangan->save();
         $gallery = [];
         if ($request->gallery) {
             foreach ($request->gallery as $i => $file) {
                 $file->store("/img/$nama_dir/", ['disk' => 'public']);
                 $gallery[] = [
+                    "lapangan_id" => $lapangan->id,
                     "photo" => $file->hashName(),
-                    "ref_id" => $lapangan->id,
                     "created_at" => date("Y-m-d H:i:s"),
                 ];
             }
@@ -325,21 +327,25 @@ class Dashboard extends Controller
     }
     public function lapangan_store(Request $request)
     {
-        return view('merchant.lapangan');
+        $jenis_olahraga = Jenis_olahraga::all();
+        $data = [
+            'jenis_olahraga' => $jenis_olahraga,
+        ];
+        return view('merchant.lapangan',$data);
     }
     public function merchant_list(Request $request)
     {
         $search = $request->get('search')?:"";
         $status = in_array($request->get('status'),['pending','active','suspended','rejected','all'])?$request->get('status'):'';
-        $merchant = Merchant::where('name_merchant','like',"%$search%");
+        $merchant = Merchant::where('nama','like',"%$search%");
         switch($status){
             case "all":
                 break;
             case "":
-                $merchant = $merchant->whereIn('active',['active','pending']);
+                $merchant = $merchant->whereIn('status_merchant',['active','pending']);
                 break;
             default:
-                $merchant = $merchant->where('active',$status);
+                $merchant = $merchant->where('status_merchant',$status);
                 break;
         }
         $merchant = $merchant->paginate();
@@ -358,7 +364,7 @@ class Dashboard extends Controller
         $user = User::where('id',$merchant->user_id)->first();
         $user->role = 'merchant';
         $user->save();
-        $merchant->active = $status;
+        $merchant->status_merchant = $status;
 
         return response()->json($merchant->save());
     }

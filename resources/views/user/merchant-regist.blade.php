@@ -87,7 +87,7 @@
                             <div class="row mb-3">
                                 <div class="col-6">
                                     <div class="form-floating">
-                                        <select class="form-select" id="dp" name="dp" aria-label="Floating label select example">
+                                        <select class="form-select" id="dp" name="dp" disabled aria-label="Floating label select example">
                                             <option {{old('dp')=='1'?'selected':''}} value="1">Perlu DP</option>
                                             <option {{old('dp')=='0'?'selected':''}} value="0">Tidak Perlu</option>
                                         </select>
@@ -101,7 +101,7 @@
                                 </div>
                                 <div class="col-6">
                                     <div class="form-floating">
-                                        <select class="form-select" id="pembayaran" name="pembayaran" aria-label="Floating label select example">
+                                        <select class="form-select" id="pembayaran" disabled name="pembayaran" aria-label="Floating label select example">
                                             <option {{old('pembayaran')=='both'?'selected':''}} value="both" selected>Cash dan Transfer</option>
                                             <option {{old('pembayaran')=='cash'?'selected':''}} value="cash">Hanya Cash</option>
                                         </select>

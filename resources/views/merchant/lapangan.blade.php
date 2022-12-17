@@ -68,10 +68,13 @@
                                         <select class="form-select @error('type_lapangan') is-invalid @enderror"
                                             id="type_lapangan" name="type_lapangan">
                                             <option value="" selected>Select Type</option>
-                                            <option {{ old('futsal') ? 'selected' : '' }} value="futsal">Futsal</option>
+                                            @foreach ($jenis_olahraga as $jenis)
+                                            <option {{ old('type_lapangan')==$jenis->id ? 'selected' : '' }} value="{{$jenis->id}}">{{$jenis->nama}}</option>
+                                            @endforeach
+                                            {{-- <option {{ old('futsal') ? 'selected' : '' }} value="futsal">Futsal</option>
                                             <option {{ old('badminton') ? 'selected' : '' }} value="badminton">badminton
                                             </option>
-                                            <option {{ old('volley') ? 'selected' : '' }} value="volley">Volley</option>
+                                            <option {{ old('volley') ? 'selected' : '' }} value="volley">Volley</option> --}}
                                         </select>
                                         <div class="@error('type_lapangan') invalid-feedback @enderror">
                                             @error('type_lapangan')

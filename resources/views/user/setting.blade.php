@@ -22,7 +22,7 @@
                                 href="/merchant-regist" class="card-link">Daftar Jadi Merchant</a>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                        @elseif(!empty($merchant) && !in_array($merchant->active,['pending','rejected']))
+                        @elseif(!empty($merchant) && !in_array($merchant->status_merchant,['pending','rejected']))
                         <div class="my-4 text-end">
                             <a href="/settings/1" class="btn btn-outline-dark rounded-pill py-1 px-4">Edit Merchant <i class="fa fa-chevron-right"></i></a>
                         </div>
@@ -58,17 +58,17 @@
                                 <label for="created">Di Buat Tanggal</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="text" name="nama" value="{{ $userdata->name }}" class="form-control"
+                                <input type="text" name="nama" value="{{ $userdata->nama }}" class="form-control"
                                     id="nama" placeholder="nama">
                                 <label for="nama">Nama Lengkap</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="text" name="number" value="{{ $userdata->number }}" class="form-control"
+                                <input type="text" name="number" value="{{ $userdata->nomor }}" class="form-control"
                                     id="number" placeholder="number">
                                 <label for="number">Nomor Telepon</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <textarea class="form-control" id="address" name="address" style="height: 100px">{{ $userdata->address }}</textarea>
+                                <textarea class="form-control" id="address" name="address" style="height: 100px">{{ $userdata->alamat }}</textarea>
                                 <label for="address">Alamat</label>
                             </div>
                             <div class="my-4 text-center">
