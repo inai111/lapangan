@@ -196,6 +196,7 @@ class Dashboard extends Controller
                 if($midtrans_cek->status_code == 200 && $midtrans_cek->transaction_status == "settlement"){
                         $transaction->status = 'berhasil';
                         $book->status = 'on_going';
+                        $book->tanggal_bayar = date("Y-m-d H:i:s");
                         $book->down_payment = $transaction->total;
                         $transaction->save();
                         $book->save();
@@ -455,8 +456,12 @@ class Dashboard extends Controller
             case "dp":
                 $booklist->jenis_pembayaran = 'both';
                 $total /= 2;
+                $booklist->down_payment = $total;
+                $transfer = true;
+                break;
             case "full":
                     $booklist->jenis_pembayaran = 'transfer';
+                $booklist->down_payment = 0;
                     $transfer = true;
                 break;
             case "cash":

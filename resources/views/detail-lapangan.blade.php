@@ -279,6 +279,7 @@
             fetch(`/add-transaction/${this.dataset.id}`)
                 .then(ee => ee.json())
                 .then(res => {
+                    console.log(res);
                     if (res.status) {
                         window.location.href = '/user-transactions';
                     }

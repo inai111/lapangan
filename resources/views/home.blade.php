@@ -11,45 +11,63 @@
         <div class="mx-3 my-4">
             {{-- <h1>Jenis Olahraga</h1> --}}
             <div class="row justify-content-center">
-                <div class="col-2 text-center">
-                    <button class="btn btn-outline-dark w-100">
-                        <div class="p-3 py-5">
-                            <i class="fa-solid fa-basketball fa-3x"></i>
+                <div class="col-4 col-md-7 col-sm-5 col-lg-7 text-center">
+                    <div class="row">
+                        <div class="col-6 d-none d-lg-block">
+                            <div class="card h-100 justify-content-center align-items-center">
+                                <img style="object-fit: cover;width: 100%;height: 15vw;" src="/assets/img/lapangan/cover/default.png" class="card-img-top" alt="...">
+                                <div class="position-absolute text-start start-0 bottom-0 mb-2 ms-2">
+                                    <div class="fs-4">
+                                        <strong class="text-light" style="text-shadow: 0 0 8px black">Rp.200000</strong>
+                                    </div>
+                                </div>
+                                <div class="position-absolute align-items-center gap-2 ms-2 mt-2 top-0 start-0 d-flex">
+                                    <div class="rounded-pill badge bg-danger px-2 py-1"><strong>Rp.2.000.000</strong>/Jam</div>
+                                </div>
+                                <div class="position-absolute align-items-center gap-2 me-2 mt-2 top-0 end-0 d-flex">
+                                    <div class="rounded-pill badge bg-danger px-2 py-1"><strong>75%</strong></div>
+                                    <i class="fa-solid fa-circle-exclamation text-secondary fs-4"></i>
+                                </div>
+                            </div>
                         </div>
-                        <h3 class="my-2">Bola Basket</h3>
-                    </button>
+                        <div class="col-6 d-none d-lg-block">
+                            <div class="card h-100 justify-content-center align-items-center">
+                                <img style="object-fit: cover;width: 100%;height: 15vw;" src="/assets/img/lapangan/cover/default.png" class="card-img-top" alt="...">
+                                <div class="position-absolute text-start start-0 bottom-0 mb-2 ms-2">
+                                    <div class="fs-4">
+                                        <strong class="text-light" style="text-shadow: 0 0 8px black">Rp.200000</strong>
+                                    </div>
+                                </div>
+                                <div class="position-absolute align-items-center gap-2 ms-2 mt-2 top-0 start-0 d-flex">
+                                    <div class="rounded-pill badge bg-danger px-2 py-1"><strong>Rp.2.000.000</strong>/Jam</div>
+                                </div>
+                                <div class="position-absolute align-items-center gap-2 me-2 mt-2 top-0 end-0 d-flex">
+                                    <div class="rounded-pill badge bg-danger px-2 py-1"><strong>75%</strong></div>
+                                    <i class="fa-solid fa-circle-exclamation text-secondary fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-2 text-center">
-                    <button class="btn btn-outline-dark w-100">
-                        <div class="p-3 py-5">
-                            <i class="fa-regular fa-futbol fa-3x"></i>
+                <div class="col-8 col-lg-5 col-sm-7 col-md-5 text-center">
+                    <div class="card mb-3 h-100">
+                        <div class="row g-0 align-items-center my-auto">
+                            <div class="col-md-4">
+                                <img style="object-fit: cover;width: 100%;height: 15vw;" src="/assets/img/lapangan/cover/default.png" class="img-fluid rounded-end" alt="...">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">Card title</h5>
+                                    <p class="card-text text-truncate">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                                </div>
+                            </div>
                         </div>
-                        <h3 class="my-2">Sepak Bola</h3>
-                    </button>
-                </div>
-                <div class="col-2 text-center">
-                    <button class="btn btn-outline-dark w-100">
-                        <div class="p-3 py-5">
-                            <i class="fa-regular fa-futbol fa-3x"></i>
+                        <div class="position-absolute align-items-center gap-2 me-2 mt-2 top-0 end-0 d-flex">
+                            <div class="rounded-pill badge bg-danger px-2 py-1"><strong>75%</strong></div>
+                            <i class="fa-solid fa-circle-exclamation text-secondary fs-4"></i>
                         </div>
-                        <h3 class="my-2">Mini Soccer</h3>
-                    </button>
-                </div>
-                <div class="col-2 text-center">
-                    <button class="btn btn-outline-dark w-100">
-                        <div class="p-3 py-5">
-                            <i class="fa-regular fa-futbol fa-3x"></i>
-                        </div>
-                        <h3 class="my-2">Futsal</h3>
-                    </button>
-                </div>
-                <div class="col-2 text-center">
-                    <button class="btn btn-outline-dark w-100">
-                        <div class="p-3 py-5">
-                            <i class="fa-solid fa-baseball fa-3x"></i>
-                        </div>
-                        <h3 class="my-2">Tennis</h3>
-                    </button>
+                    </div>
                 </div>
             </div>
         </div>

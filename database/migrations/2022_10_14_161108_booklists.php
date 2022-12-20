@@ -22,10 +22,10 @@ return new class extends Migration
             $table->integer('rating')->nullable();
             $table->text('review')->nullable();
             $table->string('down_payment')->nullable();
-            $table->string('total_biaya');
+            $table->string('total_biaya')->nullable();
             $table->string('kasir')->nullable();
             $table->dateTime('tanggal_bayar')->nullable();
-            $table->enum('jenis_pembayaran',['cash','transfer','both']);
+            $table->enum('jenis_pembayaran',['cash','transfer','both'])->default('both');
             $table->enum('status',['pending','on_going','complete','cancel']);
             $table->timestamps();
         });
