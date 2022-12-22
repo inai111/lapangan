@@ -18,9 +18,51 @@ use Illuminate\Support\Facades\Hash;
 
 class Home extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('home');
+        $arr_cookie = [];
+        $lapangan_where = []; // lapangan dari pencarian
+        // ambil data lapangan yang status_merchant nya aktif
+        $lapangan = Lapangan::whereHas('merchant',function($query){
+            return $query->where('status_merchant', 'active');
+        });
+        # cek riwayat pencarian ada atau tidak
+        if($request->cookie('pencarianHistory')){
+            $arr_cookie = (array)json_decode($request->cookie('pencarianHistory'));
+            arsort($arr_cookie);
+            $lapangan_where = $lapangan;
+            $i = 1;
+            $orderby = "CASE ";
+            foreach($arr_cookie as $cookie=>$value){
+                $lapangan_where = $lapangan_where->orwhere(function($query) use($cookie){
+                    $query->where('nama','like',"%$cookie%")
+                    ->orwhereHas('merchant',function($query1) use($cookie){
+                        return $query1->where('nama','like',"%$cookie%")
+                        ->orwhere('alamat','like',"%$cookie%");
+                    })
+                    ->orwhereHas('jenis',function($query1) use($cookie){
+                        return $query1->where('nama','like',"%$cookie%");
+                    });
+                });
+                $orderby.="WHEN lapangan.nama = '$cookie' then $i ";
+                // $orderby.="WHEN merchant.nama = '$cookie' then $i ";
+                // $orderby.="WHEN jenis_olahraga.nama = '$cookie' then $i ";
+                $i++;
+            }
+            $orderby.="END desc";
+            $lapangan_where=$lapangan_where->orderbyRaw($orderby);
+            // $lapangan_where=$lapangan_where->orderby('id','desc')->limit(5)->get();
+            $lapangan_where=$lapangan_where->limit(5)->get();
+        }
+        // if()
+        if(session('id_user')){
+            $rekomendasi = $this->get_recomendation();
+        }
+        $data = [
+            'lapangan' => $lapangan->get(),
+            'lapangan_where' => $lapangan_where
+        ];
+        return view('home',$data);
     }
 
     public function login(Request $request)

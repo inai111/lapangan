@@ -72,49 +72,35 @@
             </div>
         </div>
     </div>
-    <div class="py-3 px-5 mt-2">
-        <div class="me-3 my-4">
+    <div class="banner-1 py-3 px-5 mt-2 shadow">
+        <div class="mx-3 my-4">
             {{-- <h1>Jenis Olahraga</h1> --}}
-            <div class="row justify-content-center align-items-center">
-                <div class="col-3 text-center">
-                    <div class="card">
-                        <div class="card-body">
-                          <h5 class="card-title">Lapangan</h5>
-                          <h6 class="card-subtitle mb-2 text-muted">Rekomendasi</h6>
+            <div class="row">
+                <div class="col-2 d-none d-lg-block">
+                    <div class="card h-100 justify-content-center align-items-center">
+                        <img style="object-fit: cover;width: 100%;height: 15vw;" src="/assets/img/lapangan/cover/default.png" class="card-img-top" alt="...">
+                    </div>
+                </div>
+                @foreach ($lapangan_where as $item)
+                    
+                <div class="col-2 d-none d-lg-block">
+                    <div class="card overflow-hidden h-100 justify-content-center align-items-center" style="background: linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.5));">
+                        <img style="object-fit: cover;width: 100%;height: 15vw;" src="/assets/img/lapangan/cover/default.png" class="card-img-top" alt="...">
+                        <div class="position-absolute text-start start-0 bottom-0 mb-2 ms-2">
+                            <a href="/lapangan/{{$item->id}}" style="text-decoration: none">
+                                <div class="fs-5">
+                                    <strong class="text-light" style="text-shadow: 0 0 8px black">{{$item->nama}}</strong>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="position-absolute align-items-center gap-2 ms-2 mt-2 top-0 start-0 d-flex">
+                            <div class="rounded-pill badge bg-danger px-2 py-1"><strong>Rp.{{number_format($item->harga,0,',','.')}}</strong>/Jam</div>
                         </div>
                     </div>
                 </div>
-                <div class="col-2 text-center">
-                    <button class="btn btn-outline-dark w-100">
-                        <div class="p-3 py-5">
-                            <i class="fa-solid fa-basketball fa-3x"></i>
-                        </div>
-                        <h3 class="my-2">Bola Basket</h3>
-                    </button>
-                </div>
-                <div class="col-2 text-center">
-                    <button class="btn btn-outline-dark w-100">
-                        <div class="p-3 py-5">
-                            <i class="fa-solid fa-basketball fa-3x"></i>
-                        </div>
-                        <h3 class="my-2">Bola Basket</h3>
-                    </button>
-                </div>
-                <div class="col-2 text-center">
-                    <button class="btn btn-outline-dark w-100">
-                        <div class="p-3 py-5">
-                            <i class="fa-solid fa-basketball fa-3x"></i>
-                        </div>
-                        <h3 class="my-2">Bola Basket</h3>
-                    </button>
-                </div>
-                <div class="col-1 text-center">
-                    <button class="btn btn-outline-dark w-100">
-                            <i class="fa-solid fa-chevron-right fa-3x"></i>
-                    </button>
-                </div>
+
+                @endforeach
             </div>
-            
         </div>
     </div>
     {{-- modal regis&login --}}
