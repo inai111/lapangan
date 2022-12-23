@@ -22,15 +22,23 @@ class Home extends Controller
     {
         $arr_cookie = [];
         $lapangan_where = []; // lapangan dari pencarian
-        // ambil data lapangan yang status_merchant nya aktif
+
+        # ambil lapangan semua, kalau ada rekomendasi, maka
+        # ambil semua lapangan yang selain dari rekomendasi,
         $lapangan = Lapangan::whereHas('merchant',function($query){
             return $query->where('status_merchant', 'active');
         });
-        # cek riwayat pencarian ada atau tidak
+        
+        $rating = $this->get_rating();
+        
+        $lapangan_where = Lapangan::whereHas('merchant',function($query){
+            return $query->where('status_merchant', 'active');
+        });
+
+        # ambil lapangan dari jalur riwayat pencarian
         if($request->cookie('pencarianHistory')){
             $arr_cookie = (array)json_decode($request->cookie('pencarianHistory'));
             arsort($arr_cookie);
-            $lapangan_where = $lapangan;
             $i = 1;
             $orderby = "CASE ";
             foreach($arr_cookie as $cookie=>$value){
@@ -52,15 +60,32 @@ class Home extends Controller
             $orderby.="END desc";
             $lapangan_where=$lapangan_where->orderbyRaw($orderby);
             // $lapangan_where=$lapangan_where->orderby('id','desc')->limit(5)->get();
-            $lapangan_where=$lapangan_where->limit(5)->get();
+            $lapangan_where=$lapangan_where;
         }
-        // if()
+
+        # ambil lapangan dari jalur rekomendasi filtering item based
+        $rekomendasi = [];
+        $lapangan_rekomendasi = [];
+        $lapangan_rekomendasi1 = [];
         if(session('id_user')){
             $rekomendasi = $this->get_recomendation();
+            $lapangan_rekomendasi = Lapangan::whereHas('merchant',function($query){
+                return $query->where('status_merchant', 'active');
+            });
+            $lapangan_rekomendasi = $lapangan_rekomendasi->whereIn('id',array_keys($rekomendasi));
+            $lapangan_rekomendasi1 = [];
+            foreach($lapangan_rekomendasi->get()->all() as $lap){
+                $lapangan_rekomendasi1[$lap->id] = $lap;
+            }
+
+            $lapangan->whereNotIn('id',array_keys($rekomendasi));
         }
         $data = [
             'lapangan' => $lapangan->get(),
-            'lapangan_where' => $lapangan_where
+            'lapangan_where' => $lapangan_where->limit(5)->get(),
+            'rekomendasi' => $rekomendasi,
+            'lapangan_rekomendasi' => $lapangan_rekomendasi1,
+            'rating_almanak' => $rating,
         ];
         return view('home',$data);
     }
@@ -528,5 +553,28 @@ class Home extends Controller
         // array_multisort($ranks, SORT_DESC);
         return $ranks;
         
+    }
+
+    public function get_rating(){
+        $rate = [];
+        // $lapangan=Lapangan::
+        $lapangan = Lapangan::whereHas('merchant',function($query){
+            return $query->where('status_merchant', 'active');
+        });
+        // foreach($lapangan as $key=>$item){
+        $lapangan = $lapangan->whereHas('booklist',function($query){
+            return $query->where('rating', '!=',null);
+        })->get();
+        foreach($lapangan as $item){
+            if(!empty($item->booklist) && count($item->booklist)>0){
+                $rate[$item->id]['jumlah_booklist'] = count($item->booklist);
+                $rating = 0;
+                foreach($item->booklist as $book){
+                    $rating+=$book->rating;
+                }
+                $rate[$item->id]['rating'] = number_format(round($rating/count($item->booklist)),0);
+            }
+        }
+        return $rate;
     }
 }
