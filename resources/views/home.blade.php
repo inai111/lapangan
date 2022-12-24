@@ -128,6 +128,51 @@
                         <div class="card h-100 justify-content-center align-items-center">
                             <div class="w-100" style="height: 15vw;background:linear-gradient(rgba(255,255,255,.9),rgba(255,255,255,.9)),url({{asset("/assets/img/lapangan/cover/default.png")}}) center/cover no-repeat"></div>
                             <div class="position-absolute fs-3 text-center">
+                                <strong>MERCHANT</strong>
+                                <a class="btn btn-danger rounded-pill btn-sm">Lihat Semua</a>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    @if ($merchants)
+                    @foreach ($merchants as $item)
+                    <div class="col-2 d-none d-lg-block">
+                        <div class="card overflow-hidden h-100 justify-content-center align-items-center" style="background: linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.5));">
+                            <img style="object-fit: cover;width: 100%;height: 15vw;" src="/assets/img/lapangan/cover/default.png" class="card-img-top" alt="...">
+                            <div class="position-absolute text-start start-0 bottom-0 mb-2 ms-2">
+                                <a href="/merchant/{{$item->id}}" style="text-decoration: none">
+                                    <div class="fs-5">
+                                        <strong class="text-light" style="text-shadow: 0 0 8px black">{{$item->nama}}</strong>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="position-absolute ms-2 mt-2 top-0 start-0">
+                                <div class="rounded-pill badge bg-danger px-2 py-1"><strong>{{count($item->lapangan)}}</strong> Lapangan</div>
+                                <div>
+                                    @if (!empty($item->rating))
+                                    <div class="rounded-pill badge bg-danger px-2 py-1">
+                                        <strong>{{$item->rating['rating_merchant']}}</strong>
+                                        <span class="fas fa-star text-warning"></span>
+                                        ({{$item->rating['jumlah_booklist_merchant']}})
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                    @endif
+                </div>
+            </div>
+        </div>
+        <div class="banner-1 py-3 px-5 mt-2 shadow">
+            <div class="mx-3 my-4">
+                {{-- <h1>Jenis Olahraga</h1> --}}
+                <div class="row">
+                    <div class="col-2 d-none d-lg-block">
+                        <div class="card h-100 justify-content-center align-items-center">
+                            <div class="w-100" style="height: 15vw;background:linear-gradient(rgba(255,255,255,.9),rgba(255,255,255,.9)),url({{asset("/assets/img/lapangan/cover/default.png")}}) center/cover no-repeat"></div>
+                            <div class="position-absolute fs-3 text-center">
                                 <strong>DARI YANG ANDA CARI</strong>
                                 <a class="btn btn-danger rounded-pill btn-sm">Lihat Semua</a>
                             </div>

@@ -26,9 +26,9 @@
                 </div>
                 <div>
                     <span class="text-muted me-2">Total Lapangan ({{ count($lapangan) }})</span>
-                    <span class="text-muted me-2">0 <i class="fa fa-star" style="color: gold"></i> (0)</span>
+                    <span class="text-muted me-2">{{$rating_data['rating_merchant']}} <i class="fa fa-star" style="color: gold"></i> ({{$rating_data['jumlah_booklist_merchant']}})</span>
                 </div>
-                <div class="text-muted me-2">Jam Buka {{ $merchant->open . ' - ' . $merchant->close }}</div>
+                <div class="text-muted me-2">Jam Buka {{ $merchant->buka . ' - ' . $merchant->tutup }}</div>
                 <div><i class="fa fa-location-dot"></i>
                     {{ !empty($merchant->alamat) ? $merchant->alamat : $user->alamat }}
                 </div>
@@ -54,13 +54,13 @@
                         <div class="row row-cols-auto my-2">
                             @foreach ($lapangan as $item)
                                 <div class="col-md-3 my-2">
-                                    <a href="/lapangan/{{$item->id}}" class="border btn btn-dark">
-                                        <div class="position-relative" style="background-image:url({{ asset("assets/img/lapangan/cover/$item[cover]") }});background-size: 250px;background-repeat: no-repeat;background-position: center;width: 230px;height: 230px;"
+                                    <a href="/lapangan/{{$item->id}}" class="border btn btn-dark position-relative">
+                                        <div class="position-relative" style="background:linear-gradient(rgba(0,0,0,.2),rgba(0,0,0,.2)),url({{ asset("assets/img/{$item->lapangan_cover}/cover/$item[cover]") }});background-size: cover;background-repeat: no-repeat;background-position: center;width: 230px;height: 230px;"
                                             class="card-img-top" alt="{{ $item->nama }}">
-                                            <div class="position-absolute top-0 end-0 px-4 rounded-pill text-light" style="background-color: rgba(10, 10, 10,.4);margin-top: 1.7rem;"><i class="fa fa-basketball"></i> {{$item->type}}</div>
-                                            <div class="position-absolute top-0 end-0 px-4 rounded-pill text-light" style="background-color: rgba(10, 10, 10,.4)">0 <i class="fa fa-star" style="color: gold"></i> (0)</div>
-                                            <div class="position-absolute bottom-0 start-0 end-0 px-4 rounded-pill text-light" style="background-color: rgba(10, 10, 10,.4)"><i class="fa fa-tags"></i> Rp. {{number_format($item->harga,0,',','.')}}/Jam</div>
+                                            <div class="position-absolute top-0 end-0 px-4 rounded-pill text-light" style="background-color: rgba(10, 10, 10,.4);margin-top: 1.7rem;"><i class="fa fa-basketball"></i> {{$item->jenis->nama}}</div>
+                                            <div class="position-absolute top-0 end-0 px-4 rounded-pill text-light" style="background-color: rgba(10, 10, 10,.4)">{{isset($rating_data[$item->id])?$rating_data[$item->id]['rating']:0}} <i class="fa fa-star" style="color: gold"></i> ({{isset($rating_data[$item->id])?$rating_data[$item->id]['jumlah_booklist']:0}})</div>
                                         </div>
+                                        <div class="position-absolute bottom-0 start-0 end-0 mb-2 px-4 rounded-pill text-light" style="background-color: rgba(10, 10, 10,.4)"><i class="fa fa-tags"></i> Rp. {{number_format($item->harga,0,',','.')}}/Jam</div>
                                     </a>
                                 </div>
                             @endforeach

@@ -38,29 +38,31 @@ class Home extends Controller
         # ambil lapangan dari jalur riwayat pencarian
         if($request->cookie('pencarianHistory')){
             $arr_cookie = (array)json_decode($request->cookie('pencarianHistory'));
-            arsort($arr_cookie);
-            $i = 1;
-            $orderby = "CASE ";
-            foreach($arr_cookie as $cookie=>$value){
-                $lapangan_where = $lapangan_where->orwhere(function($query) use($cookie){
-                    $query->where('nama','like',"%$cookie%")
-                    ->orwhereHas('merchant',function($query1) use($cookie){
-                        return $query1->where('nama','like',"%$cookie%")
-                        ->orwhere('alamat','like',"%$cookie%");
-                    })
-                    ->orwhereHas('jenis',function($query1) use($cookie){
-                        return $query1->where('nama','like',"%$cookie%");
+            if(!empty($arr_cookie)){
+                arsort($arr_cookie);
+                $i = 1;
+                $orderby = "CASE ";
+                foreach($arr_cookie as $cookie=>$value){
+                    $lapangan_where = $lapangan_where->orwhere(function($query) use($cookie){
+                        $query->where('nama','like',"%$cookie%")
+                        ->orwhereHas('merchant',function($query1) use($cookie){
+                            return $query1->where('nama','like',"%$cookie%")
+                            ->orwhere('alamat','like',"%$cookie%");
+                        })
+                        ->orwhereHas('jenis',function($query1) use($cookie){
+                            return $query1->where('nama','like',"%$cookie%");
+                        });
                     });
-                });
-                $orderby.="WHEN lapangan.nama = '$cookie' then $i ";
-                // $orderby.="WHEN merchant.nama = '$cookie' then $i ";
-                // $orderby.="WHEN jenis_olahraga.nama = '$cookie' then $i ";
-                $i++;
+                    $orderby.="WHEN lapangan.nama = '$cookie' then $i ";
+                    // $orderby.="WHEN merchant.nama = '$cookie' then $i ";
+                    // $orderby.="WHEN jenis_olahraga.nama = '$cookie' then $i ";
+                    $i++;
+                }
+                $orderby.="END desc";
+                $lapangan_where=$lapangan_where->orderbyRaw($orderby);
+                // $lapangan_where=$lapangan_where->orderby('id','desc')->limit(5)->get();
+                $lapangan_where=$lapangan_where;
             }
-            $orderby.="END desc";
-            $lapangan_where=$lapangan_where->orderbyRaw($orderby);
-            // $lapangan_where=$lapangan_where->orderby('id','desc')->limit(5)->get();
-            $lapangan_where=$lapangan_where;
         }
 
         # ambil lapangan dari jalur rekomendasi filtering item based
@@ -80,12 +82,19 @@ class Home extends Controller
 
             $lapangan->whereNotIn('id',array_keys($rekomendasi));
         }
+
+        # ambil data merchant
+        $merchants = Merchant::where('status_merchant', 'active')->get();
+        foreach($merchants as $key=>$item){
+            $merchants[$key]->rating = $this->get_rating($item->id);
+        }
         $data = [
             'lapangan' => $lapangan->get(),
             'lapangan_where' => $lapangan_where->limit(5)->get(),
             'rekomendasi' => $rekomendasi,
             'lapangan_rekomendasi' => $lapangan_rekomendasi1,
             'rating_almanak' => $rating,
+            'merchants' => $merchants,
         ];
         return view('home',$data);
     }
@@ -238,34 +247,41 @@ class Home extends Controller
         $lapangan->harga = number_format($lapangan->harga,0,',','.');
         $merchant = $lapangan->merchant;
         $booklist = $lapangan->booklist;
+        $booklist = Booklists::where('lapangan_id',$id)->where('rating','!=',null)->get();
+        $review_rating = [];
         $rating = 0;
         if($booklist){
             $jumlah = 0;
-            foreach($booklist as $book){
-                if($book->rating){
+            foreach($booklist as $key=>$book){
+                if($book->rating && $book->user){
+                    $review_rating [$key] = $book;
                     $rating += $book->rating;
                     $jumlah ++;
                 }
             }
-            if($rating && $jumlah) $rating = $rating/$jumlah;
+            if($rating && $jumlah) $rating = number_format(round($rating/$jumlah),0);
         }
+        $nama_lapangan = str_replace(' ','_',$lapangan->nama);
         $objMsg = [
-            'profilePic'=>$merchant->user->photo,
-            'merchantName'=>$merchant->name_merchant,
+            'profilePic'=>$merchant->user->foto,
+            'merchantName'=>$merchant->nama,
             'id_merchant'=>$merchant->id,
             'lapaganId'=>$lapangan->id,
             'userId'=>$merchant->user_id,
             'namaLapangan'=>ucwords(strtolower($lapangan->nama)),
             'hargaLapangan'=>"Rp. {$lapangan->harga} /Jam",
-            'urlCover'=>"/assets/img/profilpic/default.png",
+            'urlCover'=>"/assets/img/{$nama_lapangan}/cover/{$lapangan->cover}",
         ];
         $data = [
             'lapangan'=>$lapangan,
+            'nama_lapangan_dir'=>str_replace(' ','_',$lapangan['nama']),
+            'urlCover'=>"/assets/img/{$nama_lapangan}/cover/{$lapangan->cover}",
             'galeries'=>$lapangan->galleries,
             'merchant'=>$merchant,
             'rating'=>$rating,
             'jumlah'=>$jumlah,
             'booklist'=>$booklist,
+            'booklist_review'=>$review_rating,
             'objMsg'=>base64_encode(json_encode($objMsg))
         ];
         return view("detail-lapangan",$data);
@@ -377,8 +393,12 @@ class Home extends Controller
         if(empty($merchant)) return abort(404);
         $user = $merchant->user;
         $lapangan = $merchant->lapangan;
+        foreach($lapangan as $key=>$lap){
+            $lapangan[$key]['lapangan_cover']=str_replace(' ','_',$lap['nama']);
+        }
         $data = [
             'merchant'=>$merchant,
+            'rating_data'=>$this->get_rating($id),
             'user'=>$user,
             'lapangan'=>$lapangan
         ];
@@ -431,9 +451,10 @@ class Home extends Controller
             $messages[$key]['jam'] = date('H:i',strtotime($msg['created_at']));
             if($msg['lapangan_id']) {
                 $lapangan = $msg->lapangan;
+                $nama_lapangan = str_replace(' ','_',$lapangan->nama);
                 // $lapangan = Lapangan::select('nama','harga','cover')->where('id',$msg['ref_id'])->get()->first();
                 $messages[$key]['lapangan'] = $lapangan;
-                $messages[$key]['lapangan']['cover'] = asset("assets/img/profilpic/{$lapangan->cover}");//path cover lapangan message
+                $messages[$key]['lapangan']['cover'] = asset("assets/img/{$nama_lapangan}/{$lapangan->cover}");//path cover lapangan message
                 $messages[$key]['lapangan']['harga'] = number_format($lapangan->harga,0,',','.');//path cover lapangan message
                 $messages[$key]['lapangan']['nama'] = ucwords(strtolower($lapangan->nama));//path cover lapangan message
             }
@@ -463,18 +484,40 @@ class Home extends Controller
         if(!session()->has('id_user')) return response()->json($response);
         $id = session('id_user');
         $unread_message = Message::where('to_id',$id)->where('read',0)->get()->all();
-        $messages = Message::where('to_id',$id)->orderby('id','desc')->get()->unique('from_id');
-        // $messages = Message::where('to_id',$id)->orderby('id','desc')->get();
-        foreach($messages as $key => $val){
-            $user = $val->pengirim;
-            $user->nama = ucwords(strtolower($user->nama));
-            $user->foto = "/assets/img/profilpic/".$user->foto;
-            $messages[$key]['user'] = $user;
-            $messages[$key]['tanggal'] = date("d-F-Y H:i:s",strtotime($val['created_at']));
+        $messages = Message::where('to_id',$id)->orwhere('from_id',$id)->orderby('id','desc')->get();
+        $container_msg = [];
+        if(!empty($messages->first())){
+            foreach($messages as $key => $msg)
+            {
+                $msg['tanggal'] = date("d-F-Y H:i:s",strtotime($msg['created_at']));
+                if($msg['from_id'] != $id && empty($container_msg[$msg['from_id']])){
+                    $msg['user'] = $msg->pengirim;
+                    $msg['profilPic'] = "/assets/img/profilpic/{$msg->pengirim->foto}";
+                    $msg['role'] = 'menerima';
+                    $msg['user']['profilPic'] = $msg['profilPic'];
+                    $msg['obj'] = base64_encode(json_encode($msg['user']));
+                    $container_msg[$msg['from_id']] = $msg;
+                }elseif($msg['to_id'] != $id && empty($container_msg[$msg['to_id']])){
+                    $msg['user'] = User::where('id',$msg->to_id)->first();
+                    $msg['profilPic'] = "/assets/img/profilpic/{$msg['user']['foto']}";
+                    $msg['role'] = 'mengirim';
+                    $msg['user']['profilPic'] = $msg['profilPic'];
+                    $msg['obj'] = base64_encode(json_encode($msg['user']));
+                    $container_msg[$msg['to_id']] = $msg;
+                }
+            }
         }
+        // foreach($messages as $key => $val){
+        //     $user = $val->pengirim;
+        //     $user->nama = ucwords(strtolower($user->nama));
+        //     $user->foto = "/assets/img/profilpic/".$user->foto;
+        //     $messages[$key]['user'] = $user;
+        //     $messages[$key]['tanggal'] = date("d-F-Y H:i:s",strtotime($val['created_at']));
+        // }
+        // dd($messages);
         $response['status']=true;
         $response['unreadMessages']=$unread_message;
-        $response['messages']=$messages;
+        $response['messages']=$container_msg;
         return response()->json($response);
     }
 
@@ -547,7 +590,7 @@ class Home extends Controller
 
         foreach($total as $key=>$value)
         {
-            $ranks[$key] = (($value / $simSums[$key])/5)*100;
+            $ranks[$key] = number_format((($value / $simSums[$key])/5)*100,2);
         }
         arsort($ranks);
         // array_multisort($ranks, SORT_DESC);
@@ -555,25 +598,40 @@ class Home extends Controller
         
     }
 
-    public function get_rating(){
+    public function get_rating($id=null){
         $rate = [];
         // $lapangan=Lapangan::
         $lapangan = Lapangan::whereHas('merchant',function($query){
             return $query->where('status_merchant', 'active');
         });
+        if(!empty($id)){
+            $lapangan = $lapangan->where('merchant_id', $id);
+        }
         // foreach($lapangan as $key=>$item){
         $lapangan = $lapangan->whereHas('booklist',function($query){
             return $query->where('rating', '!=',null);
         })->get();
+        $rating_merchant = 0;
+        $jumlah_booklist = 0;
         foreach($lapangan as $item){
             if(!empty($item->booklist) && count($item->booklist)>0){
                 $rate[$item->id]['jumlah_booklist'] = count($item->booklist);
+                $jumlah_booklist += count($item->booklist);
                 $rating = 0;
                 foreach($item->booklist as $book){
                     $rating+=$book->rating;
+                    $rating_merchant+=$book->rating;
                 }
                 $rate[$item->id]['rating'] = number_format(round($rating/count($item->booklist)),0);
             }
+        }
+        if(!empty($id)){
+            $rate ['jumlah_booklist_merchant'] = $jumlah_booklist;
+            $rate ['rating_merchant'] = number_format(round($rating_merchant/$jumlah_booklist),0);
+            // $rate = [
+            //     'jumlah_booklist' => $jumlah_booklist,
+            //     'rating_merchant' => number_format(round($rating_merchant/$jumlah_booklist),0)
+            // ];
         }
         return $rate;
     }

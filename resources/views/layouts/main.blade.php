@@ -214,6 +214,7 @@
         let worker = new Worker('/assets/js/worker.js')
         worker.addEventListener('message',e=>{
             let data = e.data;
+            console.log(data)
             if(data.debug){console.log(data);return}
             if(data.status){
                 if(data.unreadMessages.length > 0){
@@ -223,14 +224,16 @@
                 }else messageBadge.style.display = 'none';
                 if(data.messages){
                     let messageElem = ``;
-                    data.messages.forEach(message=>{
+                    for(const[idx,message] of Object.entries(data.messages)){
+                        console.log(message)
+                        let spanNew = (message.read ==0) && (message.role =='menerima');
                         messageElem += `
                         <div class="col-md-12">
                             <div class="pb-1">
-                                <button data-obj="${btoa(JSON.stringify(message.user))}"
+                                <button data-obj="${message.obj}"
                                     class="btn d-flex align-items-center btn-secondary text-light rounded position-relative openMessage">
-                                    ${message.read?'':`<span class="badge bg-danger position-absolute end-0 mt-1 me-1">New</span>`}
-                                    <img class="rounded-circle bg-light" src="${message.user.foto}"
+                                    ${!spanNew?'':`<span class="badge bg-danger position-absolute end-0 mt-1 me-1">New</span>`}
+                                    <img class="rounded-circle bg-light" src="${message.profilPic}"
                                         style="width: 20%" alt="">
                                     <div class="ps-3 text-start">
                                         <div>${message.user.nama}</div>
@@ -240,16 +243,16 @@
                                 </button>
                             </div>
                         </div>
-                    `;
-                    })
+                        `;
+                    }
                     document.querySelector(`#listMessage .offcanvas-body .row`).innerHTML = messageElem;
                     document.querySelectorAll(`.openMessage`).forEach(elem=>{
                         elem.addEventListener('click',function(e){
                             let user = JSON.parse(atob(this.dataset.obj))
                             if(document.querySelector(`#messageForm input[name="target_id"]`)) document.querySelector(`#messageForm input[name="target_id"]`).value = user.id;
                             updateMsgCont();
-                            msgContImgMerchant.src = user.photo;
-                            msgContNameMerchant.innerText = user.name
+                            msgContImgMerchant.src = user.profilPic;
+                            msgContNameMerchant.innerText = user.nama;
                             let message = new bootstrap.Offcanvas(`#messageOpened`);
                             message.show();
                             msgContBody.scrollTop = msgContBody.scrollHeight;

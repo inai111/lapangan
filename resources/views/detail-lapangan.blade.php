@@ -1,3 +1,9 @@
+@php
+// foreach ($booklist_review as $key => $value) {
+//     # code...
+//     $value->user->foto;
+// }
+@endphp
 @extends('layouts.main')
 
 @section('navbar')
@@ -9,7 +15,7 @@
 @section('content')
     <div class="container bg-light my-5 py-3">
         <div class="position-relative"
-            style="background-image: url({{ asset("assets/img/lapangan/cover/$lapangan->cover") }});background-size:300px;height: 200px;background-repeat: no-repeat;background-position: center;background-color: #adb5bd;">
+            style="background-image: url({{ asset($urlCover) }});background-size:cover;height: 200px;background-repeat: no-repeat;background-position: center;background-color: #adb5bd;">
             <div class="position-absolute px-5 py-2 text-light"
                 style="top: 0;background-color: rgba(0, 0, 0, 0.6);border: none">
                 <h1 class="display-3">{{ $lapangan->nama }}</h1>
@@ -21,7 +27,7 @@
                     <div class="carousel-inner border">
                         @foreach ($galeries as $galery)
                             <div class="carousel-item {{ $loop->iteration == 1 ? 'active' : '' }}">
-                                <img src="{{ asset("assets/img/lapangan/$galery[photo]") }}" class="d-block w-100">
+                                <img src="{{ asset("assets/img/$nama_lapangan_dir/$galery[photo]") }}" class="d-block w-100" style="height: 15vw;object-fit: cover">
                             </div>
                         @endforeach
                     </div>
@@ -93,36 +99,40 @@
                             <div class="tab-pane fade" id="rating-tab-pane" role="tabpanel" aria-labelledby="rating-tab"
                                 tabindex="0">
                                 <div class="row my-2 mx-1">
+                                    @foreach ($booklist_review as $item)
                                     <div class="col-md-12">
                                         <div class="py-2 px-1 border-bottom">
                                             <div class="row">
-                                                <div class="col-md-2">
-                                                    <img src="{{ asset('assets/img/profilpic/default.png') }}"
-                                                        alt="" class="rounded-circle border" width="100%">
+                                                <div class="col-md-2 text-center">
+                                                    <img src="{{asset("/assets/img/profilpic/{$item->user->foto}")}}"
+                                                    alt="" class="rounded-circle border" style="object-fit: cover;width: 60px;height: 60px;">
                                                 </div>
                                                 <div class="col-md-10">
-                                                    <div class="ms-3 w-100" style="font-size:.8em">
+                                                    <div class="w-100" style="font-size:.8em">
                                                         <div class="row">
                                                             <div class="d-flex col-md-6 starRating">
-                                                                <i class="fa fa-star text-warning"></i>
-                                                                <i class="fa fa-star text-warning"></i>
-                                                                <i class="fa fa-star text-warning"></i>
-                                                                <i class="fa fa-star text-muted"></i>
-                                                                <i class="fa fa-star text-muted"></i>
+                                                                @for ($i = 1; $i < 5; $i++)
+                                                                    @if ($i <= $item->rating)
+                                                                    <i class="fa fa-star text-warning"></i>
+                                                                    @else   
+                                                                    <i class="fa fa-star text-muted"></i>
+                                                                    @endif
+                                                                @endfor
                                                             </div>
-                                                            <div class="col-md-6 text-end">{{ date('d-M-Y') }}</div>
+                                                            <div class="col-md-6 text-end">{{ date('d-M-Y',strtotime($item->tanggal_bayar)) }}</div>
                                                         </div>
                                                         <div>
-                                                            Nama reviewer
+                                                            {{$item->user->nama}}
                                                         </div>
                                                         <div class="">
-                                                            isi dari review nya
+                                                            {{$item->review}}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                    @endforeach
                                 </div>
                                 {{-- <div class="text-muted justify-content-center mt-5 d-flex align-items-center">
                                     <i class="fa fa-box-open fa-2x"></i>
