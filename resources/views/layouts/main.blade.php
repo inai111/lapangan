@@ -16,7 +16,7 @@
 <body>
     @yield('navbar')
     @yield('content')
-    <div class="position-relative py-3 px-5 w-100 bottom-0 bg-light mt-5">
+    <div class="py-3 px-5 w-100 bottom-0 bg-light mt-5">
        <div class="row">
         <div class="col-4">
             <h4><strong>Sewa Lapangan</strong></h4>

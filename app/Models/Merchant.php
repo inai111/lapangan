@@ -27,6 +27,6 @@ class Merchant extends Model
     }
     public function fasilitas_merchant()
     {
-        return $this->hasMany(Fasilitas_merchant::class);
+        return $this->hasMany(Fasilitas_merchant::class,'merchants_id');
     }
 }

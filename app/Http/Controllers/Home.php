@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Booking_date;
 use App\Models\Booklists;
 use App\Models\Gallery;
+use App\Models\Jenis_olahraga;
 use App\Models\Lapangan;
 use App\Models\Merchant;
 use App\Models\Message;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -625,7 +627,7 @@ class Home extends Controller
                 $rate[$item->id]['rating'] = number_format(round($rating/count($item->booklist)),0);
             }
         }
-        if(!empty($id)){
+        if(!empty($id) && $jumlah_booklist && $rating_merchant){
             $rate ['jumlah_booklist_merchant'] = $jumlah_booklist;
             $rate ['rating_merchant'] = number_format(round($rating_merchant/$jumlah_booklist),0);
             // $rate = [
@@ -634,5 +636,134 @@ class Home extends Controller
             // ];
         }
         return $rate;
+    }
+
+    public function search_all(Request $request){
+        $type = $request->get('type');
+        $search = $request->get('search');
+        $jenis = $request->get('jenis');
+        $query = [];
+        switch($type){
+            case'merchant':
+                $query = Merchant::where('status_merchant', '=', 'active');
+                if(!empty($search)){
+                    #cari di merchant
+                    $query->where(function($qu)use($search){
+                        return $qu->where('nama', 'like', '%'. $search. '%')
+                        ->orWhere('alamat', 'like', '%'. $search. '%')
+                        #cari di user
+                        ->orWhereHas('user',function($que) use($search){
+                            return $que->orWhere('username', 'like', '%'. $search. '%')
+                            ->orWhere('nama', 'like', '%'. $search. '%');
+                        });
+                    });
+                }
+                // $query = $query->limit(10);
+                $query = $query->get()->all();
+                break;
+            case'lapangan':
+                $query = Lapangan::whereHas('merchant',function($que){
+                    return $que->where('status_merchant', '=', 'active');
+                });
+                if(!empty($search)){
+                    #cari di lapangan
+                    $query->where(function($qu)use($search,$jenis){
+                        return $qu->where('nama', 'like', '%'. $search. '%')
+                        #cari di merchant
+                        ->orWhereHas('merchant', function($que)use($search){
+                            return $que->where('nama', 'like', '%'. $search . '%')
+                            ->orWhere('alamat', 'like', '%'. $search . '%')
+                            #cari di user
+                            ->orWhereHas('user', function($quer)use($search){
+                                return $quer->where('username', 'like', '%'. $search . '%')
+                                ->orWhere('nama', 'like', '%'. $search . '%');
+                            });
+                        })
+                        #cari di jenis_lapangan
+                        ->orWhereHas('jenis',function($que) use($jenis, $search){
+                            return $que->where('nama', '=',$jenis)
+                            ->orWhere('nama', 'like',"%{$search}%");
+                        });
+                    });
+                }
+                // $query = $query->limit(10);
+                $query = $query->get()->all();
+                // $query = $query->paginate(10);
+                break;
+            default:
+            $query_merchant = Merchant::where('status_merchant', '=', 'active');
+            $query_lapangan = Lapangan::whereHas('merchant',function($que){
+                return $que->where('status_merchant', '=', 'active');
+            });
+
+            if(!empty($search)){
+                #cari di merchant
+                $query_merchant->where(function($qu)use($search){
+                    return $qu->where('nama', 'like', '%'. $search. '%')
+                    ->orWhere('alamat', 'like', '%'. $search. '%')
+                    #cari di user
+                    ->orWhereHas('user',function($que) use($search){
+                        return $que->orWhere('username', 'like', '%'. $search. '%')
+                        ->orWhere('nama', 'like', '%'. $search. '%');
+                    });
+                });
+                #cari di lapangan
+                $query_lapangan->where(function($qu)use($search,$jenis){
+                    return $qu->where('nama', 'like', '%'. $search. '%')
+                    #cari di merchant
+                    ->orWhereHas('merchant', function($que)use($search){
+                        return $que->where('nama', 'like', '%'. $search . '%')
+                        ->orWhere('alamat', 'like', '%'. $search . '%')
+                        #cari di user
+                        ->orWhereHas('user', function($quer)use($search){
+                            return $quer->where('username', 'like', '%'. $search . '%')
+                            ->orWhere('nama', 'like', '%'. $search . '%');
+                        });
+                    })
+                    #cari di jenis_lapangan
+                    ->orWhereHas('jenis',function($que) use($jenis, $search){
+                        return $que->where('nama', '=',$jenis)
+                        ->orWhere('nama', 'like',"%{$search}%");
+                    });
+                });
+            }
+            $query = array_merge($query_merchant->get()->all(),$query_lapangan->get()->all());
+            // $query = array_merge($query_lapangan->get()->all(),$query_merchant->get()->all());
+            // shuffle($query);
+            // $per_page = 10;
+            // $query_lapangan_total = $query_lapangan->count();;
+            // dd($query_lapangan_total);
+            // $query_merchant = $query_merchant->paginate($per_page - count($query_lapangan));
+            // $query = $query_lapangan->merge($query_merchant);
+
+            break;
+        }
+
+        # rating per merchant
+        $rating_merchant = [];
+        $rating_lapangan = $this->get_rating();
+        $fasilitas_merchant = [];
+        foreach ($query as $item){
+            if(empty($item->merchant_id)){
+                $rating_mer = $this->get_rating($item->id);
+                if($rating_mer) $rating_merchant[$item->id] = $rating_mer;
+                if(!empty($item->fasilitas_merchant)){
+                    $fasilitas_merchant[$item->id] = '';
+                    foreach($item->fasilitas_merchant as $merch){
+                        if($merch->fasilitas->nama){
+                            $fasilitas_merchant[$item->id] .= $merch->fasilitas->nama.', ';
+                        }
+                    }
+                }
+            }
+        }
+        $data = [
+            'queries' => $query,
+            'jenis'=>Jenis_olahraga::all(),
+            'rating_lapangan' => $rating_lapangan,
+            'rating_merchant' => $rating_merchant,
+            'fasilitas_merchant' => $fasilitas_merchant,
+        ];
+        return view('search-all',$data);
     }
 }

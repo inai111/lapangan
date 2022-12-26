@@ -27,6 +27,8 @@ Route::controller(Home::class)->group(function(){
     Route::get('/get-message', 'get_message');
     Route::get('/get-unread-message', 'get_unread_message');
     Route::post('/send-message', 'sending_message');
+    Route::get('/get-recomendation', 'get_recomendation');
+    Route::get('/search', 'search_all');
 });
 Route::controller(Dashboard::class)->group(function(){
     Route::get('/dashboard', 'index')->middleware('auth');

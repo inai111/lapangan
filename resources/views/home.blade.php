@@ -126,10 +126,10 @@
                 <div class="row">
                     <div class="col-2 d-none d-lg-block">
                         <div class="card h-100 justify-content-center align-items-center">
-                            <div class="w-100" style="height: 15vw;background:linear-gradient(rgba(255,255,255,.9),rgba(255,255,255,.9)),url({{asset("/assets/img/lapangan/cover/default.png")}}) center/cover no-repeat"></div>
-                            <div class="position-absolute fs-3 text-center">
+                            <div class="w-100" style="height: 15vw;background:linear-gradient(rgba(220,53,69,.9),rgba(220,53,69,.9)),url({{asset("/assets/img/lapangan/cover/default.png")}}) center/cover no-repeat"></div>
+                            <div class="position-absolute fs-3 text-center text-light">
                                 <strong>MERCHANT</strong>
-                                <a class="btn btn-danger rounded-pill btn-sm">Lihat Semua</a>
+                                <a href="/search?type=merchant" class="btn btn-danger rounded-pill btn-sm">Lihat Semua</a>
                             </div>
                             
                         </div>
@@ -171,10 +171,10 @@
                 <div class="row">
                     <div class="col-2 d-none d-lg-block">
                         <div class="card h-100 justify-content-center align-items-center">
-                            <div class="w-100" style="height: 15vw;background:linear-gradient(rgba(255,255,255,.9),rgba(255,255,255,.9)),url({{asset("/assets/img/lapangan/cover/default.png")}}) center/cover no-repeat"></div>
-                            <div class="position-absolute fs-3 text-center">
-                                <strong>DARI YANG ANDA CARI</strong>
-                                <a class="btn btn-danger rounded-pill btn-sm">Lihat Semua</a>
+                            <div class="w-100" style="height: 15vw;background:linear-gradient(rgba(0,0,0,.8),rgba(0,0,0,.5)),url({{asset("/assets/img/lapangan/cover/default.png")}}) center/cover no-repeat"></div>
+                            <div class="position-absolute fs-3 text-center text-light">
+                                <strong>Lapangan</strong>
+                                <a href="/search?type=lapangan" class="btn btn-danger rounded-pill btn-sm">Lihat Semua</a>
                             </div>
                             
                         </div>
