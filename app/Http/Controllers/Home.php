@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking_date;
 use App\Models\Booklists;
+use App\Models\Fasilitas;
+use App\Models\Fasilitas_merchant;
 use App\Models\Gallery;
 use App\Models\Jenis_olahraga;
 use App\Models\Lapangan;
@@ -398,10 +400,12 @@ class Home extends Controller
         foreach($lapangan as $key=>$lap){
             $lapangan[$key]['lapangan_cover']=str_replace(' ','_',$lap['nama']);
         }
+        // $fasilitas_merchant = 
         $data = [
             'merchant'=>$merchant,
             'rating_data'=>$this->get_rating($id),
             'user'=>$user,
+            'fasilitas_merchant' => $merchant->fasilitas_merchant,
             'lapangan'=>$lapangan
         ];
         return view("beranda-merchant",$data);
@@ -750,8 +754,10 @@ class Home extends Controller
                 if(!empty($item->fasilitas_merchant)){
                     $fasilitas_merchant[$item->id] = '';
                     foreach($item->fasilitas_merchant as $merch){
-                        if($merch->fasilitas->nama){
-                            $fasilitas_merchant[$item->id] .= $merch->fasilitas->nama.', ';
+                        if($merch->fasilitas->fasilitas){
+                            $fasilitas_merchant[$item->id] .= $merch->fasilitas->fasilitas.', ';
+                            $fasilitas_merchant[$item->id] .= $merch->fasilitas->fasilitas.', ';
+                            $fasilitas_merchant[$item->id] .= $merch->fasilitas->fasilitas.', ';
                         }
                     }
                 }

@@ -151,6 +151,19 @@
                                     @enderror
                                 </div>
                             </div>
+                            <div class="mb-3 form-group">
+                                <h5>Fasilitas</h5>
+                                <div class="row">
+                                    @foreach ($fasilitas as $fasiliti)
+                                    <div class="col-6 col-lg-3 text-truncate">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input fasilitasCheck" {{isset($merchant_facilities[$fasiliti->id])?'checked':''}} value="{{$fasiliti->id}}" type="checkbox" role="switch" id="fasiliti_{{$fasiliti->id}}">
+                                            <label class="form-check-label" for="fasiliti_{{$fasiliti->id}}">{{$fasiliti->fasilitas}}</label>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
                             <div class="my-4 text-center">
                                 <button type="submit" class="btn btn-dark w-75">Simpan</button>
                             </div>
@@ -198,9 +211,88 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="fasilitasPicModal" tabindex="-1" aria-labelledby="changePicModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="fasilitasPicModalLabel">Foto Fasilitas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mx-auto rounded mb-3 changeFasilitasImagePreview" style="width: 8vw;height: 8vw;border: 1px solid black !important;"></div>
+                    <form id="fasilitasForm" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="fasilitas_id">
+                        {{-- add/remove --}}
+                        <p class="confirmingMsg text-danger">Yakin ingin menghapus fasilitas ini?</p>
+                        <input type="hidden" name="type"> 
+                        <input type="file" name="fasilitasFoto" id="changeFasilitasImage" accept="image/png,image/jpg,image/jpeg">
+                        <div class="form-floating my-3 deskripsiForm">
+                            <textarea class="form-control" name="deskripsi"
+                                style="height: 100px"></textarea>
+                            <label for="address">Deskripsi</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dark simpanFasilitas" data-bs-dismiss="modal">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         openElem.addEventListener("change", function() {
             closeElem.setAttribute('min', `${this.value}`);
+        })
+        document.querySelectorAll(`.fasilitasCheck`).forEach(element => {
+            element.addEventListener("change", function(e){
+                document.querySelector(`#fasilitasForm input[name="fasilitas_id"]`).value = this.value;
+                if(this.checked){
+                    this.checked = false;
+                    document.querySelector(`.changeFasilitasImagePreview`).style.background = `linear-gradient(rgba(0,0,0,.8),rgba(0,0,0,.8)),url('/assets/img/profilpic/default.png') center/cover no-repeat`
+                    document.querySelector(`#fasilitasForm`).reset();
+                    let modal = new bootstrap.Modal(document.querySelector(`#fasilitasPicModal`));
+                    document.querySelector(`#fasilitasForm input[name="type"]`).value = 'add';
+                    document.querySelector(`#fasilitasForm textarea[name="deskripsi"]`).value = '';
+                    document.querySelector(`.deskripsiForm`).classList.remove('d-none');
+                    document.querySelector(`#fasilitasForm textarea[name="deskripsi"]`).removeAttribute('disabled');
+                    document.querySelector(`.confirmingMsg`).classList.add('d-none');
+                    document.querySelector(`#changeFasilitasImage`).classList.remove('d-none');
+                    document.querySelector(`#changeFasilitasImage`).removeAttribute('disabled');
+                    modal.show();
+                }else{
+                    this.checked = true;
+                    let modal = new bootstrap.Modal(document.querySelector(`#fasilitasPicModal`));
+                    document.querySelector(`#fasilitasForm input[name="type"]`).value = 'remove';
+                    document.querySelector(`.confirmingMsg`).classList.remove('d-none');
+                    document.querySelector(`.deskripsiForm`).classList.add('d-none');
+                    document.querySelector(`#fasilitasForm textarea[name="deskripsi"]`).setAttribute('disabled',true);
+                    document.querySelector(`#changeFasilitasImage`).classList.add('d-none');
+                    document.querySelector(`#changeFasilitasImage`).setAttribute('disabled',true);
+                    modal.show();
+
+                }
+            })
+        });
+        document.querySelector(`.simpanFasilitas`).addEventListener('click', function(e){
+            let myData = new FormData(document.querySelector(`#fasilitasForm`));
+            fetch('/fasilitas-edit',{method:"POST",body:myData})
+            .then(ee=>ee.json())
+            .then(res=>{
+                if(res.ok){
+                    if(res.type =='add'){
+                        document.querySelector(`.fasilitasCheck[value="${res.fasilitas_id}"]`).checked = true;
+                    }
+                    if(res.type =='remove'){
+                        document.querySelector(`.fasilitasCheck[value="${res.fasilitas_id}"]`).checked = false;
+                    }
+                }
+            })
+        })
+        document.querySelector(`#changeFasilitasImage`).addEventListener('change', function(e){
+            document.querySelector(`.changeFasilitasImagePreview`).style.background = `url(${URL.createObjectURL(this.files[0])}) center/cover no-repeat`
         })
     </script>
 @endsection

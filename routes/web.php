@@ -31,6 +31,7 @@ Route::controller(Home::class)->group(function(){
     Route::get('/search', 'search_all');
 });
 Route::controller(Dashboard::class)->group(function(){
+    Route::post('/fasilitas-edit', 'fasilitas_add_remove');
     Route::get('/dashboard', 'index')->middleware('auth');
     // Route::get('/settings/{num?}', 'setting')->middleware('auth');
     Route::get('/settings/{num?}', 'setting')->middleware('auth');

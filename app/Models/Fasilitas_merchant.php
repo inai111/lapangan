@@ -9,6 +9,7 @@ class Fasilitas_merchant extends Model
 {
     use HasFactory;
     protected $table = 'fasilitas_merchant';
+    public $timestamps = false;
 
     public function fasilitas()
     {

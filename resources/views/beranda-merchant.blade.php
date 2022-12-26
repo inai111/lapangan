@@ -43,8 +43,8 @@
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="alamat-tab" data-bs-toggle="tab" data-bs-target="#alamat-tab-pane"
-                        type="button" role="tab" aria-controls="alamat-tab-pane" aria-selected="false">Lokasi
-                        Lapangan</button>
+                        type="button" role="tab" aria-controls="alamat-tab-pane" aria-selected="false">Fasilitas
+                    </button>
                 </li>
             </ul>
             <div class="tab-content" id="myTabContent">
@@ -69,7 +69,19 @@
                 </div>
                 <div class="tab-pane fade" id="alamat-tab-pane" role="tabpanel" aria-labelledby="alamat-tab"
                     tabindex="0">
-                    {{$merchant->alamat}}
+                    <div class="row my-3">
+                        @foreach ($fasilitas_merchant as $item)
+                        <div class="col-2 px-1 mb-2">
+                            <div class="card w-100 h-100">
+                                <div class="card-body text-center">
+                                    <img src="{{asset('assets/img/fasilitas foto/'.$item->foto)}}" style="width: 100%;height:8vw;object-fit:cover;object-position:center" class="img-thumbnail mb-2" alt="...">
+                                  <h5 class="card-title"><i class="fas {{$item->fasilitas->fasilitas_icon}} me-2"></i>{{$item->fasilitas->fasilitas}}</h5>
+                                  <p class="card-text">{{$item->deskripsi}}</p>
+                                </div>
+                              </div>
+                        </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>

@@ -82,7 +82,7 @@
                         <div class="col-md-8">
                             <div class="card-body">
                                 <h5 class="card-title text-light"><a class="nav-link" href="/merchant/{{$query->id}}">{{$query->nama}}</a></h5>
-                                <p class="card-text text-truncate text-light" style="width: fit-content"><i class="fas fa-restroom me-2"></i>{{!empty($fasilitas_merchant[$query->id])?$fasilitas_merchant[$query->id]:'Tidak ada Fasilitas'}}</p>
+                                <p class="card-text text-truncate w-50 text-light"><i class="fas fa-restroom me-2"></i>{{!empty($fasilitas_merchant[$query->id])?$fasilitas_merchant[$query->id]:'Tidak ada Fasilitas'}}</p>
                             </div>
                         </div>
                     </div>

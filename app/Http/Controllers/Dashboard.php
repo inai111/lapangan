@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking_date;
 use App\Models\Booklists;
+use App\Models\Fasilitas;
+use App\Models\Fasilitas_merchant;
 use App\Models\Gallery;
 use App\Models\History_Balance;
 use App\Models\Jenis_olahraga;
@@ -45,23 +47,32 @@ class Dashboard extends Controller
     }
     public function tesget()
     {
-        $merchant = new Merchant;
-        $merchant->name_merchant = "asdasd";
-        $merchant->address = "asdasd";
-        $merchant->number = "asdasd";
-        $merchant->active = "deactivated"; //default nya adalah deactived, tunggu admin menyetujui
-        $merchant->bank = "asdasd";
-        $merchant->bank_number = "asdasd";
-        return $merchant->save();
+        // $merchant = new Merchant;
+        // $merchant->name_merchant = "asdasd";
+        // $merchant->address = "asdasd";
+        // $merchant->number = "asdasd";
+        // $merchant->active = "deactivated"; //default nya adalah deactived, tunggu admin menyetujui
+        // $merchant->bank = "asdasd";
+        // $merchant->bank_number = "asdasd";
+        // return $merchant->save();
+        $fasilitas_insert = new Fasilitas_merchant();
+        $fasilitas_insert->merchants_id = 1;
+        $fasilitas_insert->fasilitas_id = 1;
+        $fasilitas_insert->foto = 'asdasdasd';
+        $fasilitas_insert->deskripsi = "zxczxczxc";
+        return $fasilitas_insert->save();
     }
     #settings/num / settings/
     public function setting($param = null)
     {
         $user = User::where('id',session('id_user'))->first();
         $merchant = $user->merchant;
+        $merchant_facilities = Fasilitas_merchant::where('merchants_id',$merchant->id)->pluck('fasilitas_id')->all();
         $data = [
             'userdata' => $user,
-            'merchant' => $merchant
+            'merchant' => $merchant,
+            'fasilitas' => Fasilitas::all(),
+            'merchant_facilities'=>$merchant_facilities
         ];
         // jika ada data merchant dan ada parameter 1 maka akan diarahkan ke halaman merchant
         if(!empty($param) && $param == 1 && !empty($merchant) && !in_array($merchant->status_merchant,['pending','rejected'])) return view('user.setting-merchant', $data);
@@ -668,5 +679,41 @@ class Dashboard extends Controller
         $history->catatan = "Booking Lapangan";
         $history->save();
         return redirect()->back();
+    }
+
+    public function fasilitas_add_remove(Request $request)
+    {
+        if ($request->fasilitasFoto) {
+            $request->fasilitasFoto->store("/img/fasilitas foto/", ['disk' => 'public']);
+        }
+        $response = [
+            'ok'=>false,
+            'message'=>'gagal',
+        ];
+
+        $merchant = Merchant::where('user_id', session('id_user'))->first();
+        $fasilitas = Fasilitas::where('id',$request->fasilitas_id)->first();
+        if(!$fasilitas) return response()->json($response);
+        if($request->type == 'add'){
+            $fasilitas_insert = new Fasilitas_merchant();
+            $fasilitas_insert->merchants_id = $merchant->id;
+            $fasilitas_insert->fasilitas_id = $request->fasilitas_id;
+            $fasilitas_insert->foto = $request->fasilitasFoto->hashName();
+            $fasilitas_insert->deskripsi = $request->deskripsi;
+            if($fasilitas_insert->save()){
+                $response['ok'] = true;
+                $response['message'] = 'berhasil';
+            }
+        }else{
+            $fasilitas_remove = Fasilitas_merchant::where('merchants_id',$merchant->id)
+            ->where('fasilitas_id',$request->fasilitas_id);
+            if($fasilitas_remove->delete()){
+                $response['ok'] = true;
+                $response['message'] = 'berhasil';
+            }
+        }
+        $response['fasilitas_id'] = $request->fasilitas_id;
+        $response['type'] = $request->type;
+        return response()->json($response);
     }
 }
