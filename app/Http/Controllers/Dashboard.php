@@ -198,6 +198,7 @@ class Dashboard extends Controller
     public function trans_lapangan()
     {
         $user = User::where('id',session('id_user'))->first();
+        if($user->role == 'merchant') return redirect('/merchant-transaction-list');
         $booklists['pending'] = Booklists::where('user_id', $user['id'])->where('status','!=','cancel')->where('status','pending')->get()->all();
         foreach($booklists['pending'] as $key => $book){
             $merchant = Merchant::where('id',$book->lapangan->merchant_id)->first();
@@ -365,6 +366,62 @@ class Dashboard extends Controller
             'merchants'=>$merchant
         ];
         return view('admin.list-merchant',$data);
+    }
+    public function merchant_transaction(Request $request)
+    {
+        $id = $request->get('id');
+        if($id){
+
+            $booklist = Booklists::where('id',$id)->first();
+            $kurangan = $booklist->total_biaya-$booklist->down_payment;
+            $kasir = $booklist->kasir?:"Belum Ada";
+            $data = [
+                'nama' => $booklist->user->nama,
+                'tanggal_bayar' => date("d-m-Y H:i",strtotime($booklist->tanggal_bayar)),
+                'tanggal' => date("d-m-Y",strtotime($booklist->booking_date[0]->tanggal)),
+                'jam' => $booklist->booking_date,
+                'status' => $booklist->status,
+                'telah_dibayar' => "Rp.".number_format($booklist->down_payment,0,',','.'),
+                'kasir' => $kasir,
+                'total' => "Rp.".number_format($booklist->total_biaya,0,',','.'),
+                'kurangan' => "Rp.".number_format($kurangan,0,',','.') ,
+            ];
+            return response()->json($data);
+        }
+        $merchant = Merchant::where('user_id',session('id_user'))->get()->first();
+        $booklists = [];
+        $merchant_id = $merchant->id;
+        $booklist = Booklists::whereHas('lapangan',function($query)use($merchant_id){
+            return $query->where('merchant_id',$merchant_id);
+        })
+        ->whereIn('status', ['on_going','complete'])->orderBy('id','desc')->get();
+        if($booklist){
+            foreach($booklist as $book){
+                if($book->user) $booklists[$book->status][] = $book;
+            }
+        }
+        # cara pertama kalau di atas ada error
+        // $booklists = [];
+        // $merchant = Merchant::where('user_id',session('id_user'))
+        // ->whereHas('lapangan',function($quer){
+        //     return $quer->whereHas('booklist',function($query){
+        //         return $query->whereIn('status', ['on_going','complete']);
+        //     });
+        // })->get()->first();
+        // if($merchant){
+        //     foreach($merchant->lapangan as $lapangan){
+        //         if($lapangan->booklist()){
+        //             foreach($lapangan->booklist as $booklist){
+        //                 if($booklist->user) $booklists[$booklist->status][] = $booklist;
+        //             }
+        //         }
+        //     }
+        // }
+        $data = [
+            'merchants'=>$merchant,
+            'booklists'=>$booklists
+        ];
+        return view('merchant.transaction-list',$data);
     }
     public function merchant_status_change(Request $request)
     {
@@ -715,5 +772,19 @@ class Dashboard extends Controller
         $response['fasilitas_id'] = $request->fasilitas_id;
         $response['type'] = $request->type;
         return response()->json($response);
+    }
+
+    public function merchant_transaction_store(Request $request)
+    {
+        $booklist = Booklists::where('id', $request->get('id'))->first();
+        if (!$booklist || !$request->post('id')) return redirect()->back()->with('failed-message', 'Gagal menyelesaikan pesanan.');
+        $validator = Validator::make($request->all(), [
+            'kasir' => 'required',
+        ]);
+        if ($validator->fails()) return redirect()->back()->with('failed-message', 'Gagal menyelesaikan pesanan, karena tidak ada nama kasir.');
+        $booklist->status = 'complete';
+        $booklist->kasir = $request->post('kasir');
+        if($booklist->save()) return redirect()->back()->with('success-message', 'Gagal menyelesaikan pesanan, karena tidak ada nama kasir.');
+        if ($validator->fails()) return redirect()->back()->with('failed-message', 'Gagal menyelesaikan pesanan, karena tidak ada nama kasir.');
     }
 }

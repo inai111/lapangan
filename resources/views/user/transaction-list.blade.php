@@ -231,6 +231,11 @@
                                                     <button data-id="{{$booklist->id}}" class="btn btn-dark ratingNow"><i class="fa fa-star me-1" style="color:gold"></i>Kasih Rating</button>
                                                     @endif
                                                 </td>
+                                                <td>
+                                                    <button data-id="{{$booklist->id}}" class="btn btn-outline-dark seeMore">
+                                                        <i class="fas fa-bars"></i>
+                                                    </button>
+                                                </td>
                                             </tr>
                                         @endforeach
                                     @else
@@ -341,6 +346,63 @@
                 <div class="modal-footer">
                         <button class="btn btn-outline-dark selesaikanTrans" data-bs-dismiss="modal" type="button">Simpan</button>
                         <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="seeMoreModal" tabindex="-1" aria-labelledby="seeMoreModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="seeMoreModalLabel">Detil Pemesanan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="messageFormSeeMore" class="w-100 badge bg-secondary text-center d-none">
+                        <i class="fa fa-spin fa-spinner me-2"></i>
+                        Memuat Informasi
+                    </div>
+                    <table class="table mt-3">
+                        <tr class="table-info">
+                            <th>Nama Pemesan</th>
+                            <td id="pemesanNama"></td>
+                        </tr>
+                        <tr class="table-info">
+                            <th>Tanggal Bayar</th>
+                            <td id="pemesanTanggalBayar"></td>
+                        </tr>
+                        <tr class="table-info">
+                            <th>Status Pemesanan</th>
+                            <td id="pemesanStatus"></td>
+                        </tr>
+                        <tr class="table-info">
+                            <th>Kasir Penanggung Jawab</th>
+                            <td id="pemesanKasir"></td>
+                        </tr>
+                        <tr class="table-info">
+                            <th>Tanggal yang di Pesan</th>
+                            <td id="pemesanTanggal"></td>
+                        </tr>
+                        <tr class="table-info">
+                            <th>Jam yang di Pesan</th>
+                            <td id="pemesanJam" class="d-flex gap-1 flex-wrap"></td>
+                        </tr>
+                        <tr class="table-success">
+                            <th>Telah di Bayar</th>
+                            <td id="pemesanDP"></td>
+                        </tr>
+                        <tr class="table-warning">
+                            <th>Kurangan Bayar</th>
+                            <td id="pemesanKuranganBayar"></td>
+                        </tr>
+                        <tr class="table-danger">
+                            <th>Total Bayar</th>
+                            <td id="pemesanTotalBayar"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -547,6 +609,43 @@
         })
         document.querySelector(`.selesaikanTrans`).addEventListener('click',function(e){
             document.querySelector(`#formCompleteBook`).submit();
+        })
+        function updateTable(data=[]){
+            let toBtn = (datanya,warnanya)=>`<button class="btn btn-${warnanya} btn-sm">${datanya}</button>`;
+            let btnJamElem = '';
+            if(data.jam){
+                data.jam.forEach(jam=>btnJamElem+=toBtn(jam.jam,'success'));
+            }
+            let warnaStatus = data.status == 'complete'?'success':'warning';
+            let status = 'On Going';
+            if(data.status == 'complete'){
+                status ='Completed';
+            }
+            document.querySelector(`#pemesanNama`).innerText = data.nama?data.nama:'';
+            document.querySelector(`#pemesanTanggalBayar`).innerText = data.tanggal_bayar?data.tanggal_bayar:'';
+            document.querySelector(`#pemesanStatus`).innerHTML = data.status?toBtn(status,warnaStatus):'';
+            document.querySelector(`#pemesanKasir`).innerText = data.kasir||'';
+            document.querySelector(`#pemesanTanggal`).innerText = data.tanggal||'';
+            document.querySelector(`#pemesanJam`).innerHTML = data.jam?btnJamElem:'';
+            document.querySelector(`#pemesanDP`).innerText = data.telah_dibayar||'';
+            document.querySelector(`#pemesanKuranganBayar`).innerText = data.kurangan||'';
+            document.querySelector(`#pemesanTotalBayar`).innerText = data.total||'';
+        }
+        document.querySelectorAll(`.seeMore`).forEach(elem=>{
+            elem.addEventListener("click",function(e){
+                document.querySelector(`#messageFormSeeMore`).classList.toggle('d-none');
+                let elemModal = document.querySelector(`#seeMoreModal`);
+                let modal = new bootstrap.Modal(elemModal);
+                updateTable();
+                modal.show();
+                fetch(`/merchant-transaction-list?id=${this.dataset.id}`)
+                .then(ee=>ee.json())
+                .then(res=>{
+                    document.querySelector(`#messageFormSeeMore`).classList.toggle('d-none');
+                    
+                    updateTable(res);
+                })
+            });
         })
 
     </script>

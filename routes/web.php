@@ -38,6 +38,8 @@ Route::controller(Dashboard::class)->group(function(){
     Route::post('/settings/{num?}', 'settingStore')->middleware('auth');
     Route::get('/merchant-regist', 'merchant_register')->middleware('auth');
     Route::post('/merchant-regist', 'merchant_register_store')->middleware('auth');
+    Route::get('/merchant-transaction-list', 'merchant_transaction');
+    Route::post('/merchant-transaction-list', 'merchant_transaction_store');
     Route::get('/user-booklists', 'book_lapangan');
     Route::get('/merchant-lapangan', 'lapangan');
     Route::get('/merchant-lapangan/{num}', 'lapangan_ini');

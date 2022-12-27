@@ -55,7 +55,7 @@
                                             @endif
                                         </div>
                                         <div class="card-footer d-flex align-items-center justify-content-between">
-                                            <a class="small text-white stretched-link" href="/user-transactions">View
+                                            <a class="small text-white stretched-link" href="/merchant-transaction-list">View
                                                 Details</a>
                                             <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                         </div>
