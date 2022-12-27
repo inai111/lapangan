@@ -338,6 +338,43 @@ class Dashboard extends Controller
         if ($gallery)Gallery::insert($gallery);
         return redirect()->to('/merchant-lapangan');
     }
+    public function edit_lapangan_store(Request $request)
+    {
+        $id = $request->post('id');
+        if(session('role')!='merchant') return redirect()->back()->with("failed-message","Anda bukan seorang merchant");
+        // file_put_contents('/assets/img/asdasd.png',$request->cover_lapangan);
+        $validator = Validator::make($request->all(), [
+            'harga' => 'required',
+        ]);
+        if ($validator->fails()) return redirect()->back()->with("failed-message","Gagal menyimpan data!");
+        // upload cover lapangan
+        $lapangan = Lapangan::where('id',$id)->first();
+        if ($request->cover_lapangan) {
+            $nama_dir = str_replace(' ', '_', $lapangan->nama);
+            $request->cover_lapangan->store("/img/$nama_dir/cover/", ['disk' => 'public']);
+            $lapangan->cover = $request->cover_lapangan->hashName();
+        }
+        // $lapangan->jenis_olahraga_id = $request->type_lapangan;
+        $lapangan->harga = $request->harga;
+        $lapangan->deskripsi = $request->deskripsi;
+        $lapangan->status = $request->status;
+        if(!$lapangan->save()){
+            return redirect()->back()->with("failed-message","Anda bukan seorang merchant");
+        }
+        // $gallery = [];
+        // if ($request->gallery) {
+        //     foreach ($request->gallery as $i => $file) {
+        //         $file->store("/img/$nama_dir/", ['disk' => 'public']);
+        //         $gallery[] = [
+        //             "lapangan_id" => $lapangan->id,
+        //             "photo" => $file->hashName(),
+        //             "created_at" => date("Y-m-d H:i:s"),
+        //         ];
+        //     }
+        // }
+        // if ($gallery)Gallery::insert($gallery);
+        return redirect()->back()->with('success-message','Data berhasil disimpan!');
+    }
     public function lapangan_store(Request $request)
     {
         $jenis_olahraga = Jenis_olahraga::all();

@@ -46,6 +46,7 @@ Route::controller(Dashboard::class)->group(function(){
     Route::get('/add-transaction/{num}', 'add_transaction')->middleware('auth');
     Route::get('/add-lapangan', 'lapangan_store');
     Route::post('/add-lapangan', 'add_lapangan_store');
+    Route::post('/edit-lapangan', 'edit_lapangan_store');
     Route::post('/admin-merchant-status', 'merchant_status_change');
     Route::post('/delete-trans', 'deleting_transaction');
     Route::post('/book-date', 'booking_date');
