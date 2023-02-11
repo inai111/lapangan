@@ -528,61 +528,94 @@ class Home extends Controller
     }
 
 
-    // function untuk item colaborative filtering 
-    // function ini untuk mencari user dari semua user yang mirip dengan user A
-    public function similarityBooklist($booklist_users=[], $booklist_user_lains = [])
+    public function similarityDistance($preferences=[], $person1, $person2)
     {
         $similar = array();
         $sum = 0;
-
-        foreach($booklist_users as $key=>$val)
+        foreach($preferences[$person1] as $key=>$value)
         {
-            if(array_key_exists($key, $booklist_user_lains)) $similar[$key] = 1;
+            if(array_key_exists($key, $preferences[$person2]))
+            $similar[$key] = 1;
         }
-        if(count($similar) == 0) return 0;
+        // dari sini memilih referensi item nya, kalau
+        // si user tidak pernah memesan item A maka tidak di
+        // gunakan rekomendasi darinya
+        if(count($similar) == 0)
+            return 0;
         
-        foreach($booklist_users as $key=>$val)
+        foreach($preferences[$person1] as $key=>$value)
         {
-            if(array_key_exists($key, $booklist_user_lains)) $sum = $sum + pow($val - $booklist_user_lains[$key], 2);
+            if(array_key_exists($key, $preferences[$person2]))
+                $sum = $sum + pow($value - $preferences[$person2][$key], 2);
         }
-        return  1/(1 + sqrt($sum));     
+        
+        return  1/(1 + sqrt($sum)); 
     }
+    // function untuk item colaborative filtering 
+    // function ini untuk mencari user dari semua user yang mirip dengan user A
+    // public function similarityBooklist($booklist_users=[], $booklist_user_lains = [])
+    // {
+    //     $similar = array();
+    //     $sum = 0;
+
+    //     foreach($booklist_users as $key=>$val)
+    //     {
+    //         if(array_key_exists($key, $booklist_user_lains)) $similar[$key] = 1;
+    //     }
+    //     if(count($similar) == 0) return 0;
+        
+    //     foreach($booklist_users as $key=>$val)
+    //     {
+    //         if(array_key_exists($key, $booklist_user_lains)) $sum = $sum + pow($val - $booklist_user_lains[$key], 2);
+    //     }
+    //     return  1/(1 + sqrt($sum));     
+    // }
     
+
     public function get_recomendation()
     {
-        $total = [];
-        $simSums = [];
-        $ranks = [];
+        $total = array();
+        $simSums = array();
+        $ranks = array();
         $sim = 0;
-        // referensi yang rating nya != null dan status telah complete
-        $booklist = Booklists::select('user_id')->where('rating','!=',null)->where('user_id','!=',session('id_user'))->groupby('user_id')->get();
-        foreach($booklist->all() as $values)
+
+        // data lapangan yang sudah di pesan dan di rating oleh semua user
+        // isinya
+        /*
+        [
+            user_id1 = [id_lapangan1, id_lapangan2, ...], 
+            user_id2 = [id_lapangan1, id_lapangan2, ...], 
+        ]
+         */
+        $preferences_db = Booklists::select('user_id','lapangan_id', DB::raw("sum(rating)/count(lapangan_id) as rating"))->where('rating','!=','')->groupby('lapangan_id','user_id')->get()->all();
+        $preferences = [];
+        /*
+            person digunakan untuk menyimpan 1 array yang berisi lapangan yang pernah
+            di rating untuk di jadikan refersnsi item based nya
+        */
+        $person = session()->get('id_user');
+        if(count($preferences_db) != 0){
+            foreach( $preferences_db as $item){
+                $preferences[$item['user_id']][$item['lapangan_id']] = $item['rating'];
+            }
+        }
+        foreach($preferences as $otherPerson=>$values)
         {
-            $booklist_users = [];
-            $booklist_user = Booklists::select('lapangan_id',DB::raw("sum(rating)/count(lapangan_id) as rating"))->where('user_id',session('id_user'))->groupby('lapangan_id')->get();
-            foreach($booklist_user as $key=>$val)
+            if($otherPerson != $person)
             {
-                $booklist_users [$val->lapangan_id] = $val->rating;
+                $sim = $this->similarityDistance($preferences, $person, $otherPerson);
             }
-            // booklist milik user lain
-            $booklist_user_lains = [];
-            $booklist_user_lain = Booklists::select('lapangan_id',DB::raw("sum(rating)/count(lapangan_id) as rating"))->where('user_id',$values->user_id)->groupby('lapangan_id')->get();
-            foreach($booklist_user_lain->all() as $key=>$val)
-            {
-                $booklist_user_lains [$val->lapangan_id] = $val->rating;
-            }
-            $sim = $this->similarityBooklist($booklist_users, $booklist_user_lains);
-            // kurang bagian bawah
+            
             if($sim > 0)
             {
-                foreach($booklist_user_lains as $key=>$value)
+                foreach($preferences[$otherPerson] as $key=>$value)
                 {
-                    if(!array_key_exists($key, $booklist_users))
+                    if(!array_key_exists($key, $preferences[$person]))
                     {
                         if(!array_key_exists($key, $total)) {
                             $total[$key] = 0;
                         }
-                        $total[$key] += $booklist_user_lains[$key] * $sim;
+                        $total[$key] += $preferences[$otherPerson][$key] * $sim;
                         
                         if(!array_key_exists($key, $simSums)) {
                             $simSums[$key] = 0;
@@ -593,16 +626,72 @@ class Home extends Controller
                 
             }
         }
-
+        
         foreach($total as $key=>$value)
         {
-            $ranks[$key] = number_format((($value / $simSums[$key])/5)*100,2);
+            // $ranks[$key] = $value / $simSums[$key];
+            $ranks[$key] = number_format((($value / $simSums[$key])/5)*100,2);   
         }
         arsort($ranks);
-        // array_multisort($ranks, SORT_DESC);
-        return $ranks;
         
+        return $ranks;
     }
+
+    // public function get_recomendation()
+    // {
+    //     $total = [];
+    //     $simSums = [];
+    //     $ranks = [];
+    //     $sim = 0;
+    //     // referensi yang rating nya != null dan status telah complete
+    //     $booklist = Booklists::select('user_id')->where('rating','!=',null)->where('user_id','!=',session('id_user'))->groupby('user_id')->get();
+    //     foreach($booklist->all() as $values)
+    //     {
+    //         $booklist_users = [];
+    //         $booklist_user = Booklists::select('lapangan_id',DB::raw("sum(rating)/count(lapangan_id) as rating"))->where('user_id',session('id_user'))->groupby('lapangan_id')->get();
+    //         foreach($booklist_user as $key=>$val)
+    //         {
+    //             $booklist_users [$val->lapangan_id] = $val->rating;
+    //         }
+    //         // booklist milik user lain
+    //         $booklist_user_lains = [];
+    //         $booklist_user_lain = Booklists::select('lapangan_id',DB::raw("sum(rating)/count(lapangan_id) as rating"))->where('user_id',$values->user_id)->groupby('lapangan_id')->get();
+    //         foreach($booklist_user_lain->all() as $key=>$val)
+    //         {
+    //             $booklist_user_lains [$val->lapangan_id] = $val->rating;
+    //         }
+    //         $sim = $this->similarityBooklist($booklist_users, $booklist_user_lains);
+    //         // kurang bagian bawah
+    //         if($sim > 0)
+    //         {
+    //             foreach($booklist_user_lains as $key=>$value)
+    //             {
+    //                 if(!array_key_exists($key, $booklist_users))
+    //                 {
+    //                     if(!array_key_exists($key, $total)) {
+    //                         $total[$key] = 0;
+    //                     }
+    //                     $total[$key] += $booklist_user_lains[$key] * $sim;
+                        
+    //                     if(!array_key_exists($key, $simSums)) {
+    //                         $simSums[$key] = 0;
+    //                     }
+    //                     $simSums[$key] += $sim;
+    //                 }
+    //             }
+                
+    //         }
+    //     }
+
+    //     foreach($total as $key=>$value)
+    //     {
+    //         $ranks[$key] = number_format((($value / $simSums[$key])/5)*100,2);
+    //     }
+    //     arsort($ranks);
+    //     // array_multisort($ranks, SORT_DESC);
+    //     return $ranks;
+        
+    // }
 
     public function get_rating($id=null){
         $rate = [];
