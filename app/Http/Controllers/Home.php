@@ -75,16 +75,18 @@ class Home extends Controller
         $lapangan_rekomendasi1 = [];
         if(session('id_user')){
             $rekomendasi = $this->get_recomendation();
-            $lapangan_rekomendasi = Lapangan::whereHas('merchant',function($query){
-                return $query->where('status_merchant', 'active');
-            });
-            $lapangan_rekomendasi = $lapangan_rekomendasi->whereIn('id',array_keys($rekomendasi));
-            $lapangan_rekomendasi1 = [];
-            foreach($lapangan_rekomendasi->get()->all() as $lap){
-                $lapangan_rekomendasi1[$lap->id] = $lap;
-            }
+            if($rekomendasi){
+                $lapangan_rekomendasi = Lapangan::whereHas('merchant',function($query){
+                    return $query->where('status_merchant', 'active');
+                });
+                $lapangan_rekomendasi = $lapangan_rekomendasi->whereIn('id',array_keys($rekomendasi));
+                $lapangan_rekomendasi1 = [];
+                foreach($lapangan_rekomendasi->get()->all() as $lap){
+                    $lapangan_rekomendasi1[$lap->id] = $lap;
+                }
 
-            $lapangan->whereNotIn('id',array_keys($rekomendasi));
+                $lapangan->whereNotIn('id',array_keys($rekomendasi));
+            }
         }
 
         # ambil data merchant
@@ -587,6 +589,8 @@ class Home extends Controller
             user_id2 = [id_lapangan1, id_lapangan2, ...], 
         ]
          */
+        $cek_booklist = Booklists::where('user_id', session()->get('id_user'))->where('rating','!=','')->get()->all();
+        if(empty($cek_booklist)) return false;
         $preferences_db = Booklists::select('user_id','lapangan_id', DB::raw("sum(rating)/count(lapangan_id) as rating"))->where('rating','!=','')->groupby('lapangan_id','user_id')->get()->all();
         $preferences = [];
         /*
