@@ -1,23 +1,28 @@
-document.querySelector(`form .profilpic`).addEventListener('click', function (e) {
-    e.preventDefault();
-    let changeModal = new bootstrap.Modal(document.querySelector(`#changePicModal`));
-    changeModal.show();
-})
-document.querySelectorAll('#changePicModal .profilpic').forEach(elem=>{
-    elem.addEventListener('click',function(e){
-        if(!elem.classList.contains('choosen')){
-            document.querySelector('#changePicModal .profilpic.choosen').classList.remove('choosen');
-            elem.classList.add('choosen')
-        }
+if(document.querySelector(`form .profilpic`)){
+    document.querySelector(`form .profilpic`).addEventListener('click', function (e) {
+        e.preventDefault();
+        let changeModal = new bootstrap.Modal(document.querySelector(`#changePicModal`));
+        changeModal.show();
     })
-})
-document.querySelector('#changePicModal button#changeImage').addEventListener('click',function(e){
-    document.querySelector(`form .profilpic`).style.backgroundImage = document.querySelector('#changePicModal .profilpic.choosen').style.backgroundImage;
-})
+    document.querySelectorAll('#changePicModal .profilpic').forEach(elem=>{
+        elem.addEventListener('click',function(e){
+            if(!elem.classList.contains('choosen')){
+                document.querySelector('#changePicModal .profilpic.choosen').classList.remove('choosen');
+                elem.classList.add('choosen')
+            }
+        })
+    })
+    document.querySelector('#changePicModal button#changeImage').addEventListener('click',function(e){
+        document.querySelector(`form .profilpic`).style.backgroundImage = document.querySelector('#changePicModal .profilpic.choosen').style.backgroundImage;
+    })
+}
 document.querySelector(`form`).addEventListener('submit',function(e){
     e.preventDefault();
     let myData = new FormData(e.target);
-    myData.append('photo',document.querySelector('#changePicModal .profilpic.choosen').dataset.image);
+    if(document.querySelector(`form .profilpic`)){
+        myData.append('photo',document.querySelector('#changePicModal .profilpic.choosen').dataset.image);
+    }
+
     fetch('/settings',{method:"POST",body:myData})
     .then(ee=>ee.json())
     .then(res=>{

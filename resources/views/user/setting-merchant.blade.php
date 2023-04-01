@@ -157,7 +157,7 @@
                                     @foreach ($fasilitas as $fasiliti)
                                     <div class="col-6 col-lg-3 text-truncate">
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input fasilitasCheck" {{isset($merchant_facilities[$fasiliti->id])?'checked':''}} value="{{$fasiliti->id}}" type="checkbox" role="switch" id="fasiliti_{{$fasiliti->id}}">
+                                            <input class="form-check-input fasilitasCheck" {{in_array($fasiliti->id,$merchant_facilities)?'checked':''}} value="{{$fasiliti->id}}" type="checkbox" role="switch" id="fasiliti_{{$fasiliti->id}}">
                                             <label class="form-check-label" for="fasiliti_{{$fasiliti->id}}">{{$fasiliti->fasilitas}}</label>
                                         </div>
                                     </div>
