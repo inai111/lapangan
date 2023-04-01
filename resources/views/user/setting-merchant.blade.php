@@ -298,6 +298,6 @@
 @endsection
 @section('js-tambahan')
     <script src="{{ asset('assets/js/scripts.js') }}"></script>
-    <script src="{{ asset('assets/js/setting.js') }}"></script>
+    {{-- <script src="{{ asset('assets/js/setting.js') }}"></script> --}}
 
 @endsection

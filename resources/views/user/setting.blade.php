@@ -44,7 +44,7 @@
                             </div>
                         @endif
                         <div class="mx-auto profilpic"
-                            style="background-image:url({{ asset('assets/img/profilpic/default.png') }})"></div>
+                            style="background-image:url({{ asset("assets/img/profilpic/{$userdata->foto}") }})"></div>
                         <div class="text-center"><strong>Profil Picture</strong></div>
                         <div class="my-3 mb-5">
                             <div class="form-floating mb-3">
