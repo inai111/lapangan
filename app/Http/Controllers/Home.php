@@ -700,16 +700,15 @@ class Home extends Controller
     public function get_rating($id=null){
         $rate = [];
         // $lapangan=Lapangan::
-        $lapangan = Lapangan::whereHas('merchant',function($query){
-            return $query->where('status_merchant', 'active');
-        });
-        if(!empty($id)){
-            $lapangan = $lapangan->where('merchant_id', $id);
-        }
-        // foreach($lapangan as $key=>$item){
-        $lapangan = $lapangan->whereHas('booklist',function($query){
-            return $query->where('rating', '!=',null);
-        })->get();
+        $lapangan = Lapangan::whereHas('merchant',function($query) use ($id) {
+            if(!empty($id)) $query->where('merchant_id', $id);
+            $query->where('status_merchant', 'active');
+        })->whereHas('booklist',function($query){
+            $query->whereNotNull('rating');
+        })
+        ->with(['booklist' => function ($query) {
+            $query->whereNotNull('rating');
+        }])->get();
         $rating_merchant = 0;
         $jumlah_booklist = 0;
         foreach($lapangan as $item){
