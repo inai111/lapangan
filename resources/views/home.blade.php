@@ -126,7 +126,7 @@
                 <div class="row">
                     <div class="col-2 d-none d-lg-block">
                         <div class="card h-100 justify-content-center align-items-center">
-                            <div class="w-100" style="height: 15vw;background:linear-gradient(rgba(220,53,69,.9),rgba(220,53,69,.9)),url({{asset("/assets/img/lapangan/cover/default.png")}}) center/cover no-repeat"></div>
+                            <div class="w-100" style="height: 15vw;background:linear-gradient(rgba(220,53,69,.9),rgba(220,53,69,.9)),url({{asset("/assets/img/lapangan/cover/default.png")}}) center/contain no-repeat"></div>
                             <div class="position-absolute fs-3 text-center text-light">
                                 <strong>MERCHANT</strong>
                                 <a href="/search?type=merchant" class="btn btn-danger rounded-pill btn-sm">Lihat Semua</a>

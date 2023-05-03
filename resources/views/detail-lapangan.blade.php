@@ -111,7 +111,7 @@
                                                     <div class="w-100" style="font-size:.8em">
                                                         <div class="row">
                                                             <div class="d-flex col-md-6 starRating">
-                                                                @for ($i = 1; $i < 5; $i++)
+                                                                @for ($i = 1; $i <= 5; $i++)
                                                                     @if ($i <= $item->rating)
                                                                     <i class="fa fa-star text-warning"></i>
                                                                     @else   

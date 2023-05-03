@@ -690,7 +690,7 @@ class Dashboard extends Controller
         $user_id = session('id_user');
         $booklist = Booklists::where('id',$request->id)->get()->first();
         if($booklist->status != 'complete') return redirect()->back()->with("failed-message","Rating kamu gagal kami simpan!");
-        $booklist->rating = $request->rating;
+        $booklist->rating = $request->rating+1;
         $booklist->review = $request->review;
         if(!$booklist->save()) return redirect()->back()->with("failed-message","Rating kamu gagal kami simpan!");
         return redirect()->back()->with("success-message","Rating kamu berhasil kami simpan!");
