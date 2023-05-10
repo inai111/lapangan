@@ -534,6 +534,7 @@ class Home extends Controller
     {
         $similar = array();
         $sum = 0;
+        // [lapangan_1]=1
         foreach($preferences[$person1] as $key=>$value)
         {
             if(array_key_exists($key, $preferences[$person2]))
@@ -547,8 +548,9 @@ class Home extends Controller
         
         foreach($preferences[$person1] as $key=>$value)
         {
-            if(array_key_exists($key, $preferences[$person2]))
-                $sum = $sum + pow($value - $preferences[$person2][$key], 2);
+            if(array_key_exists($key, $preferences[$person2])){
+                $sum = $sum + pow(($value - $preferences[$person2][$key]), 2);
+            }
         }
         
         return  1/(1 + sqrt($sum)); 
@@ -603,6 +605,15 @@ class Home extends Controller
                 $preferences[$item['user_id']][$item['lapangan_id']] = $item['rating'];
             }
         }
+        // [user_b]
+        // [user_a]
+        // [lapanga_1] key 
+        // [3] value 
+        // [lapanga_1]=5
+        // [user_c][lapanga_1]=3
+        // [user_d][lapanga_1]=3
+        // [user_a][lapanga_2]=3
+        // [user_a][lapanga_3]=3
         foreach($preferences as $otherPerson=>$values)
         {
             if($otherPerson != $person)
@@ -614,14 +625,32 @@ class Home extends Controller
             {
                 foreach($preferences[$otherPerson] as $key=>$value)
                 {
+                    /**
+                     * isi dari total per foreach
+                     * [
+                     *  lapangan_id = rating
+                     *  lapangan_1 = 3
+                     *  lapangan_2 = 3
+                     *  lapangan_3 = 3
+                     * ]
+                     * isi dari simSums per foreach
+                     * [
+                     *  lapangan_id = similarityDistance
+                     *  lapangan_1=1
+                     *  lapangan_2=1
+                     *  lapangan_3=1
+                     * ]
+                     */
                     if(!array_key_exists($key, $preferences[$person]))
                     {
                         if(!array_key_exists($key, $total)) {
-                            $total[$key] = 0;
+                            // cuman inisial index agar tidak error saat di panggil
+                            $total[$key] = 0; 
                         }
                         $total[$key] += $preferences[$otherPerson][$key] * $sim;
                         
                         if(!array_key_exists($key, $simSums)) {
+                            // cuman inisial index agar tidak error saat di panggil
                             $simSums[$key] = 0;
                         }
                         $simSums[$key] += $sim;
@@ -630,11 +659,11 @@ class Home extends Controller
                 
             }
         }
-        
+
         foreach($total as $key=>$value)
         {
             // $ranks[$key] = $value / $simSums[$key];
-            $ranks[$key] = number_format((($value / $simSums[$key])/5)*100,2);   
+            $ranks[$key] = number_format((($value / $simSums[$key]) /5)*100,2);   
         }
         arsort($ranks);
         
