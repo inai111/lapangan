@@ -593,7 +593,30 @@ class Home extends Controller
          */
         $cek_booklist = Booklists::where('user_id', session()->get('id_user'))->where('rating','!=','')->get()->all();
         if(empty($cek_booklist)) return false;
-        $preferences_db = Booklists::select('user_id','lapangan_id', DB::raw("sum(rating)/count(lapangan_id) as rating"))->where('rating','!=','')->groupby('lapangan_id','user_id')->get()->all();
+        /**
+         * mendapatkan jenis olahraga id yang user pernah berikan rating
+         */
+        $jenis_lapangan = [];
+        foreach ($cek_booklist as $item) {
+            if(!in_array($item,$jenis_lapangan)) $jenis_lapangan[] = $item->lapangan['jenis_olahraga_id'];
+        }
+
+        $preferences_db = Booklists::select('user_id','lapangan_id', DB::raw("sum(rating)/count(lapangan_id) as rating"))->where('rating','!=','')->groupby('lapangan_id','user_id')->whereHas('lapangan',function($query)use($jenis_lapangan){
+            return $query->whereIn('jenis_olahraga_id', $jenis_lapangan);
+        })->get()->all();
+
+        /**
+         * untuk ngecek apakah references nya jenis lapangan id nya sesuai yang pernah
+         * dirating oleh user
+         */
+        // //---------------
+        // $lapangan = [];
+        // foreach ($preferences_db as $item){
+        //     $lapangan [] = $item->lapangan['jenis_olahraga_id'];
+        // }
+        // dd($lapangan);
+        // //---------------
+
         $preferences = [];
         /*
             person digunakan untuk menyimpan 1 array yang berisi lapangan yang pernah
