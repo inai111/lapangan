@@ -1,0 +1,29 @@
+services:
+  frank:
+    build:
+      context: /
+      dockerfile: franken.dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    tty: true
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - D:/mysql/data:/var/lib/mysql:w
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PMA_HOSTS=mysql
+    depends_on:
+      - mysql
+    

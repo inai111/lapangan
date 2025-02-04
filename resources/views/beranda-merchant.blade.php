@@ -26,7 +26,7 @@
                 </div>
                 <div>
                     <span class="text-muted me-2">Total Lapangan ({{ count($lapangan) }})</span>
-                    <span class="text-muted me-2">{{$rating_data['rating_merchant']}} <i class="fa fa-star" style="color: gold"></i> ({{$rating_data['jumlah_booklist_merchant']}})</span>
+                    <span class="text-muted me-2">{{$rating_data['rating_merchant']??0}} <i class="fa fa-star" style="color: gold"></i> ({{$rating_data['jumlah_booklist_merchant']??0}})</span>
                 </div>
                 <div class="text-muted me-2">Jam Buka {{ $merchant->buka . ' - ' . $merchant->tutup }}</div>
                 <div><i class="fa fa-location-dot"></i>
