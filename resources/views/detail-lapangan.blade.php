@@ -1,9 +1,3 @@
-@php
-// foreach ($booklist_review as $key => $value) {
-//     # code...
-//     $value->user->foto;
-// }
-@endphp
 @extends('layouts.main')
 
 @section('navbar')

@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class Home extends Controller
 {
@@ -108,7 +109,7 @@ class Home extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(),[
-            'username'=> 'required|alpha_dash',
+            'username'=> 'required|regex:/^\S*$/u',
             'password'=> 'required',
         ]);
         $response = [
@@ -268,6 +269,11 @@ class Home extends Controller
             if($rating && $jumlah) $rating = number_format(round($rating/$jumlah),0);
         }
         $nama_lapangan = str_replace(' ','_',$lapangan->nama);
+
+        $urlCoverLapangan = "/assets/img/{$nama_lapangan}/cover/{$lapangan->cover}";
+        if(!file_exists($urlCoverLapangan)){
+            $urlCoverLapangan = "/assets/img/lapangan/cover/{$lapangan->cover}";
+        }
         $objMsg = [
             'profilePic'=>$merchant->user->foto,
             'merchantName'=>$merchant->nama,
@@ -276,12 +282,12 @@ class Home extends Controller
             'userId'=>$merchant->user_id,
             'namaLapangan'=>ucwords(strtolower($lapangan->nama)),
             'hargaLapangan'=>"Rp. {$lapangan->harga} /Jam",
-            'urlCover'=>"/assets/img/{$nama_lapangan}/cover/{$lapangan->cover}",
+            'urlCover'=>$urlCoverLapangan,
         ];
         $data = [
             'lapangan'=>$lapangan,
             'nama_lapangan_dir'=>str_replace(' ','_',$lapangan['nama']),
-            'urlCover'=>"/assets/img/{$nama_lapangan}/cover/{$lapangan->cover}",
+            'urlCover'=>$urlCoverLapangan,
             'galeries'=>$lapangan->galleries,
             'merchant'=>$merchant,
             'rating'=>$rating,

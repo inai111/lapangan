@@ -4,6 +4,8 @@
 /public/assets
 /storage/*.key
 /vendor
+.env
+/TA - 2022
 .env.backup
 .phpunit.result.cache
 docker-compose.override.yml

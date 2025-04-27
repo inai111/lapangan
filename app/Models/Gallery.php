@@ -9,6 +9,7 @@ class Gallery extends Model
 {
     use HasFactory;
     protected $table = 'galleries';
+    protected $fillable = ['photo'];
 
     public function lapangan()
     {

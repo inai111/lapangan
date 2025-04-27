@@ -9,7 +9,7 @@
 @section('content')
     <div class="container bg-light my-4">
         <h4 class="display-4">Pencarian</h4>
-        <form method="get" class="mb-3">
+        {{-- <form method="get" class="mb-3">
             <div class="border d-flex align-items-center shadow-md">
                 <div class="d-none d-lg-block d-md-block px-2 border-end">
                     Pencarian
@@ -30,7 +30,7 @@
                     @endforeach
                 </select>
             </div>
-        </form>
+        </form> --}}
         <small class="text-muted">Menampilkan data: <strong>{{count($queries)>10?10:count($queries)}}</strong> dari <strong>{{count($queries)}}</strong> data{{in_array(Request::get('type'),['merchant','lapangan'])?' '.Request::get('type'):''}}.</small>
         <div class="row mt-3">
             @foreach (array_slice($queries,0,10) as $key=>$query)
